@@ -1,6 +1,6 @@
 # Architecture
 
-Status: entry, lobby, and complete-round rules implemented and verified in local Workers emulation October 4, 2026. No Cloudflare service or deployment has been created. Automatic reconnect, host transfer, expiry, rematch, and abandonment remain selected future architecture. [PROTOCOL.md](PROTOCOL.md) records actual current contracts, input/rate limits, the atomic boundary, and extension responsibilities.
+Status: entry, lobby, complete-round rules, automatic reconnect, host transfer, and expiry are implemented and verified in local Workers emulation. No Cloudflare service or deployment has been created. Rematch, abandonment, and deployment remain deferred. [PROTOCOL.md](PROTOCOL.md) records actual current contracts, input/rate limits, the atomic boundary, and extension responsibilities.
 
 ## Selected stack
 
