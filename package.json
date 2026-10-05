@@ -8,7 +8,8 @@
     "build": "vp build",
     "check": "vp check",
     "types": "wrangler types",
-    "test:runtime": "node scripts/verify-runtime.mjs"
+    "test:runtime": "node scripts/verify-runtime.mjs",
+    "test:game": "node scripts/verify-game.mjs"
   },
   "dependencies": {
     "react": "19.3.0",

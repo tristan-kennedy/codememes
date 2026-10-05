@@ -1,6 +1,6 @@
 # Room protocol and extension contracts
 
-Implemented foundation for issue #1. [src/shared/protocol.ts](../src/shared/protocol.ts) contains only browser-safe commands and views. [worker/state.ts](../worker/state.ts) owns internal records and transitions; browser code must never import it or another internal room/game module.
+Implemented room foundation and complete-round contracts for issues #1–2. [src/shared/protocol.ts](../src/shared/protocol.ts) contains only browser-safe commands and views. [worker/state.ts](../worker/state.ts) owns internal records, parsing, and the atomic boundary; [worker/game.ts](../worker/game.ts) owns game transitions and key projection. Browser code must never import internal room/game/word modules.
 
 ## Identity and routes
 
@@ -23,7 +23,7 @@ Protocol version is `1`. Every server envelope includes `version`. A full succes
 
 An authenticated current connection receives the latest allowlisted view on rejected commands when storage is readable. Unauthorized or superseded connections receive no view. The requester gets its `requestId` on successful acknowledgement/error; other clients get a snapshot without that acknowledgement. A request ID is correlation, not replay authorization. Repeating an accepted assignment at its old revision is stale.
 
-The current command is exactly:
+Every command has exactly `version`, `type`, `requestId`, `revision`, and `roundId`, plus the fields below. For example, assignment is:
 
 ```json
 {
@@ -38,15 +38,29 @@ The current command is exactly:
 }
 ```
 
-`team` is `red`, `blue`, or `null`; `role` is `operative` or `spymaster`. Request/seat IDs are bounded to 64 ASCII word/hyphen characters. Exact field allowlisting rejects extra flags. Commands require a safe nonnegative integer revision and the room's current round ID. The lobby's round ID is `null`. Future rounds use a fresh opaque ID for each round; it changes on rematch and prevents prior-round actions from applying to another round. Revision increases monotonically for durable changes within the room, including socket takeover; it never resets for a round. Presence-only close broadcasts can retain the same revision.
+| Type       | Additional fields        | Authoritative permission                                            |
+| ---------- | ------------------------ | ------------------------------------------------------------------- |
+| `assign`   | `seatId`, `team`, `role` | Lobby: own seat or host arranging others.                           |
+| `start`    | None                     | Lobby: authenticated host and ready roster.                         |
+| `clue`     | `word`, `number`         | Playing: active team's spymaster, clue stage.                       |
+| `reveal`   | `index`                  | Playing: active team's operative, guessing stage.                   |
+| `end_turn` | None                     | Playing: active team's operative after at least one accepted guess. |
 
-Phase vocabulary is `lobby | playing | ended`; only `lobby` is implemented. The current server state narrows to lobby/null until game work extends it. Future commands need their own explicit parsing, phase/round/role/turn checks and projections. Keep those checks inside the authoritative transition; do not add a client-side role toggle.
+`team` is `red`, `blue`, or `null`; assignment `role` is `operative` or `spymaster`. Request/seat/round IDs are bounded to 64 ASCII word/hyphen characters. Exact field allowlisting rejects extra flags. Commands require a safe nonnegative integer revision and the room's current round ID. The lobby's round ID is `null`; starting creates a fresh UUID. Future rematches must replace that ID to reject prior-round actions. Revision increases monotonically for durable changes within the room, including joins/socket takeover; it never resets for a round. Presence-only close broadcasts can retain the same revision.
+
+All three phases `lobby | playing | ended` are implemented. A start validates exactly one spymaster and at least one operative per team, locks the roster, and converts unassigned seats to watchers. New seats joining outside the lobby are watchers with no game/roster controls. The original Worker-only word list supplies 25 distinct random words, a randomly chosen starting team with nine agents, eight opposing agents, seven neutral cards, and one assassin. Word positions remain stable throughout the round.
+
+Clues normalize NFKC and trim, contain one token of at most 40 UTF-16 units with at least one Unicode letter, no whitespace/control/format characters, and integer `number` 1–9. Reject an exact case-insensitive unrevealed board word. Broader language disputes remain for the group. A clue changes stage from `clue` to `guessing`. Index is an integer 0–24; accepted reveals are immutable. Own agents continue until `number + 1` guesses are used. Minimum one guess is required for explicit End turn. Neutral/opposing cards or exhaustion pass the turn and clear the clue. Assassin immediately awards the opponent victory. Revealing the last agent awards that card's team victory, including an opposing team's last agent. Victory changes phase to `ended`; further game/start/roster commands reject. Rematch and abandonment are deferred.
+
+Future commands need their own exact parsing, phase/round/role/turn checks and projections inside the authoritative transition; do not add a client-side role toggle or exceptions to these rules.
 
 ## Views and permissions
 
-`RoomView` allowlists room code, phase/revision/round ID, self seat ID, public player identity/name/team/role/host/presence, readiness reasons, and permitted controls. `assignSelf` follows lobby phase; `assignOthers` additionally requires the authenticated host; `startRound` is currently false for everyone. Server validation independently enforces these permissions. Readiness requires exactly one spymaster and at least one operative on each team; extra spymasters are visibly invalid rather than silently replaced.
+`RoomView` allowlists room code, phase/revision/round ID, self seat ID, public player identity/name/team/role/host/presence, readiness reasons, controls, and `round` (null before start). Roles include the server-assigned `watcher`. `assignSelf` follows lobby phase; `assignOthers` additionally requires the authenticated host; `startRound` additionally requires readiness. `giveClue`, `reveal`, and `endTurn` follow the authenticated seat's phase/team/role/stage and minimum-guess rule. Server validation independently enforces every permission. Extra spymasters are visibly invalid rather than silently replaced.
 
-Projection builds fields explicitly, never spreads/serializes an internal record. Internal schema, timestamps, token hashes, and active connection IDs are absent. Future game projections must keep hidden identities server-only; host controls do not grant the key. Extend browser-safe types with permitted board/clue/control fields, while game state stays under `worker/`. Public and private key projections need focused tests before release.
+`RoundView` explicitly contains cards (`word`, `revealed`, optional `identity`), starting/active team, stage, clue, guesses used/remaining, Red/Blue remaining counts, `privateKey`, last accepted reveal, and outcome. Operatives/watchers receive identity only for revealed cards. Both spymasters receive every identity during play with `privateKey: true`; host status alone grants no key. Every seat receives the full key after ending with `privateKey: false`. Last reveal contains only its already-public word/identity/acting team. Read HTTP responses, success broadcasts, and error recovery snapshots use the same personalized projection.
+
+Projection builds fields explicitly, never spreads/serializes an internal record. Internal schema, timestamps, token hashes, and active connection IDs are absent. Game state and source words stay under `worker/`. Focused projection and actual-handler/live-transport checks cover the public, private, and final-key paths.
 
 ## Atomic transitions and transport
 
@@ -54,7 +68,7 @@ Projection builds fields explicitly, never spreads/serializes an internal record
 
 Creation, join, and socket takeover also persist before their response/publication. Native `WebSocketPair`, `acceptWebSocket`, and message/close/error handlers use the Hibernation API. Attachments contain only `{ seatId, connectionId }`; permissions always come from durable storage. Takeover persists the new active connection ID, accepts the replacement, informs/closes the prior socket, and rejects any superseded command even with a current revision. Presence derives from active sockets matching persisted connection IDs. Reconstruction reads stored state; process-local class fields do not own authority.
 
-The browser applies server snapshots without optimistic roster mutation. It disables changes until a usable socket and while awaiting acknowledgement. A disconnect or takeover shows a literal recovery action. `Reconnect` is an explicit new connection that fetches a fresh snapshot through its handshake; it replays no commands. Automatic reconnect/backoff, host transfer, alarms/expiry, and round/lifecycle transitions remain separate outcomes.
+The browser applies server snapshots without optimistic roster/reveal mutation. Card selection is local React state, sends nothing, and clears when revision or round changes. Only explicit Reveal sends a command. Actions disable until a usable socket and while awaiting acknowledgement. A disconnect or takeover shows a literal recovery action. `Reconnect` is an explicit new connection that fetches a fresh snapshot through its handshake; it replays no commands. Automatic reconnect/backoff, host transfer, alarms/expiry, rematch, and abandonment remain separate outcomes. Those changes must preserve this commit boundary and personalized projections.
 
 ## Bounded rates and local configuration
 

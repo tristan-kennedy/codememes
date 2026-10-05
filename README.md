@@ -4,9 +4,9 @@ A Codenames-style word game for private rooms with friends. Create a room, share
 
 ## Current state
 
-The entry and synchronized team lobby are implemented with React/TypeScript, plain CSS, Vite+, and a Cloudflare Worker with Static Assets and one SQLite-backed Room Durable Object per room. Guests join by invite or code; room-scoped cookies authenticate persistent seats; native hibernating WebSockets synchronize team and role changes. The host can arrange the roster, and both teams' readiness is explained.
+Entry, the synchronized team lobby, and a complete playable round are implemented with React/TypeScript, plain CSS, Vite+, and a Cloudflare Worker with Static Assets and one SQLite-backed Room Durable Object per room. Room cookies authenticate persistent seats; native hibernating WebSockets synchronize accepted actions. The host starts a ready roster, both spymasters receive private keys, operatives select locally then explicitly reveal, and late arrivals watch the public board. A server-owned original English word list supplies each randomized board.
 
-Playing rounds, automatic reconnect, room expiry, host transfer, rematches, and deployment remain future work. There is no board, word list, playable game, or created Cloudflare service yet. [Protocol contracts](docs/PROTOCOL.md) define the implemented foundation and extension boundaries.
+Automatic reconnect, room expiry, host transfer, rematches, abandonment, and deployment remain future work. No Cloudflare service has been created. [Protocol contracts](docs/PROTOCOL.md) define the implemented room/game boundary and extension responsibilities.
 
 ## Repository and Project
 
@@ -24,7 +24,7 @@ The Project uses outcome-sized Features, Bugs, and Tasks with explicit dependenc
 | File                                 | Purpose                                                                           |
 | ------------------------------------ | --------------------------------------------------------------------------------- |
 | [Product](docs/PRODUCT.md)           | Audience, game rules, scope, constraints, and the future stack.                   |
-| [Design](docs/DESIGN.md)             | Implemented entry/lobby tokens and the retained game-table direction.             |
+| [Design](docs/DESIGN.md)             | Implemented entry, lobby, board, and rules tokens in the game-table direction.    |
 | [Architecture](docs/ARCHITECTURE.md) | Selected React/Workers/Durable Objects stack, room lifecycle, and plan research.  |
 | [Contributing](docs/CONTRIBUTING.md) | Adapted Golf Club Curator work-item, delivery, review, and authorization policy.  |
 | [Validation](docs/TESTING.md)        | Static checks, focused fault tests, local Workers checks, and browser evidence.   |
@@ -62,7 +62,7 @@ vp build
 vp exec wrangler types --check
 ```
 
-`vp dev` serves the app at <http://127.0.0.1:5173> with local Workers emulation. No credentials or Cloudflare service creation are needed. Use `localhost:5173` in a second browser session for an independent local cookie origin. `vp run test:runtime` checks the running local API and sockets; it creates disposable local rooms. Rates are local to a Cloudflare location, not strict global limits. See TESTING for evidence boundaries and configuration details.
+`vp dev` serves the app at <http://127.0.0.1:5173> with local Workers emulation. No credentials or Cloudflare service creation are needed. Use `localhost:5173` in a second browser session for an independent local cookie origin. `vp run test:runtime` checks the running local API and sockets; `vp run test:game` checks complete rounds with authenticated multi-client sockets. Both create disposable local rooms and retain tokens only in memory. Rates are local to a Cloudflare location, not strict global limits. See TESTING for evidence boundaries and configuration details.
 
 The existing documentation check remains:
 

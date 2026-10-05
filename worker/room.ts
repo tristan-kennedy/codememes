@@ -3,6 +3,7 @@ import { PROTOCOL_VERSION } from "../src/shared/protocol";
 import type { ServerMessage } from "../src/shared/protocol";
 import { assign, parseCommand, commitTransition, project, RoomError, uniqueName } from "./state";
 import type { RoomState, Seat } from "./state";
+import { play } from "./game";
 import { checkOrigin, cookieHash, errorResponse, hashToken, newToken, seatCookie } from "./http";
 
 interface Connection {
@@ -68,7 +69,7 @@ export class Room extends DurableObject<Env> {
           name: uniqueName(name, state.seats),
           tokenHash,
           team: null,
-          role: "operative",
+          role: state.phase === "lobby" ? "operative" : "watcher",
           connectionId: null,
         };
         const joined = {
@@ -163,6 +164,14 @@ export class Room extends DurableObject<Env> {
       } catch {
         throw new RoomError("invalid", "Send a valid room command.");
       }
+      if (
+        raw &&
+        typeof raw === "object" &&
+        "requestId" in raw &&
+        typeof raw.requestId === "string" &&
+        /^[\w-]{1,64}$/.test(raw.requestId)
+      )
+        requestId = raw.requestId;
       const command = parseCommand(raw);
       requestId = command.requestId;
       await commitTransition(
@@ -177,7 +186,9 @@ export class Room extends DurableObject<Env> {
               "Your seat is open in another tab. Reconnect to take it back.",
               403,
             );
-          return assign(current, identity.seatId, command);
+          return command.type === "assign"
+            ? assign(current, identity.seatId, command)
+            : play(current, identity.seatId, command);
         },
         (next) => this.broadcast(next, socket, requestId),
       );
@@ -187,7 +198,7 @@ export class Room extends DurableObject<Env> {
           ? error
           : new RoomError(
               "unavailable",
-              "The change could not be saved. Check the roster and try again.",
+              "The change could not be saved. Check the room and try again.",
               503,
             );
       const state = await this.ctx.storage.get<RoomState>(RECORD).catch(() => undefined);

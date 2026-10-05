@@ -157,7 +157,7 @@ try {
   action = send(host, { team: "blue", role: "spymaster" });
   assert.equal((await result(host, action)).type, "snapshot");
   assert.equal(host.latest().readiness.ready, true);
-  assert.equal(host.latest().controls.startRound, false);
+  assert.equal(host.latest().controls.startRound, true);
   const replacement = await open(code, hostCookie);
   await wait(() => host.ws.readyState === WebSocket.CLOSED);
   assert(host.inbox.some((message) => message.code === "replaced"));
