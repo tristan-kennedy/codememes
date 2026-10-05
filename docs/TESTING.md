@@ -22,10 +22,12 @@ git diff --check -- . ":(exclude).agents/**"
 
 [Documentation CI](../.github/workflows/ci.yml) runs the pinned Prettier check on pushes and pull requests to `main`. It has read-only repository permissions, does not persist checkout credentials, and installs no application dependencies. It is a formatting gate, not a link checker or an application validation substitute. CI checks are not enforced by branch protection.
 
-## Inherited application policy
+## Application validation
 
-Golf Club Curator's contribution policy intentionally excludes automated tests, test files, test scripts, and test configuration. Preserve that policy here unless it is explicitly changed and reviewed.
+Automated tests are optional tools for authors and agents. Add focused tests when they help verify behavior or prevent a likely regression, especially for game rules, role-specific snapshots, and stale commands. There is no required suite, framework, or coverage target. Skip tests that merely mirror the implementation or add maintenance without useful confidence.
+
+Test files, scripts, and configuration may be committed when useful. Add only the supporting tooling needed for the change, document its commands here, and run the relevant checks. The current documentation-only foundation needs no test tooling.
 
 When application implementation is requested, add the narrow applicable Vite+ formatting, lint, typecheck, and build commands to this document and CI as part of that outcome. Record manual evidence for the changed behavior and its material boundaries. Reuse unaffected evidence rather than repeating every check.
 
-The first game implementation will need manual validation of role-specific key privacy, clue and turn rules, irreversible reveals, simultaneous/stale actions, reconnection, host departure, room expiry, keyboard/touch operation, and narrow screens. This is validation scope, not a story list or authorization to implement it now.
+The first game implementation will need validation of role-specific key privacy, clue and turn rules, irreversible reveals, simultaneous/stale actions, reconnection, host departure, room expiry, keyboard/touch operation, and narrow screens. Use focused automated checks or manual evidence as appropriate; manually verify the browser and Workers behavior that automated checks do not cover. This is validation scope, not a story list or authorization to implement it now.

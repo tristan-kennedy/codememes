@@ -10,7 +10,7 @@ Read relevant docs and reuse unchanged context:
 - [docs/PRODUCT.md](docs/PRODUCT.md): audience, rules, scope, constraints, and planned stack.
 - [docs/DESIGN.md](docs/DESIGN.md): directional visual seed; distinguish decisions from implemented tokens.
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): selected Cloudflare runtime, room boundaries, persistence, and sourced plan limits.
-- [docs/TESTING.md](docs/TESTING.md): applicable validation and the absence of application tooling and automated tests.
+- [docs/TESTING.md](docs/TESTING.md): applicable validation, optional automated tests, and current tooling limits.
 - [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md): work sizing, ownership, review, Project status, and handoffs.
 - [.agents/skills/impeccable/SKILL.md](.agents/skills/impeccable/SKILL.md): design workflow when the request needs it.
 
@@ -25,7 +25,7 @@ Read relevant docs and reuse unchanged context:
 - Do not read, modify, or expose secrets, local environment files, or sensitive configuration without authorization. Never commit them.
 - Preserve user authorization boundaries for branches, worktrees, pushes, PRs, merges, service changes, and deployment. Do not initiate those steps outside the authorized request.
 - Use Vite+ (`vp`) for future application package management and tooling. Current documentation commands in README and TESTING take precedence; `npx skills` installs the requested project skill.
-- Do not add automated tests, test files, test scripts, or test configuration under the inherited validation policy. A change to that policy requires an explicit decision and review.
+- Automated tests are optional tools for authors and agents. Add focused tests and minimal supporting tooling when they improve confidence in a change; no suite or coverage target is required. Follow [docs/TESTING.md](docs/TESTING.md).
 
 ## Completion
 

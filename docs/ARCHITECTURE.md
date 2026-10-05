@@ -123,4 +123,4 @@ The account's current subscription and usage have not been inspected, and no bil
 
 ## Validation when implementation exists
 
-Follow [TESTING.md](TESTING.md). The first implementation must provide manual evidence for two-browser synchronization, role-specific key privacy, competing/stale reveals, spymaster disconnects, seat recovery, duplicate connections, hibernation wake, stored-state recovery, expiry cleanup, and quota/storage failures. Verify actual behavior on Workers as well as local emulation. No implementation, automated tests, or stories are part of this architecture task.
+Follow [TESTING.md](TESTING.md). Validate two-browser synchronization, role-specific key privacy, competing/stale reveals, spymaster disconnects, seat recovery, duplicate connections, hibernation wake, stored-state recovery, expiry cleanup, and quota/storage failures when implementation exists. Use focused automated checks or manual evidence as appropriate, with tests remaining optional. Verify actual behavior on Workers as well as local emulation. This repository foundation contains no implementation, automated tests, or stories.
