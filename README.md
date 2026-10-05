@@ -68,7 +68,7 @@ The existing documentation check remains:
 
 ```powershell
 npx --yes prettier@3.9.9 --check README.md AGENTS.md "docs/**/*.md" ".github/**/*.md" ".github/**/*.yml" skills-lock.json .prettierrc.json
-git diff --check -- . ":(exclude).agents/**"
+git diff --check -- . ":(exclude).agents/**" ":(exclude)worker-configuration.d.ts"
 ```
 
 Use the same Prettier invocation with `--write` to format edited documentation. [CI](.github/workflows/ci.yml) checks documentation plus application formatting, lint/types, focused handler tests, build, and generated bindings. It performs no deployment. See [TESTING.md](docs/TESTING.md) for link and rendering checks.

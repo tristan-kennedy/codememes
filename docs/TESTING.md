@@ -13,10 +13,10 @@ vp test --config vitest.config.ts
 vp build
 vp exec wrangler types --check
 npx --yes prettier@3.9.9 --check README.md AGENTS.md "docs/**/*.md" ".github/**/*.md" ".github/**/*.yml" skills-lock.json .prettierrc.json
-git diff --check -- . ":(exclude).agents/**"
+git diff --check -- . ":(exclude).agents/**" ":(exclude)worker-configuration.d.ts"
 ```
 
-`vp check` formats/lints application files and checks TypeScript through Vite+'s type-aware path. The vendored skill, generated declarations, lockfile, and existing documentation check inputs are excluded from application formatting. Keep the pinned Prettier check for documentation/configuration. Do not reformat upstream Impeccable files. Before committing staged work, add `--cached` to the whitespace command.
+`vp check` formats/lints application files and checks TypeScript through Vite+'s type-aware path. The vendored skill, generated declarations, lockfile, and existing documentation check inputs are excluded from application formatting. Keep the pinned Prettier check for documentation/configuration. Do not reformat upstream Impeccable files or Wrangler's generated runtime declarations; the latter contain upstream trailing whitespace and are verified byte-for-byte by `wrangler types --check`. Before committing staged work, add `--cached` to the whitespace command.
 
 The focused `worker/room.test.ts` checks call the actual `Room.webSocketMessage` handler with an injected DurableObject base and transactional storage. They reject both write and commit failures without successful acknowledgement, broadcast, or mutation; verify successful commit precedes publication; reconstruct a Room against existing stored state; and reject a superseded connection. This simulates failure faithfully at the handler boundary; it does not reproduce a real Cloudflare quota outage.
 
