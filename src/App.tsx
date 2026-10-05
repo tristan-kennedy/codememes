@@ -9,7 +9,17 @@ import {
   normalizeName,
   PROTOCOL_VERSION,
 } from "./shared/protocol";
-import type { PlayerView, Role, RoomView, ServerMessage, Team } from "./shared/protocol";
+import type {
+  PlayerView,
+  PlayingRole,
+  RoomCommand,
+  GameAction,
+  RoomView,
+  ServerMessage,
+  Team,
+} from "./shared/protocol";
+import { Game } from "./features/Game";
+import { Rules } from "./features/Rules";
 
 function inviteCode(): string | null {
   const match = /^\/room\/([^/]+)\/?$/.exec(location.pathname);
@@ -111,24 +121,26 @@ export function App() {
     }
   }
 
-  function update(player: PlayerView, team: Team | null, role: Role) {
+  function dispatch(
+    action: GameAction | { type: "assign"; seatId: string; team: Team | null; role: PlayingRole },
+  ) {
     if (!view || status !== "connected" || pending) return;
     setError("");
     const sent = connection.current?.send({
       version: PROTOCOL_VERSION,
-      type: "assign",
+      ...action,
       requestId: crypto.randomUUID(),
       revision: view.revision,
       roundId: view.roundId,
-      seatId: player.id,
-      team,
-      role,
-    });
+    } as RoomCommand);
     if (sent) setPending(true);
     else {
       setStatus("disconnected");
-      setError("Connection lost. Reconnect before changing the roster.");
+      setError("Connection lost. Reconnect before making a change.");
     }
+  }
+  function update(player: PlayerView, team: Team | null, role: PlayingRole) {
+    dispatch({ type: "assign", seatId: player.id, team, role });
   }
 
   async function copy(value: string, label: string) {
@@ -183,7 +195,7 @@ export function App() {
                   update(
                     player,
                     event.target.value === "" ? null : (event.target.value as Team),
-                    player.role,
+                    player.role === "watcher" ? "operative" : player.role,
                   )
                 }
               >
@@ -197,7 +209,7 @@ export function App() {
               <select
                 value={player.role}
                 disabled={!usable}
-                onChange={(event) => update(player, player.team, event.target.value as Role)}
+                onChange={(event) => update(player, player.team, event.target.value as PlayingRole)}
               >
                 <option value="operative">Operative</option>
                 <option value="spymaster">Spymaster</option>
@@ -206,7 +218,11 @@ export function App() {
           </div>
         ) : (
           <span className="role-label">
-            {player.role === "spymaster" ? "Spymaster" : "Operative"}
+            {player.role === "spymaster"
+              ? "Spymaster"
+              : player.role === "watcher"
+                ? "Watcher"
+                : "Operative"}
           </span>
         )}
       </li>
@@ -231,15 +247,18 @@ export function App() {
           </span>
         </a>
         {view && (
-          <span className="connection" role="status">
-            {status === "connected"
-              ? "Connected"
-              : status === "connecting"
-                ? "Connecting…"
-                : status === "replaced"
-                  ? "Seat open in another tab"
-                  : "Disconnected"}
-          </span>
+          <div className="room-tools">
+            <Rules />
+            <span className="connection" role="status">
+              {status === "connected"
+                ? "Connected"
+                : status === "connecting"
+                  ? "Connecting…"
+                  : status === "replaced"
+                    ? "Seat open in another tab"
+                    : "Disconnected"}
+            </span>
+          </div>
         )}
       </header>
       {!view ? (
@@ -317,14 +336,19 @@ export function App() {
             </button>
           </form>
           <p className="entry-note">No accounts. Just an invite and your name.</p>
-          <p className="foundation-note">Lobby preview · playing rounds is coming next.</p>
         </section>
       ) : (
         <>
           <section className="lobby-heading">
             <div>
               <h1>Your room</h1>
-              <p>Choose a team and a role. The host can arrange everyone.</p>
+              <p>
+                {view.phase === "lobby"
+                  ? "Choose a team and a role. The host can arrange everyone."
+                  : self?.role === "watcher"
+                    ? "You’re watching this round."
+                    : `${self?.team === "red" ? "Red" : "Blue"} team · ${self?.role === "spymaster" ? "Spymaster" : "Operative"}`}
+              </p>
             </div>
             <div className="room-code">
               <span>Room code</span>
@@ -378,6 +402,7 @@ export function App() {
               {error}
             </p>
           )}
+          {view.round && <Game view={view} usable={usable} pending={pending} onAction={dispatch} />}
           <div className="teams">
             {(["red", "blue"] as const).map((team) => (
               <section key={team} className={`team ${team}`} aria-labelledby={`${team}-heading`}>
@@ -411,27 +436,39 @@ export function App() {
           </div>
           {view.players.some((player) => player.team === null) && (
             <section className="unassigned">
-              <h2>Choose a team</h2>
+              <h2>{view.phase === "lobby" ? "Choose a team" : "Watching"}</h2>
               <ul>{view.players.filter((player) => player.team === null).map(playerRow)}</ul>
             </section>
           )}
-          <section className="readiness" aria-labelledby="readiness-heading">
-            <div>
-              <h2 id="readiness-heading">
-                {view.readiness.ready ? "Teams are ready" : "Getting the teams ready"}
-              </h2>
-              {view.readiness.ready ? (
-                <p>Each team has one spymaster and at least one operative.</p>
+          {view.phase === "lobby" && (
+            <section className="readiness" aria-labelledby="readiness-heading">
+              <div>
+                <h2 id="readiness-heading">
+                  {view.readiness.ready ? "Teams are ready" : "Getting the teams ready"}
+                </h2>
+                {view.readiness.ready ? (
+                  <p>Each team has one spymaster and at least one operative.</p>
+                ) : (
+                  <ul>
+                    {view.readiness.reasons.map((reason) => (
+                      <li key={reason}>{reason}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              {self?.isHost ? (
+                <button
+                  className="primary"
+                  disabled={!usable || !view.controls.startRound}
+                  onClick={() => dispatch({ type: "start" })}
+                >
+                  {pending ? "Saving…" : "Start game"}
+                </button>
               ) : (
-                <ul>
-                  {view.readiness.reasons.map((reason) => (
-                    <li key={reason}>{reason}</li>
-                  ))}
-                </ul>
+                <p className="round-note">The host starts when both teams are ready.</p>
               )}
-            </div>
-            <p className="round-note">Playing rounds is coming next.</p>
-          </section>
+            </section>
+          )}
           <details className="role-help">
             <summary>What do the roles do?</summary>
             <p>

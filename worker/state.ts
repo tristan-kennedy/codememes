@@ -1,5 +1,16 @@
-import { PROTOCOL_VERSION } from "../src/shared/protocol";
-import type { RoomCommand, RoomView, Role, Team, ErrorCode } from "../src/shared/protocol";
+import { PROTOCOL_VERSION, normalizeClue } from "../src/shared/protocol";
+import type {
+  AssignCommand,
+  RoomCommand,
+  RoomView,
+  Role,
+  Team,
+  Phase,
+} from "../src/shared/protocol";
+import { RoomError } from "./errors";
+import { projectRound } from "./game";
+import type { RoundState } from "./game";
+export { RoomError } from "./errors";
 
 export interface Seat {
   id: string;
@@ -12,47 +23,68 @@ export interface Seat {
 export interface RoomState {
   schema: 1;
   code: string;
-  phase: "lobby";
+  phase: Phase;
   revision: number;
-  roundId: null;
+  roundId: string | null;
+  round?: RoundState | null;
   hostId: string;
   seats: Seat[];
   updatedAt: number;
-}
-export class RoomError extends Error {
-  constructor(
-    public code: ErrorCode,
-    message: string,
-    public status = 400,
-  ) {
-    super(message);
-  }
 }
 export function parseCommand(value: unknown): RoomCommand {
   if (!value || typeof value !== "object" || Array.isArray(value))
     throw new RoomError("invalid", "Send a valid room command.");
   const cmd = value as Record<string, unknown>;
-  const keys = ["version", "type", "requestId", "revision", "roundId", "seatId", "team", "role"];
+  const fields: Record<string, string[]> = {
+    assign: ["seatId", "team", "role"],
+    start: [],
+    clue: ["word", "number"],
+    reveal: ["index"],
+    end_turn: [],
+  };
+  const kind = typeof cmd.type === "string" ? cmd.type : "";
+  if (!Object.hasOwn(fields, kind))
+    throw new RoomError("invalid", "This room command is not supported.");
+  const keys = ["version", "type", "requestId", "revision", "roundId", ...fields[kind]];
   if (
     Object.keys(cmd).length !== keys.length ||
     Object.keys(cmd).some((key) => !keys.includes(key)) ||
     cmd.version !== PROTOCOL_VERSION ||
-    cmd.type !== "assign" ||
     typeof cmd.requestId !== "string" ||
     !/^[\w-]{1,64}$/.test(cmd.requestId) ||
     !Number.isSafeInteger(cmd.revision) ||
     (cmd.revision as number) < 0 ||
-    cmd.roundId !== null ||
-    typeof cmd.seatId !== "string" ||
-    !/^[\w-]{1,64}$/.test(cmd.seatId) ||
-    ![null, "red", "blue"].includes(cmd.team as Team | null) ||
-    !["operative", "spymaster"].includes(cmd.role as Role)
+    (cmd.roundId !== null &&
+      (typeof cmd.roundId !== "string" || !/^[\w-]{1,64}$/.test(cmd.roundId)))
   ) {
     throw new RoomError("invalid", "This command is invalid. Refresh the room and try again.");
   }
+  if (
+    kind === "assign" &&
+    (typeof cmd.seatId !== "string" ||
+      !/^[\w-]{1,64}$/.test(cmd.seatId) ||
+      ![null, "red", "blue"].includes(cmd.team as Team | null) ||
+      !["operative", "spymaster"].includes(cmd.role as Role))
+  )
+    throw new RoomError("invalid", "Choose a valid player, team, and role.");
+  if (
+    kind === "clue" &&
+    (typeof cmd.word !== "string" ||
+      cmd.word.length > 40 ||
+      !normalizeClue(cmd.word) ||
+      !Number.isInteger(cmd.number) ||
+      (cmd.number as number) < 1 ||
+      (cmd.number as number) > 9)
+  )
+    throw new RoomError("invalid", "Give one word and a whole number from 1 to 9.");
+  if (
+    kind === "reveal" &&
+    (!Number.isInteger(cmd.index) || (cmd.index as number) < 0 || (cmd.index as number) >= 25)
+  )
+    throw new RoomError("invalid", "Choose an unrevealed word on this board.");
   return cmd as unknown as RoomCommand;
 }
-export function assign(state: RoomState, actorId: string, command: RoomCommand): RoomState {
+export function assign(state: RoomState, actorId: string, command: AssignCommand): RoomState {
   const actor = state.seats.find((seat) => seat.id === actorId);
   if (!actor) throw new RoomError("unauthorized", "Join this room to continue.", 401);
   if (command.seatId !== actorId && state.hostId !== actorId)
@@ -73,6 +105,9 @@ export function assign(state: RoomState, actorId: string, command: RoomCommand):
   };
 }
 export function project(state: RoomState, selfId: string, connected: Set<string>): RoomView {
+  const self = state.seats.find((seat) => seat.id === selfId);
+  const active = state.phase === "playing" && self?.team === state.round?.activeTeam;
+  const guessing = active && self?.role === "operative" && state.round?.stage === "guessing";
   const reasons: string[] = [];
   for (const team of ["red", "blue"] as const) {
     const members = state.seats.filter((seat) => seat.team === team);
@@ -101,8 +136,12 @@ export function project(state: RoomState, selfId: string, connected: Set<string>
     controls: {
       assignSelf: state.phase === "lobby",
       assignOthers: state.phase === "lobby" && state.hostId === selfId,
-      startRound: false,
+      startRound: state.phase === "lobby" && state.hostId === selfId && reasons.length === 0,
+      giveClue: !!active && self?.role === "spymaster" && state.round?.stage === "clue",
+      reveal: !!guessing,
+      endTurn: !!guessing && (state.round?.guessesUsed ?? 0) > 0,
     },
+    round: state.round ? projectRound(state.round, self, state.phase === "ended") : null,
   };
 }
 export function uniqueName(name: string, seats: Seat[]): string {

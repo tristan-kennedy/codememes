@@ -17,6 +17,8 @@ colors:
   primary-hover: "#2d4354"
   error-surface: "#fff8df"
   error-border: "#b89c46"
+  neutral-surface: "#f2efe6"
+  dialog-backdrop: "rgb(24 39 51 / 0.45)"
 typography:
   heading:
     fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
@@ -41,6 +43,22 @@ typography:
     fontSize: "0.875rem"
   metadata:
     fontSize: "0.8125rem"
+  board-word:
+    fontSize: "clamp(0.6875rem, 2.75vw, 1.25rem)"
+    fontWeight: 750
+    lineHeight: 1.2
+  board-identity:
+    fontSize: "clamp(0.5625rem, 1.4vw, 0.8125rem)"
+    lineHeight: 1.2
+  board-state:
+    fontSize: "clamp(0.5625rem, 1.3vw, 0.75rem)"
+    lineHeight: 1.2
+  turn-title:
+    fontSize: "clamp(1.5rem, 4vw, 2rem)"
+  agent-count:
+    fontSize: "1.75rem"
+    fontWeight: 750
+    lineHeight: 1.2
 rounded:
   control: "6px"
   mark: "2px"
@@ -65,6 +83,19 @@ components:
     textColor: "{colors.ink}"
     rounded: "{rounded.control}"
     padding: "10px 12px"
+  word-tile:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.control}"
+    padding: "8px 4px"
+  word-tile-selected:
+    backgroundColor: "{colors.selection}"
+  word-tile-red-revealed:
+    backgroundColor: "{colors.red}"
+    textColor: "{colors.surface}"
+  word-tile-blue-revealed:
+    backgroundColor: "{colors.blue}"
+    textColor: "{colors.surface}"
 ---
 
 # Design System: Codenames
@@ -75,26 +106,27 @@ components:
 
 A clear shared table for friends. The entry and lobby implement the established seed: pale slate ground, white controls, dark readable type, and committed Red and Blue surfaces. Original paired rectangular marks identify the working product without illustration, decorative furniture, or a marketing shell. System sans-serif typography follows the agreed product constraint.
 
-Tokens above are extracted from [src/styles.css](../src/styles.css). The [.impeccable/design.json](../.impeccable/design.json) sidecar records focus, motion, breakpoints, and component snippets. Game-board, clue, reveal, and result descriptions below preserve the intended direction and do not claim implemented game UI.
+Tokens above are extracted from [src/styles.css](../src/styles.css). The [.impeccable/design.json](../.impeccable/design.json) sidecar records focus, motion, breakpoints, and component snippets. Entry, lobby, board, clue/reveal controls, results, and the Rules dialog now implement this world.
 
 **Key Characteristics:**
 
 - Flat, readable surfaces with explicit team names.
 - Generous separation between tasks; compact grouping within a player row.
 - Persistent, wrapping names and native team/role controls.
-- A single quiet page with clear connection and readiness feedback.
+- A single quiet page with clear connection, turn, and accepted-action feedback.
+- Stable five-column words, private-key warning, and deliberate local selection.
 
 ## Colors
 
 Dark Ink drives text and primary actions. Slate ground and White controls support the table. Muted Slate remains readable for explanations and presence. Deep Red and Deep Blue identify teams on pale matching surfaces; text labels always accompany color. Violet is reserved for the visible focus outline. Generic errors use a pale amber surface with dark ink rather than misusing a team color.
 
-The current palette uses hex values as its source of truth. Do not introduce gradients, glass, texture, or shadowed panels. Future revealed identities need explicit Red, Blue, Neutral, and Assassin labels and readable surfaces.
+The current palette uses hex values as its source of truth, with the actual translucent dialog backdrop retained as RGB. Do not introduce gradients, glass, texture, or shadowed panels. Private Red/Blue identities use pale matching surfaces; committed reveals use deep team fills and white text. Neutral uses warm off-white; Assassin uses Ink and White. Explicit identity and revealed labels accompany color. Selected public words use slate fill and an Ink border; disabled board tiles retain full opacity for reading.
 
 ## Typography
 
 Use one system sans-serif stack throughout. Headings use the implemented 2–3rem responsive scale, weight 750, and slightly tight tracking. Body text is 1rem with 1.55 line height; supporting text ranges from 0.8125–0.9375rem. Team headings are 1.35rem. Names wrap with `overflow-wrap: anywhere`; full names remain exposed to accessibility APIs. Codes use tabular numerals and grouping, without monospace decoration.
 
-Future board words remain real uppercase text and may never truncate. Their practical scale must be verified against the eventual word list and five-column board.
+Board words are real uppercase text and never truncate. The original source list uses words up to six letters; all fit the five-column board at 320px. Word size scales from 11px to 20px, with weight 750 and line height 1.2. Identity/state labels scale from 9px to 13px/12px. Team counts use tabular numerals at 1.75rem; turn headings scale from 1.5rem to 2rem.
 
 ## Layout
 
@@ -102,7 +134,7 @@ The entry is centered in a 480px task column within a 760px page. It gives Creat
 
 Teams are side by side above 800px and stacked below. At 540px the invite actions stack and player controls use a full row. Page padding is 24px on desktop and 16px on phones. Every button/select has a 44px minimum height. The 320px lobby supports wrapping names without horizontal scrolling.
 
-Future boards retain five fixed columns and stable positions at every width. Supporting content follows the board on phones and sits beside it on wider screens. Never reorder cards or put the board in a carousel.
+Boards retain five fixed columns and stable positions at every width. Tiles have 120px minimum height on desktop and 92px on phones; gaps change from 8px to 4px below 540px. Turn/count/clue information precedes the board; roster/supporting content follows. The operative confirmation action stays above the board with sticky positioning and wraps on phones. Never reorder cards or put the board in a carousel.
 
 ## Elevation & Depth
 
@@ -110,7 +142,7 @@ The implemented interface is flat. Spacing, quiet 1px borders, and tonal team su
 
 ## Shapes
 
-Controls and team surfaces share a restrained 6px radius. The paired identity mark has small 2px corners. Visible focus uses a 3px outline with a 3px offset and never changes layout. Future word tiles retain equal dimensions through selection, reveal, disabled, and focus states.
+Controls, tiles, dialogs, and team surfaces share a restrained 6px radius. The paired identity mark has small 2px corners. Visible focus uses a 3px outline with a 3px offset and never changes layout. Word tiles retain equal dimensions through selection, reveal, disabled, and focus states; their fixed 2px border carries selection without changing geometry.
 
 ## Components
 
@@ -118,7 +150,9 @@ Primary buttons use Dark Ink with white text; secondary buttons use White with q
 
 Team groups contain role headings and simple player lists, without nested cards. Presence is literal Connected/Offline text. Loading, rejected commands, connection loss, and takeover have useful messages; roster controls stay disabled until a usable connection and while awaiting acknowledgement. Readiness explains the missing or extra roles. The native details element provides a small role explanation.
 
-The future committed reveal remains the planned signature interaction: a short fill-and-label change that keeps each word readable, immediate under reduced motion. It is not implemented in the lobby.
+The committed reveal is a short 140ms fill/color change with exponential ease-out that keeps each word readable; the revealed label and counts update only after server acceptance. Reduced motion makes tile/control changes immediate. Local selection sends no update and names the chosen word beside explicit Reveal; revision changes clear that choice. The active spy has a clue/number form; accepted clues shrink and wrap within the available width, exposing every character without truncation. Other players receive concise role/turn instructions. The final board exposes every identity with a literal winner and reason.
+
+Rules uses a native modal dialog to protect reading focus, with an explicit Close rules button, Escape dismissal, and focus returned to Rules. Accepted reveal/turn announcements use one restrained live region; no typing/selection/presence chatter is announced.
 
 ## Do's and Don'ts
 
@@ -129,4 +163,4 @@ The future committed reveal remains the planned signature interaction: a short f
 - **Don't** add ornamental badges, persistent navigation, nested panels, or spy-terminal styling.
 - **Don't** use color alone to indicate identity, selection, connection, or outcome.
 - **Don't** introduce a font pipeline, component framework, gradients, glass, or shadows.
-- **Don't** imply that planned boards, key views, or reveal transitions already exist.
+- **Don't** imply automatic reconnect, rematch, abandonment, or expiry already exist.

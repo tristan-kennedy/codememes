@@ -3,7 +3,9 @@ export const PROTOCOL_VERSION = 1 as const;
 export const CODE_ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
 export const NAME_LIMIT = 40;
 export type Team = "red" | "blue";
-export type Role = "operative" | "spymaster";
+export type PlayingRole = "operative" | "spymaster";
+export type Role = PlayingRole | "watcher";
+export type CardIdentity = Team | "neutral" | "assassin";
 export type Phase = "lobby" | "playing" | "ended";
 export type SeatId = string;
 
@@ -40,19 +42,60 @@ export interface RoomView {
   selfId: SeatId;
   players: PlayerView[];
   readiness: { ready: boolean; reasons: string[] };
-  controls: { assignSelf: boolean; assignOthers: boolean; startRound: boolean };
+  controls: {
+    assignSelf: boolean;
+    assignOthers: boolean;
+    startRound: boolean;
+    giveClue: boolean;
+    reveal: boolean;
+    endTurn: boolean;
+  };
+  round: RoundView | null;
 }
-export interface AssignCommand {
+export interface RoundView {
+  cards: { word: string; revealed: boolean; identity?: CardIdentity }[];
+  startingTeam: Team;
+  activeTeam: Team;
+  stage: "clue" | "guessing";
+  clue: { word: string; number: number } | null;
+  guessesUsed: number;
+  guessesRemaining: number;
+  remaining: Record<Team, number>;
+  privateKey: boolean;
+  outcome: { winner: Team; reason: "agents" | "assassin" } | null;
+  lastReveal: { word: string; identity: CardIdentity; byTeam: Team } | null;
+}
+export interface CommandBase {
   version: typeof PROTOCOL_VERSION;
-  type: "assign";
   requestId: string;
   revision: number;
   roundId: string | null;
+}
+export interface AssignCommand extends CommandBase {
+  type: "assign";
   seatId: SeatId;
   team: Team | null;
-  role: Role;
+  role: PlayingRole;
 }
-export type RoomCommand = AssignCommand;
+export type RoomCommand =
+  | AssignCommand
+  | (CommandBase & { type: "start" | "end_turn" })
+  | (CommandBase & { type: "clue"; word: string; number: number })
+  | (CommandBase & { type: "reveal"; index: number });
+export type GameAction =
+  | { type: "start" | "end_turn" }
+  | { type: "clue"; word: string; number: number }
+  | { type: "reveal"; index: number };
+
+export function normalizeClue(word: string): string | null {
+  const normalized = word.normalize("NFKC").trim();
+  return normalized.length > 0 &&
+    normalized.length <= 40 &&
+    /^[^\s\p{Cc}\p{Cf}]+$/u.test(normalized) &&
+    /\p{L}/u.test(normalized)
+    ? normalized
+    : null;
+}
 export type ErrorCode =
   | "invalid"
   | "forbidden"

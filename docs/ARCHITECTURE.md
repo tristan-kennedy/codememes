@@ -1,6 +1,6 @@
 # Architecture
 
-Status: implemented entry/lobby foundation, verified locally October 4, 2026. No Cloudflare service or deployment has been created. Game rules, automatic reconnect, host transfer, and expiry described below are the selected future architecture; they are not implemented by the lobby foundation. [PROTOCOL.md](PROTOCOL.md) records the actual current contracts, input/rate limits, atomic boundary, and extension responsibilities.
+Status: entry, lobby, and complete-round rules implemented and verified in local Workers emulation October 4, 2026. No Cloudflare service or deployment has been created. Automatic reconnect, host transfer, expiry, rematch, and abandonment remain selected future architecture. [PROTOCOL.md](PROTOCOL.md) records actual current contracts, input/rate limits, the atomic boundary, and extension responsibilities.
 
 ## Selected stack
 
@@ -75,7 +75,7 @@ Runtime sleep or restart does not itself end a game. Rooms remain deliberately t
 
 ## Proposed repository layout
 
-The entry/lobby foundation implements the browser app, shared protocol, connection helper, Worker routing, room transport, server state, configuration, and generated bindings. The game/words files below remain future boundaries:
+The application implements the browser app, shared protocol, connection helper, Worker routing, room transport, server state/game rules/word generation, configuration, and generated bindings. Alarms and automatic recovery remain future boundaries:
 
 ```text
 src/                       React application and plain CSS
@@ -85,9 +85,9 @@ src/                       React application and plain CSS
 worker/
   index.ts                 HTTP routing and ROOMS binding
   room.ts                  Durable Object, storage, sockets, alarms
-  state.ts                 Lobby transitions and allowlisted projection
-  game.ts                  Future authoritative game rules
-  words.ts                 Future curated source words and server board generation
+  state.ts                 Parsing, lobby transitions, atomic boundary and views
+  game.ts                  Authoritative rules, board generation and key projection
+  words.ts                 Original locally curated English source words
 vite.config.ts             React and Cloudflare Vite plugins
 wrangler.jsonc             Assets, ROOMS binding, runtime settings
 ```
@@ -124,4 +124,4 @@ The account's current subscription and usage have not been inspected, and no bil
 
 ## Validation when implementation exists
 
-Follow [TESTING.md](TESTING.md). Current checks cover lobby synchronization, stale/unauthorized commands, replacement sockets, persistence, and injected storage failures. Role-specific keys, competing reveals, spymaster recovery, expiry cleanup, and real Cloudflare runtime behavior need validation as those outcomes are implemented. Tests remain optional tools; local emulation does not certify deployed runtime behavior.
+Follow [TESTING.md](TESTING.md). Current checks cover lobby synchronization, role-specific keys, all game rules and terminal paths, stale/competing/unauthorized commands, replacement sockets, persistence, and injected storage failures at the Room handler. Automatic recovery, expiry cleanup, and deployed Cloudflare runtime behavior need validation in their own outcomes. Tests remain optional tools; local emulation does not certify deployed runtime behavior.

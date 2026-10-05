@@ -2,7 +2,7 @@
 
 <!-- impeccable:product-schema 1 -->
 
-This is the agreed planning baseline for a Codenames-style clone. The user delegated product and design decisions with simplicity as the priority. The choices below are project decisions, not claims about an implemented app.
+This is the agreed product baseline for a Codenames-style clone. The user delegated product and design decisions with simplicity as the priority. Entry, the lobby, and one complete round are implemented; lifecycle recovery, expiry, and subsequent rounds remain planned.
 
 ## Platform
 
@@ -12,7 +12,7 @@ web
 
 Delegated: React and TypeScript with Vite, using Vite+ (`vp`) for package management and development tooling as in Golf Club Curator. Use plain CSS, one Cloudflare Worker with Static Assets, and one SQLite-backed Durable Object per room with native hibernating WebSockets. Keep one package and deployment; no monorepo packages, component framework, authentication service, or external database at launch. [ARCHITECTURE.md](ARCHITECTURE.md) records the concrete boundaries and current plan research.
 
-This stack is implemented for entry and the synchronized lobby. Playing rounds and lifecycle behavior below remain agreed future capabilities. Node.js runs local tooling; Cloudflare's Workers runtime runs the application backend. No Cloudflare service or deployment has been created. Workers Free supports this baseline within its quotas.
+This stack implements entry, the synchronized lobby, and complete rounds. Lifecycle behavior and subsequent rounds below remain agreed future capabilities. Node.js runs local tooling; Cloudflare's Workers runtime runs the application backend. No Cloudflare service or deployment has been created. Workers Free supports this baseline within its quotas.
 
 ## Users
 
@@ -79,7 +79,7 @@ Core flows work with keyboard and touch. Give cards meaningful accessible names,
 
 ## Evidence on Hand
 
-This repository contains the entry and synchronized lobby, the Worker and SQLite Room runtime, protocol contracts, contribution documentation, GitHub configuration, and a project-local Impeccable skill. Local emulation and focused checks validate this foundation. There is no playable round, final word list, user research, production usage data, or deployment. Future capability descriptions above do not claim implemented game or lifecycle behavior.
+This repository contains entry, a synchronized lobby, complete rounds, an original locally curated English word list, private spymaster projections, public watcher views, and an accessible five-column board with deliberate reveals. Local Workers checks cover all reveal categories, both victory paths, competing/stale commands, projections, and persisted state. Focused actual-handler tests inject storage failures and reconstruct accepted rounds. Two independent IAB cookie origins completed a round through the UI with keyboard and narrow-screen evidence. There is no user research, production usage data, deployment, automatic reconnect, host transfer, expiry, rematch, or abandonment yet. Descriptions of those lifecycle capabilities above remain planned.
 
 ## Product Principles
 
