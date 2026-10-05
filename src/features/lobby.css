@@ -1,3 +1,8 @@
+.lobby-table {
+  max-width: 1080px;
+  padding: 24px;
+  margin: 0 auto;
+}
 .tabletop-lobby {
   --piece-surface: #ffffff;
   --piece-ink: #242838;
@@ -254,6 +259,9 @@
   font-weight: 700;
 }
 @media (max-width: 600px) {
+  .lobby-table {
+    padding: 8px;
+  }
   .lobby-team-areas {
     grid-template-columns: 1fr;
     gap: 16px;
