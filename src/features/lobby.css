@@ -186,6 +186,10 @@
   overflow-wrap: anywhere;
   margin-bottom: 12px;
 }
+.placement-picker button:focus-visible {
+  outline: 3px solid #18362e;
+  outline-offset: 3px;
+}
 .destination-choices {
   display: flex;
   flex-wrap: wrap;
