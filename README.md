@@ -1,10 +1,12 @@
 # Codenames
 
-A planned Codenames-style word game for private rooms with friends. Create a room, share an invite, choose Red or Blue, and play on phones or desktops without accounts.
+A Codenames-style word game for private rooms with friends. Create a room, share an invite, and choose Red or Blue on phones or desktops without accounts.
 
 ## Current state
 
-This is a repository foundation only. Product decisions, a design seed, the Cloudflare architecture, contribution workflow, issue/PR templates, and documentation CI are established. There is no application, server, dependency manifest, deployment, or playable game. No stories, issues, or draft work items have been created.
+The entry and synchronized team lobby are implemented with React/TypeScript, plain CSS, Vite+, and a Cloudflare Worker with Static Assets and one SQLite-backed Room Durable Object per room. Guests join by invite or code; room-scoped cookies authenticate persistent seats; native hibernating WebSockets synchronize team and role changes. The host can arrange the roster, and both teams' readiness is explained.
+
+Playing rounds, automatic reconnect, room expiry, host transfer, rematches, and deployment remain future work. There is no board, word list, playable game, or created Cloudflare service yet. [Protocol contracts](docs/PROTOCOL.md) define the implemented foundation and extension boundaries.
 
 ## Repository and Project
 
@@ -15,18 +17,19 @@ This is a repository foundation only. Product decisions, a design seed, the Clou
 - Priority: High, Medium, Low.
 - Work types: Feature, Bug, Task; no Epic/Story hierarchy.
 
-The Project copies Golf Club Curator's fields, views, and ordinary status workflows without its items. It is linked to this repository. Add future issues to the Project explicitly; issue auto-add is not configured. New items start in Backlog. Merges and issue closure remain deliberate contributor actions.
+The Project uses outcome-sized Features, Bugs, and Tasks with explicit dependencies. It is linked to this repository. Add issues to the Project explicitly; issue auto-add is not configured. New items start in Backlog. Merges and issue closure remain deliberate contributor actions.
 
 ## Documentation
 
-| File                                 | Purpose                                                                          |
-| ------------------------------------ | -------------------------------------------------------------------------------- |
-| [Product](docs/PRODUCT.md)           | Audience, game rules, scope, constraints, and the future stack.                  |
-| [Design](docs/DESIGN.md)             | Impeccable seed for the visual direction; no implemented tokens yet.             |
-| [Architecture](docs/ARCHITECTURE.md) | Selected React/Workers/Durable Objects stack, room lifecycle, and plan research. |
-| [Contributing](docs/CONTRIBUTING.md) | Adapted Golf Club Curator work-item, delivery, review, and authorization policy. |
-| [Validation](docs/TESTING.md)        | Checks that apply to the current documentation-only repository.                  |
-| [Agent instructions](AGENTS.md)      | Durable working constraints and documentation pointers.                          |
+| File                                 | Purpose                                                                           |
+| ------------------------------------ | --------------------------------------------------------------------------------- |
+| [Product](docs/PRODUCT.md)           | Audience, game rules, scope, constraints, and the future stack.                   |
+| [Design](docs/DESIGN.md)             | Implemented entry/lobby tokens and the retained game-table direction.             |
+| [Architecture](docs/ARCHITECTURE.md) | Selected React/Workers/Durable Objects stack, room lifecycle, and plan research.  |
+| [Contributing](docs/CONTRIBUTING.md) | Adapted Golf Club Curator work-item, delivery, review, and authorization policy.  |
+| [Validation](docs/TESTING.md)        | Static checks, focused fault tests, local Workers checks, and browser evidence.   |
+| [Protocol](docs/PROTOCOL.md)         | Browser-safe envelopes, seat authority, storage, rates, and extension boundaries. |
+| [Agent instructions](AGENTS.md)      | Durable working constraints and documentation pointers.                           |
 
 ## Impeccable
 
@@ -44,19 +47,30 @@ Inspect the installation with `npx --yes skills list`. On Windows, load project 
 & .\.agents\skills\impeccable\scripts\impeccable.cmd context
 ```
 
-Read the skill before invoking other commands. No live preview, design hook, visual mockups, or implementation tooling is configured. After the first UI exists, run `$impeccable document` to extract actual design tokens and produce its sidecar.
+Read the skill before invoking other commands. The implemented tokens are recorded in DESIGN and its [.impeccable/design.json](.impeccable/design.json) sidecar. A design hook is not configured.
 
 ## Validation
 
-Node.js is needed only for the temporary formatting CLI at this stage:
+Install [Vite+](https://viteplus.dev/guide/) and use Node.js 24. From the project root:
+
+```powershell
+vp install --frozen-lockfile
+vp dev
+vp check
+vp test --config vitest.config.ts
+vp build
+vp exec wrangler types --check
+```
+
+`vp dev` serves the app at <http://127.0.0.1:5173> with local Workers emulation. No credentials or Cloudflare service creation are needed. Use `localhost:5173` in a second browser session for an independent local cookie origin. `vp run test:runtime` checks the running local API and sockets; it creates disposable local rooms. Rates are local to a Cloudflare location, not strict global limits. See TESTING for evidence boundaries and configuration details.
+
+The existing documentation check remains:
 
 ```powershell
 npx --yes prettier@3.9.9 --check README.md AGENTS.md "docs/**/*.md" ".github/**/*.md" ".github/**/*.yml" skills-lock.json .prettierrc.json
-git diff --check -- . ":(exclude).agents/**"
+git diff --check -- . ":(exclude).agents/**" ":(exclude)worker-configuration.d.ts"
 ```
 
-Use the same Prettier invocation with `--write` to format edited files. [Documentation CI](.github/workflows/ci.yml) checks formatting on `main` pushes and pull requests. It does not claim application build, type, lint, or runtime coverage. See [TESTING.md](docs/TESTING.md) for link and rendering checks.
-
-When implementation is authorized, use the planned Vite+ toolchain and keep the application small. There is no `dev`, `build`, or application install command yet.
+Use the same Prettier invocation with `--write` to format edited documentation. [CI](.github/workflows/ci.yml) checks documentation plus application formatting, lint/types, focused handler tests, build, and generated bindings. It performs no deployment. See [TESTING.md](docs/TESTING.md) for link and rendering checks.
 
 The selected backend is a Cloudflare Worker with one SQLite-backed Durable Object per room and hibernating WebSockets. [ARCHITECTURE.md](docs/ARCHITECTURE.md) explains the responsibilities and why Workers Free can support the initial app without a paid upgrade.

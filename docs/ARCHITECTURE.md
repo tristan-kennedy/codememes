@@ -1,6 +1,6 @@
 # Architecture
 
-Status: selected implementation baseline, researched October 4, 2026. This repository still contains documentation and project setup only. No application, Cloudflare resources, or deployment have been created.
+Status: implemented entry/lobby foundation, verified locally October 4, 2026. No Cloudflare service or deployment has been created. Game rules, automatic reconnect, host transfer, and expiry described below are the selected future architecture; they are not implemented by the lobby foundation. [PROTOCOL.md](PROTOCOL.md) records the actual current contracts, input/rate limits, atomic boundary, and extension responsibilities.
 
 ## Selected stack
 
@@ -75,7 +75,7 @@ Runtime sleep or restart does not itself end a game. Rooms remain deliberately t
 
 ## Proposed repository layout
 
-These are future boundaries, not files to scaffold in this documentation task:
+The entry/lobby foundation implements the browser app, shared protocol, connection helper, Worker routing, room transport, server state, configuration, and generated bindings. The game/words files below remain future boundaries:
 
 ```text
 src/                       React application and plain CSS
@@ -85,15 +85,16 @@ src/                       React application and plain CSS
 worker/
   index.ts                 HTTP routing and ROOMS binding
   room.ts                  Durable Object, storage, sockets, alarms
-  game.ts                  Authoritative game rules and projections
-  words.ts                 Curated source words and server board generation
+  state.ts                 Lobby transitions and allowlisted projection
+  game.ts                  Future authoritative game rules
+  words.ts                 Future curated source words and server board generation
 vite.config.ts             React and Cloudflare Vite plugins
 wrangler.jsonc             Assets, ROOMS binding, runtime settings
 ```
 
-Keep one package and one deployment. Configure the `Room` binding and an initial `new_sqlite_classes` migration when implementation begins; pin the compatibility date to the tested runtime. Generate binding types from that configuration. Keep local and deployed room data separate. Verify the Vite+/Cloudflare plugin combination during the first scaffold rather than claiming it has been tested here.
+Keep one package and one deployment. The `Room` binding, initial `new_sqlite_classes` migration, tested compatibility date, and generated binding types are configured. Vite+ 1.0.0 and Cloudflare Vite plugin 1.62.5 build and run together in local workerd emulation. The package manager reports peer-version warnings because the aliased Vite+ core identifies as 1.0.0; local verification covers the configured pair. Keep local and deployed room data separate.
 
-No SSR framework, Node server, Socket.IO, Agents SDK, D1, Workers KV, Redis, queues, or microservices are needed for this baseline. The native platform APIs cover the required room coordination and connections. Deployment automation can be added after a runnable app exists; existing CI remains documentation-only.
+No SSR framework, Node server, Socket.IO, Agents SDK, D1, Workers KV, Redis, queues, or microservices are needed for this baseline. The native platform APIs cover room coordination and connections. CI checks the application and documentation; deployment automation remains future work.
 
 ## Workers plan decision
 
@@ -123,4 +124,4 @@ The account's current subscription and usage have not been inspected, and no bil
 
 ## Validation when implementation exists
 
-Follow [TESTING.md](TESTING.md). Validate two-browser synchronization, role-specific key privacy, competing/stale reveals, spymaster disconnects, seat recovery, duplicate connections, hibernation wake, stored-state recovery, expiry cleanup, and quota/storage failures when implementation exists. Use focused automated checks or manual evidence as appropriate, with tests remaining optional. Verify actual behavior on Workers as well as local emulation. This repository foundation contains no implementation, automated tests, or stories.
+Follow [TESTING.md](TESTING.md). Current checks cover lobby synchronization, stale/unauthorized commands, replacement sockets, persistence, and injected storage failures. Role-specific keys, competing reveals, spymaster recovery, expiry cleanup, and real Cloudflare runtime behavior need validation as those outcomes are implemented. Tests remain optional tools; local emulation does not certify deployed runtime behavior.

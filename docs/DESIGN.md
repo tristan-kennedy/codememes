@@ -1,9 +1,71 @@
 ---
 name: Codenames
-description: A clear, sociable visual direction for a private word game.
+description: A clear, sociable table for a private word game.
+colors:
+  ink: "#182733"
+  muted: "#536572"
+  ground: "#eef2f5"
+  surface: "#ffffff"
+  border: "#becad2"
+  red: "#a52b36"
+  red-surface: "#fff1f1"
+  blue: "#1c5799"
+  blue-surface: "#edf5ff"
+  focus: "#6553a6"
+  selection: "#cfdae5"
+  control-hover: "#e1e8ed"
+  primary-hover: "#2d4354"
+  error-surface: "#fff8df"
+  error-border: "#b89c46"
+typography:
+  heading:
+    fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+    fontSize: "clamp(2rem, 5vw, 3rem)"
+    fontWeight: 750
+    lineHeight: 1.15
+    letterSpacing: "-0.025em"
+  body:
+    fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+    fontSize: "1rem"
+    fontWeight: 400
+    lineHeight: 1.55
+  team-title:
+    fontSize: "1.35rem"
+  brand:
+    fontSize: "1.15rem"
+  intro:
+    fontSize: "1.125rem"
+  supporting:
+    fontSize: "0.9375rem"
+  label:
+    fontSize: "0.875rem"
+  metadata:
+    fontSize: "0.8125rem"
+rounded:
+  control: "6px"
+  mark: "2px"
+spacing:
+  sm: "8px"
+  md: "16px"
+  lg: "24px"
+  xl: "40px"
+components:
+  button-primary:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.surface}"
+    rounded: "{rounded.control}"
+    padding: "10px 16px"
+  button-secondary:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.control}"
+    padding: "10px 16px"
+  input:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.control}"
+    padding: "10px 12px"
 ---
-
-<!-- SEED: established under the user's delegated design authority before implementation; re-run $impeccable document once there is code to capture actual tokens and components. -->
 
 # Design System: Codenames
 
@@ -11,82 +73,60 @@ description: A clear, sociable visual direction for a private word game.
 
 **Creative North Star: "The Game Table"**
 
-Make the app feel like sitting down to a well-arranged game with friends. A crisp, pale slate ground, white word tiles, dark readable type, and committed red and blue team colors create the identity. The words and revealed identities carry the visual interest. Use original graphics only where they help explain play; the initial direction needs no illustrations or image assets.
+A clear shared table for friends. The entry and lobby implement the established seed: pale slate ground, white controls, dark readable type, and committed Red and Blue surfaces. Original paired rectangular marks identify the working product without illustration, decorative furniture, or a marketing shell. System sans-serif typography follows the agreed product constraint.
 
-The same system serves entry, the lobby, live play, rules, and the result. Its personality comes from generous word lettering, exact alignment, and one signature move: a committed guess changes a word tile into an unmistakable identity tile. Familiar controls and a stable board keep attention on the conversation. No marketing hero, dashboard shell, spy-terminal styling, or decorative status furniture.
+Tokens above are extracted from [src/styles.css](../src/styles.css). The [.impeccable/design.json](../.impeccable/design.json) sidecar records focus, motion, breakpoints, and component snippets. Game-board, clue, reveal, and result descriptions below preserve the intended direction and do not claim implemented game UI.
 
 **Key Characteristics:**
 
-- A clear shared table with strong word hierarchy.
-- Red and blue reserved for teams, paired with explicit names and symbols.
-- Flat surfaces, restrained borders, and shallowly rounded tiles.
-- Stable card positions and short, purposeful state changes.
-- A readable public board and a clearly identified private spymaster view.
-
-This is a directional seed. Nothing here is extracted from a running interface. Exact colors, type sizes, spacing, and component tokens will be measured and recorded during implementation.
+- Flat, readable surfaces with explicit team names.
+- Generous separation between tasks; compact grouping within a player row.
+- Persistent, wrapping names and native team/role controls.
+- A single quiet page with clear connection and readiness feedback.
 
 ## Colors
 
-Use cool light neutrals as the quiet base and red and blue as semantic team colors. The working interface has enough contrast to remain readable on a phone in an ordinary room.
+Dark Ink drives text and primary actions. Slate ground and White controls support the table. Muted Slate remains readable for explanations and presence. Deep Red and Deep Blue identify teams on pale matching surfaces; text labels always accompany color. Violet is reserved for the visible focus outline. Generic errors use a pale amber surface with dark ink rather than misusing a team color.
 
-### Primary
-
-Dark ink carries headings, ordinary text, and primary actions that belong to neither team. A primary action must stay recognizable when the active team changes.
-
-### Secondary
-
-Red and Blue identify teams in the roster, turn summary, remaining-agent counts, and card identities. Each has a legible text treatment on its light or saturated surface. Always pair team color with the team name, a simple distinct symbol, or an accessible label.
-
-### Neutral
-
-Pale slate provides the page ground; clean white provides unrevealed word tiles. Neutral revealed cards use a visibly different muted surface with a Neutral label. The assassin uses a dark surface, contrasting text, and an explicit Assassin mark. Selection and keyboard focus remain distinct from a revealed identity.
-
-Exact palette values are to be resolved during implementation and checked in their real combinations. Color must never be the only indication of role, selection, turn, connection, or outcome.
+The current palette uses hex values as its source of truth. Do not introduce gradients, glass, texture, or shadowed panels. Future revealed identities need explicit Red, Blue, Neutral, and Assassin labels and readable surfaces.
 
 ## Typography
 
-Use one system sans-serif stack throughout. A custom font is unnecessary for the first release. Words get the strongest weight and largest practical size; game status comes next; explanations and secondary controls stay quieter.
+Use one system sans-serif stack throughout. Headings use the implemented 2–3rem responsive scale, weight 750, and slightly tight tracking. Body text is 1rem with 1.55 line height; supporting text ranges from 0.8125–0.9375rem. Team headings are 1.35rem. Names wrap with `overflow-wrap: anywhere`; full names remain exposed to accessibility APIs. Codes use tabular numerals and grouping, without monospace decoration.
 
-Keep board words as text, never baked into images. Present board words in uppercase while preserving normal sentence case in the surrounding interface. Choose word-list lengths and responsive type together so every card stays readable without truncation. Ordinary copy targets a comfortable reading size; compact labels remain legible instead of becoming decorative microtype.
-
-Use tabular numerals for remaining-agent counts and the clue allowance. A clue reads as one phrase with its number, with clear separation from team scores. Names may wrap or truncate with their full accessible label; board words may not.
+Future board words remain real uppercase text and may never truncate. Their practical scale must be verified against the eventual word list and five-column board.
 
 ## Layout
 
-Use a shallow page structure rather than persistent application navigation. The live game leads with room identity and invite access, then the current team, clue or required action, and remaining-agent counts. The five-by-five board is the largest region. Supporting controls, roster, and rules stay nearby without competing with the words.
+The entry is centered in a 480px task column within a 760px page. It gives Create and Join direct, adjacent choices, then the name/code form and one primary action. The lobby is a 1160px table: heading/code, invite, team groups, unassigned seats, readiness, and role explanation. The host sees native controls on every player; guests see controls only for their own seat.
 
-On a wide screen, place the board beside a narrow supporting column. On a phone, place the current turn and clue above the board and secondary information below it. Keep the board in five columns at every width; never reorder cards, turn it into a carousel, or require horizontal scrolling. All twenty-five cards remain discoverable, even when vertical scrolling is necessary. Verify at a narrow phone width and with longer real words.
+Teams are side by side above 800px and stacked below. At 540px the invite actions stack and player controls use a full row. Page padding is 24px on desktop and 16px on phones. Every button/select has a 44px minimum height. The 320px lobby supports wrapping names without horizontal scrolling.
 
-Use consistent spacing and alignment, with more room between sections than inside a group. Entry presents Create a room and Join room directly. The lobby groups each team's people and roles visibly, with start readiness beside Start game. Rules open as a small readable panel and restore focus to their trigger. Final results retain the board and give the host Play again without adding a separate results dashboard.
+Future boards retain five fixed columns and stable positions at every width. Supporting content follows the board on phones and sits beside it on wider screens. Never reorder cards or put the board in a carousel.
 
 ## Elevation & Depth
 
-Keep the interface flat. Separation comes from spacing, tonal surfaces, and quiet borders. Word tiles do not jump, tilt, glow, or rise on hover. Use a backdrop only for an actual dialog. Avoid gradients, glass, heavy shadows, textured paper, and ornamental layers.
-
-The identity change after Reveal is the one expressive transition: a short fill-and-label change while the word remains readable. Reduced motion makes the same update immediate. No card-flip sequence, confetti, looping effects, or animations that delay the next move.
+The implemented interface is flat. Spacing, quiet 1px borders, and tonal team surfaces provide separation. No shadows or decorative layers exist. Use a backdrop only for an actual focused dialog.
 
 ## Shapes
 
-Word tiles are evenly sized rectangles with modest rounded corners. Buttons and fields share a similarly restrained corner language. Cards retain their dimensions in selected, revealed, disabled, and focused states. Borders and focus outlines do not change layout.
+Controls and team surfaces share a restrained 6px radius. The paired identity mark has small 2px corners. Visible focus uses a 3px outline with a 3px offset and never changes layout. Future word tiles retain equal dimensions through selection, reveal, disabled, and focus states.
 
-The private key stays on the same grid as the public board. Spymaster identity information is an intentional persistent label and surface treatment, never a tooltip, a hover-only reveal, or a tiny corner dot. Private-view labeling is visible near the board.
+## Components
+
+Primary buttons use Dark Ink with white text; secondary buttons use White with quiet borders. Hover changes fill over 140ms with exponential ease-out; reduced motion removes the transition. Inputs and native selects share text, border, padding, and focus treatment. Labels remain visible except full player-specific select labels that use the standard visually hidden pattern.
+
+Team groups contain role headings and simple player lists, without nested cards. Presence is literal Connected/Offline text. Loading, rejected commands, connection loss, and takeover have useful messages; roster controls stay disabled until a usable connection and while awaiting acknowledgement. Readiness explains the missing or extra roles. The native details element provides a small role explanation.
+
+The future committed reveal remains the planned signature interaction: a short fill-and-label change that keeps each word readable, immediate under reduced motion. It is not implemented in the lobby.
 
 ## Do's and Don'ts
 
-### Do
-
-- **Do** make the words and next permitted action the clearest elements.
-- **Do** retain card position and word visibility through every state.
-- **Do** label Red, Blue, Neutral, and Assassin using more than color.
-- **Do** distinguish local selection, committed reveal, keyboard focus, and disconnection.
-- **Do** provide deliberate touch targets and a visible Reveal confirmation with the selected word.
-- **Do** test actual words, longer names, narrow screens, keyboard use, and reduced motion before recording final tokens.
-
-### Don't
-
-- **Don't** add ornamental badges, extra navigation, or nested cards around every group.
-- **Don't** use team color as a generic success/error palette or hide the active team in subtle styling.
-- **Don't** hide essential information behind hover or rely on decorative icons without labels.
-- **Don't** animate unrevealed cards in ways that imply a hidden identity.
-- **Don't** invent live gameplay screenshots, user counts, or social proof.
-- **Don't** introduce a component library, theme switcher, or elaborate asset pipeline just to realize this direction.
+- **Do** retain the product's direct language and native keyboard/touch affordances.
+- **Do** distinguish team, role, host, connection, and permitted controls explicitly.
+- **Do** keep long names readable and public identity separate from server authority.
+- **Do** verify actual content at desktop and 320px widths before extending tokens.
+- **Don't** add ornamental badges, persistent navigation, nested panels, or spy-terminal styling.
+- **Don't** use color alone to indicate identity, selection, connection, or outcome.
+- **Don't** introduce a font pipeline, component framework, gradients, glass, or shadows.
+- **Don't** imply that planned boards, key views, or reveal transitions already exist.

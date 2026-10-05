@@ -12,7 +12,7 @@ web
 
 Delegated: React and TypeScript with Vite, using Vite+ (`vp`) for package management and development tooling as in Golf Club Curator. Use plain CSS, one Cloudflare Worker with Static Assets, and one SQLite-backed Durable Object per room with native hibernating WebSockets. Keep one package and deployment; no monorepo packages, component framework, authentication service, or external database at launch. [ARCHITECTURE.md](ARCHITECTURE.md) records the concrete boundaries and current plan research.
 
-This is a future stack choice only. No application scaffold, dependencies, Cloudflare resources, or deployment is established yet. Node.js runs local tooling; Cloudflare's Workers runtime runs the application backend. Workers Free supports this baseline within its quotas.
+This stack is implemented for entry and the synchronized lobby. Playing rounds and lifecycle behavior below remain agreed future capabilities. Node.js runs local tooling; Cloudflare's Workers runtime runs the application backend. No Cloudflare service or deployment has been created. Workers Free supports this baseline within its quotas.
 
 ## Users
 
@@ -79,7 +79,7 @@ Core flows work with keyboard and touch. Give cards meaningful accessible names,
 
 ## Evidence on Hand
 
-This repository contains planning and contribution documentation, GitHub configuration, and a project-local Impeccable skill. There is no playable game, final word list, visual implementation, user research, usage data, or deployment. The GitHub Project starts empty; no implementation issues or stories are authorized by this setup.
+This repository contains the entry and synchronized lobby, the Worker and SQLite Room runtime, protocol contracts, contribution documentation, GitHub configuration, and a project-local Impeccable skill. Local emulation and focused checks validate this foundation. There is no playable round, final word list, user research, production usage data, or deployment. Future capability descriptions above do not claim implemented game or lifecycle behavior.
 
 ## Product Principles
 
