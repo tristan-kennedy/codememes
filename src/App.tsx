@@ -142,6 +142,9 @@ export function App() {
 
   function backToEntry() {
     connection.current?.close();
+    setPending(false);
+    setStatus("connecting");
+    setCopied("");
     setCode(null);
     setView(null);
     setEnteredCode("");
