@@ -106,7 +106,7 @@ components:
 
 A clear shared table for friends. The entry and lobby implement the established seed: pale slate ground, white controls, dark readable type, and committed Red and Blue surfaces. Original paired rectangular marks identify the working product without illustration, decorative furniture, or a marketing shell. System sans-serif typography follows the agreed product constraint.
 
-Tokens above are extracted from [src/styles.css](../src/styles.css). The [.impeccable/design.json](../.impeccable/design.json) sidecar records focus, motion, breakpoints, and component snippets. Entry, lobby, board, clue/reveal controls, results, and the Rules dialog now implement this world.
+Tokens above are extracted from [src/styles.css](../src/styles.css). The [.impeccable/design.json](../.impeccable/design.json) sidecar records focus, motion, breakpoints, and component snippets. Entry, lobby, board, clue/reveal controls, results, Rules, and recovery/waiting feedback now implement this world.
 
 **Key Characteristics:**
 
@@ -150,6 +150,8 @@ Primary buttons use Dark Ink with white text; secondary buttons use White with q
 
 Team groups contain role headings and simple player lists, without nested cards. Presence is literal Connected/Offline text. Loading, rejected commands, connection loss, and takeover have useful messages; roster controls stay disabled until a usable connection and while awaiting acknowledgement. Readiness explains the missing or extra roles. The native details element provides a small role explanation.
 
+Recovery preserves the accepted board while actions pause and automatic backoff checks the room. The banner names Reconnecting, terminal takeover, unavailable connection, or expiry literally, with one relevant recovery action. A disconnected active spymaster is named in a quiet waiting row with saved-seat instructions. It uses existing type/color tokens, 16px margin/padding, 1px borders, wrapping text, and a 70ch reading width. Connection loss clears local selection; returning socket snapshots determine roles, host, and permitted actions.
+
 The committed reveal is a short 140ms fill/color change with exponential ease-out that keeps each word readable; the revealed label and counts update only after server acceptance. Reduced motion makes tile/control changes immediate. Local selection sends no update and names the chosen word beside explicit Reveal; revision changes clear that choice. The active spy has a clue/number form; accepted clues shrink and wrap within the available width, exposing every character without truncation. Other players receive concise role/turn instructions. The final board exposes every identity with a literal winner and reason.
 
 Rules uses a native modal dialog to protect reading focus, with an explicit Close rules button, Escape dismissal, and focus returned to Rules. Accepted reveal/turn announcements use one restrained live region; no typing/selection/presence chatter is announced.
@@ -163,4 +165,4 @@ Rules uses a native modal dialog to protect reading focus, with an explicit Clos
 - **Don't** add ornamental badges, persistent navigation, nested panels, or spy-terminal styling.
 - **Don't** use color alone to indicate identity, selection, connection, or outcome.
 - **Don't** introduce a font pipeline, component framework, gradients, glass, or shadows.
-- **Don't** imply automatic reconnect, rematch, abandonment, or expiry already exist.
+- **Don't** imply rematch, abandonment, or deployed availability already exists.

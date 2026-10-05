@@ -42,6 +42,7 @@ export interface RoomView {
   selfId: SeatId;
   players: PlayerView[];
   readiness: { ready: boolean; reasons: string[] };
+  waitingFor: { seatId: SeatId; name: string; team: Team } | null;
   controls: {
     assignSelf: boolean;
     assignOthers: boolean;

@@ -4,6 +4,7 @@ import type { ServerMessage } from "../src/shared/protocol";
 import { assign, parseCommand, commitTransition, project, RoomError, uniqueName } from "./state";
 import type { RoomState, Seat } from "./state";
 import { play } from "./game";
+import { CLEANUP_RETRY, deadline, reconcile, missingSpymaster } from "./lifecycle";
 import { checkOrigin, cookieHash, errorResponse, hashToken, newToken, seatCookie } from "./http";
 
 interface Connection {
@@ -35,8 +36,10 @@ export class Room extends DurableObject<Env> {
         hostId: seat.id,
         seats: [seat],
         updatedAt: Date.now(),
+        emptySince: Date.now(),
       };
       await txn.put(RECORD, next);
+      await txn.setAlarm(deadline(next));
       return next;
     });
     if (!state) return null;
@@ -49,45 +52,44 @@ export class Room extends DurableObject<Env> {
       const tokenHash = await hashToken(token);
       let selfId = "";
       let recovered = false;
-      const next = await this.ctx.storage.transaction(async (txn) => {
-        const state = await txn.get<RoomState>(RECORD);
-        if (!state)
-          throw new RoomError(
-            "not_found",
-            "This room does not exist or has expired. Check the invite or create a room.",
-            404,
-          );
-        const previous = state.seats.find((seat) => seat.tokenHash === existingHash);
-        if (previous) {
-          selfId = previous.id;
-          recovered = true;
-          return state;
-        }
-        selfId = crypto.randomUUID();
-        const seat: Seat = {
-          id: selfId,
-          name: uniqueName(name, state.seats),
-          tokenHash,
-          team: null,
-          role: state.phase === "lobby" ? "operative" : "watcher",
-          connectionId: null,
-        };
-        const joined = {
-          ...state,
-          seats: [...state.seats, seat],
-          revision: state.revision + 1,
-          updatedAt: Date.now(),
-        };
-        // Bound record bytes rather than imposing a product player limit.
-        if (new TextEncoder().encode(JSON.stringify(joined)).length > 256 * 1024)
-          throw new RoomError("unavailable", "This room is full. Create another room.", 503);
-        await txn.put(RECORD, joined);
-        return joined;
-      });
-      this.broadcast(next);
+      const next = await commitTransition(
+        this.ctx.storage,
+        (current) => {
+          const state = reconcile(current, this.connected(current));
+          const previous = state.seats.find((seat) => seat.tokenHash === existingHash);
+          if (previous) {
+            selfId = previous.id;
+            recovered = true;
+            return state;
+          }
+          selfId = crypto.randomUUID();
+          const seat: Seat = {
+            id: selfId,
+            name: uniqueName(name, state.seats),
+            tokenHash,
+            team: null,
+            role: state.phase === "lobby" ? "operative" : "watcher",
+            connectionId: null,
+          };
+          const joined = {
+            ...state,
+            seats: [...state.seats, seat],
+            revision: state.revision + 1,
+            updatedAt: Date.now(),
+          };
+          // Bound record bytes rather than imposing a product player limit.
+          if (new TextEncoder().encode(JSON.stringify(joined)).length > 256 * 1024)
+            throw new RoomError("unavailable", "This room is full. Create another room.", 503);
+          return joined;
+        },
+        (next) => this.broadcast(next),
+      );
       return this.joinResponse(next, selfId, recovered ? null : token);
     } catch (error) {
-      if (error instanceof RoomError) return errorResponse(error.code, error.message, error.status);
+      if (error instanceof RoomError) {
+        if (error.code === "not_found") await this.cleanupExpired();
+        return errorResponse(error.code, error.message, error.status);
+      }
       return errorResponse("unavailable", "The room could not be saved. Try again shortly.", 503);
     }
   }
@@ -100,24 +102,26 @@ export class Room extends DurableObject<Env> {
       if (isSocket && request.headers.get("Upgrade")?.toLowerCase() !== "websocket")
         throw new RoomError("invalid", "Use a WebSocket connection.", 426);
       let connection: Connection | undefined;
-      const state = await this.ctx.storage.transaction(async (txn) => {
-        const current = await txn.get<RoomState>(RECORD);
-        if (!current)
-          throw new RoomError("not_found", "This room does not exist or has expired.", 404);
-        const seat = current.seats.find((entry) => entry.tokenHash === hash);
-        if (!seat) throw new RoomError("unauthorized", "Join this room to continue.", 401);
-        connection = { seatId: seat.id, connectionId: crypto.randomUUID() };
-        if (!isSocket) return current;
-        const next = {
-          ...current,
-          revision: current.revision + 1,
-          seats: current.seats.map((entry) =>
-            entry.id === seat.id ? { ...entry, connectionId: connection!.connectionId } : entry,
-          ),
-        };
-        await txn.put(RECORD, next);
-        return next;
-      });
+      const state = await commitTransition(
+        this.ctx.storage,
+        (current) => {
+          const seat = current.seats.find((entry) => entry.tokenHash === hash);
+          if (!seat) throw new RoomError("unauthorized", "Join this room to continue.", 401);
+          connection = { seatId: seat.id, connectionId: crypto.randomUUID() };
+          if (!isSocket) return reconcile(current, this.connected(current));
+          const next = {
+            ...current,
+            revision: current.revision + 1,
+            seats: current.seats.map((entry) =>
+              entry.id === seat.id ? { ...entry, connectionId: connection!.connectionId } : entry,
+            ),
+          };
+          const connected = this.connected(current);
+          connected.add(seat.id);
+          return reconcile(next, connected);
+        },
+        () => {},
+      );
       if (!isSocket)
         return Response.json(this.snapshot(state, connection!.seatId), {
           headers: { "Cache-Control": "no-store" },
@@ -140,7 +144,10 @@ export class Room extends DurableObject<Env> {
       this.broadcast(state);
       return new Response(null, { status: 101, webSocket: client });
     } catch (error) {
-      if (error instanceof RoomError) return errorResponse(error.code, error.message, error.status);
+      if (error instanceof RoomError) {
+        if (error.code === "not_found") await this.cleanupExpired();
+        return errorResponse(error.code, error.message, error.status);
+      }
       return errorResponse("unavailable", "The room could not be saved. Try again shortly.", 503);
     }
   }
@@ -186,14 +193,25 @@ export class Room extends DurableObject<Env> {
               "Your seat is open in another tab. Reconnect to take it back.",
               403,
             );
-          return command.type === "assign"
-            ? assign(current, identity.seatId, command)
-            : play(current, identity.seatId, command);
+          const connected = this.connected(current);
+          const state = reconcile(current, connected);
+          const missing = missingSpymaster(state, connected);
+          if (missing && command.type !== "assign" && command.type !== "start")
+            throw new RoomError(
+              "forbidden",
+              `Waiting for ${missing.name}, ${missing.team === "red" ? "Red" : "Blue"}'s spymaster, to reconnect.`,
+              403,
+            );
+          const next =
+            command.type === "assign"
+              ? assign(state, identity.seatId, command)
+              : play(state, identity.seatId, command);
+          return reconcile(next, connected);
         },
         (next) => this.broadcast(next, socket, requestId),
       );
     } catch (error) {
-      const failure =
+      let failure =
         error instanceof RoomError
           ? error
           : new RoomError(
@@ -201,7 +219,38 @@ export class Room extends DurableObject<Env> {
               "The change could not be saved. Check the room and try again.",
               503,
             );
-      const state = await this.ctx.storage.get<RoomState>(RECORD).catch(() => undefined);
+      let state = await this.ctx.storage.get<RoomState>(RECORD).catch(() => undefined);
+      if (state && Date.now() >= deadline(state)) {
+        try {
+          await commitTransition(
+            this.ctx.storage,
+            (current) => current,
+            () => {},
+          );
+        } catch (expiry) {
+          if (expiry instanceof RoomError) failure = expiry;
+          else
+            failure = new RoomError(
+              "unavailable",
+              "The room could not be checked. Reconnect to try again.",
+              503,
+            );
+        }
+        state = await this.ctx.storage.get<RoomState>(RECORD).catch(() => undefined);
+      }
+      if (state && Date.now() >= deadline(state)) {
+        // The deadline revokes access even if storage cannot commit deletion.
+        // Preserve the scheduled deadline or arrange an earlier cleanup retry.
+        await this.ctx.storage.setAlarm(Date.now() + CLEANUP_RETRY).catch(() => undefined);
+        this.expireSockets();
+        state = undefined;
+        failure = new RoomError(
+          "not_found",
+          "This room has expired. Create a room to play again.",
+          404,
+        );
+      }
+      if (failure.code === "not_found") await this.cleanupExpired();
       const authorized =
         identity &&
         state?.seats.find((seat) => seat.id === identity.seatId)?.connectionId ===
@@ -219,20 +268,82 @@ export class Room extends DurableObject<Env> {
 
   async webSocketClose(socket: WebSocket): Promise<void> {
     socket.close();
-    const state = await this.ctx.storage.get<RoomState>(RECORD);
-    if (state) this.broadcast(state);
+    try {
+      await commitTransition(
+        this.ctx.storage,
+        (state) => reconcile(state, this.connected(state, socket)),
+        (next) => this.broadcast(next),
+      );
+    } catch (error) {
+      if (error instanceof RoomError && error.code === "not_found") await this.cleanupExpired();
+      else {
+        this.lifecycleUnavailable();
+        // Retry the same durable reconciliation through the single alarm.
+        await this.ctx.storage.setAlarm(Date.now() + CLEANUP_RETRY);
+      }
+    }
   }
   async webSocketError(socket: WebSocket): Promise<void> {
     await this.webSocketClose(socket);
   }
+  async alarm(): Promise<void> {
+    try {
+      await commitTransition(
+        this.ctx.storage,
+        (state) => reconcile(state, this.connected(state)),
+        (next) => this.broadcast(next),
+      );
+    } catch (error) {
+      if (error instanceof RoomError && error.code === "not_found") await this.cleanupExpired();
+      else {
+        this.lifecycleUnavailable();
+        await this.ctx.storage.setAlarm(Date.now() + CLEANUP_RETRY);
+        throw error; // Cloudflare retries a failed alarm; no success was published.
+      }
+    }
+  }
+  private lifecycleUnavailable(): void {
+    for (const socket of this.ctx.getWebSockets())
+      this.send(socket, {
+        version: PROTOCOL_VERSION,
+        type: "error",
+        code: "unavailable",
+        message: "Room recovery could not be saved. Reconnect to fetch the latest accepted state.",
+      });
+  }
+  private async cleanupExpired(): Promise<void> {
+    // Protect this rare deallocation boundary from explicit creation racing
+    // between the missing-record check and atomic SQLite deleteAll().
+    await this.ctx.blockConcurrencyWhile(async () => {
+      if (await this.ctx.storage.get(RECORD)) return;
+      try {
+        await this.ctx.storage.deleteAll();
+      } catch (error) {
+        this.lifecycleUnavailable();
+        throw error;
+      }
+      this.expireSockets();
+    });
+  }
+  private expireSockets(): void {
+    for (const socket of this.ctx.getWebSockets()) {
+      this.send(socket, {
+        version: PROTOCOL_VERSION,
+        type: "error",
+        code: "not_found",
+        message: "This room has expired. Create a room to play again.",
+      });
+      socket.close(4004, "Room expired");
+    }
+  }
   private identity(socket: WebSocket): Connection | null {
     return socket.deserializeAttachment() as Connection | null;
   }
-  private connected(state: RoomState): Set<string> {
+  private connected(state: RoomState, excluded?: WebSocket): Set<string> {
     return new Set(
       this.ctx
         .getWebSockets()
-        .filter((socket) => socket.readyState === WebSocket.OPEN)
+        .filter((socket) => socket !== excluded && socket.readyState === WebSocket.OPEN)
         .map((socket) => this.identity(socket))
         .filter(
           (identity): identity is Connection =>
@@ -266,6 +377,7 @@ export class Room extends DurableObject<Env> {
     for (const socket of this.ctx.getWebSockets()) {
       const identity = this.identity(socket);
       if (
+        socket.readyState === WebSocket.OPEN &&
         identity &&
         state.seats.some(
           (seat) => seat.id === identity.seatId && seat.connectionId === identity.connectionId,

@@ -10,6 +10,7 @@ import type {
 import { RoomError } from "./errors";
 import { projectRound } from "./game";
 import type { RoundState } from "./game";
+import { CLEANUP_RETRY, deadline, missingSpymaster } from "./lifecycle";
 export { RoomError } from "./errors";
 
 export interface Seat {
@@ -27,7 +28,8 @@ export interface RoomState {
   revision: number;
   roundId: string | null;
   round?: RoundState | null;
-  hostId: string;
+  hostId: string | null;
+  emptySince?: number | null;
   seats: Seat[];
   updatedAt: number;
 }
@@ -106,7 +108,8 @@ export function assign(state: RoomState, actorId: string, command: AssignCommand
 }
 export function project(state: RoomState, selfId: string, connected: Set<string>): RoomView {
   const self = state.seats.find((seat) => seat.id === selfId);
-  const active = state.phase === "playing" && self?.team === state.round?.activeTeam;
+  const waitingFor = missingSpymaster(state, connected);
+  const active = state.phase === "playing" && !waitingFor && self?.team === state.round?.activeTeam;
   const guessing = active && self?.role === "operative" && state.round?.stage === "guessing";
   const reasons: string[] = [];
   for (const team of ["red", "blue"] as const) {
@@ -133,6 +136,7 @@ export function project(state: RoomState, selfId: string, connected: Set<string>
       connected: connected.has(seat.id),
     })),
     readiness: { ready: reasons.length === 0, reasons },
+    waitingFor,
     controls: {
       assignSelf: state.phase === "lobby",
       assignOthers: state.phase === "lobby" && state.hostId === selfId,
@@ -161,11 +165,24 @@ export async function commitTransition(
 ): Promise<RoomState> {
   const next = await storage.transaction(async (txn) => {
     const current = await txn.get<RoomState>("room");
-    if (!current) throw new RoomError("not_found", "This room has expired.", 404);
+    if (!current || Date.now() >= deadline(current)) {
+      if (current) await txn.delete("room");
+      // Keep a durable retry until deleteAll actually deallocates storage and
+      // atomically removes the alarm. A failed cleanup needs no new traffic.
+      await txn.setAlarm(Date.now() + CLEANUP_RETRY);
+      return null;
+    }
     const updated = transition(current);
-    await txn.put("room", updated);
+    if (updated !== current) await txn.put("room", updated);
+    if ((await txn.getAlarm()) !== deadline(updated)) await txn.setAlarm(deadline(updated));
     return updated;
   });
+  if (!next)
+    throw new RoomError(
+      "not_found",
+      "This room does not exist or has expired. Create a room to play again.",
+      404,
+    );
   publish(next);
   return next;
 }
