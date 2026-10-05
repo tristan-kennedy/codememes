@@ -86,20 +86,20 @@ Reduced-motion behavior was verified by source: cover settle is solely under `pr
 
 [CI](../.github/workflows/ci.yml) runs on pushes and pull requests to `main` with read-only repository permissions and no persisted checkout credentials. Documentation uses the pinned Prettier check. Application CI installs locked dependencies using Vite+, runs format/lint/type checks, focused handler/client tests, build, isolated native lifecycle checks, and generated binding freshness. It creates no Cloudflare services and performs no deployment. Branch protection does not enforce these checks; review and current-head passing CI remain required by CONTRIBUTING.
 
-## Future evidence
+## Evidence boundaries
 
-The companion lobby still requires pointer/touch drag, tap-to-place and keyboard placement, self/host permissions, occupied-slot rejection, races and interruption checks. Deployment/device evidence remains bounded below. The meme implementation now has the following checks:
+The local meme and accessible-lobby checks are recorded separately above and below. Physical-device and deployment evidence remain bounded below. The meme implementation has the following checks:
 
 - Mixed phrase/image/GIF boards: recognizable small faces, full-size inspection, intact captions, poster/fallback behavior, stable geometry, and active-room asset availability across catalog/deployment changes.
 - Privacy and rules: independently randomized identities, public/private/final media projections, source/description/URL metadata without key leakage, and clue checks against names, aliases, and visible words. Old word-game tests alone are insufficient.
 - Tabletop UI: board dominance and sparse functional copy; fixed five columns; readable names and reachable separate inspect/select actions at 320px; deliberate Reveal; focus, contrast, screen-reader announcements, on-demand muted animation, and reduced motion.
 - Original assets: cover/texture provenance and optimization; equivalent identity symbols; no copied commercial branding; readable recognition strips after covers settle.
 
-Follow [MEME-DECK.md](MEME-DECK.md) for deck acceptance. The delivered meme-table evidence above supplements the unaffected foundation checks; it does not certify the companion lobby or deployment.
+Follow [MEME-DECK.md](MEME-DECK.md) for deck acceptance. The meme-table and accessible-lobby evidence supplement the unaffected foundation checks; neither certifies deployment or physical-device behavior.
 
 Publishing must verify deployed Cloudflare game/recovery/cleanup, security headers, cookie behavior over HTTPS, account-specific rate namespace identifiers, and measured quota behavior. No actual one-hour/twenty-four-hour wall-clock expiry or production quota outage was observed. Local checks do not certify these deferred outcomes.
 
-## Accessible lobby implementation evidence � October 5, 2026
+## Accessible lobby implementation evidence: October 5, 2026
 
 The lobby uses named pieces with a dedicated pointer handle and equivalent destination picker. Server assignment rejects occupied spymaster slots before mutation, including offline incumbents; the host moves incumbents explicitly. Five focused assignment checks and a real Room handler race verify authority, phase/round/revision, unchanged activity on rejection and commit-before-publication. The prior duplicate-spymaster game/runtime fixtures now expect rejection before explicit reassignment.
 

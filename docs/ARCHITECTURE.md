@@ -108,9 +108,9 @@ The deck replaces the Worker-only noun source with a curated versioned catalog. 
 
 Identity remains separately randomized and private. Media IDs, paths, captions, and descriptions never encode the key. Round records now persist contentVersion, per-card recognition and clue exclusions. Additive schema-1 handling preserves existing word boards without replacing them; projections adapt their original words to phrase recognition. Subsequent Start deals the current catalog. Clue checks use curated names, aliases, and visible words. Inspection/playback remains client-local and does not refresh room activity.
 
-Lobby dragging uses the existing authenticated assignment boundary, not pointer broadcasts. Commit destination changes only. Host/self permissions, phase, and revision checks remain mandatory. Occupied-slot rejection needs an atomic server validation change; existing duplicate-spymaster acceptance plus blocked readiness is not that behavior. Previews stay local; placement publishes after acceptance.
+Lobby dragging uses the existing authenticated assignment boundary, not pointer broadcasts. Commit destination changes only. Host/self permissions, phase, round and revision checks remain mandatory. Server assignment rejects another seat's occupied spymaster slot before mutation, including offline incumbents and competing requests. The host explicitly moves the incumbent before replacement; no swap or demotion occurs. Previews stay local; placement publishes after acceptance.
 
-The additive meme persistence/projection and local versioned media are implemented and validated locally. Companion lobby placement is planned in #11; deployment and production validation remain future responsibilities. The runtime and quotas below have not been re-researched for this documentation change.
+The additive meme persistence/projection, local versioned media and accessible lobby placement are implemented and validated locally. Deployment and production validation remain future responsibilities. The runtime and quotas below have not been re-researched for this documentation change.
 
 ## Workers plan decision
 
