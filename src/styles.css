@@ -301,6 +301,18 @@ form {
   font-size: 0.875rem;
   color: var(--color-muted);
 }
+.copy-fallback {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  margin: 0 auto 16px;
+  max-width: 640px;
+}
+.copy-fallback label {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.875rem;
+}
 .teams {
   display: grid;
   grid-template-columns: 1fr 1fr;

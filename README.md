@@ -2,7 +2,7 @@
 
 A private meme association game for friends, built on Codenames-style rules. Create a room, share an invite, and play Red or Blue on phones or desktops without accounts.
 
-Codememes mixes 36 classic and recent meme references as phrases, original image graphics, and a silent GIF on a physical card-game board. Original generated identity covers, readable inspection, and deliberate reveals are implemented. The approved background revision uses a pale center, soft red/blue edge light and faint meme faces with clean styled controls; visual implementation is being verified. [PRODUCT.md](docs/PRODUCT.md), [DESIGN.md](docs/DESIGN.md), and the [deck contract](docs/MEME-DECK.md) record the behavior. Drag-and-drop lobby arrangement remains the companion Feature #11; the existing native team/role controls work with this game.
+Codememes mixes 36 classic and recent meme references as phrases, original image graphics, and a silent GIF on a physical card-game board. Original generated identity covers, readable inspection, and deliberate reveals are implemented. The approved background revision uses a pale center, soft red/blue edge light and faint meme faces with clean styled controls; local desktop, tablet and phone evidence covers public/private/final states and inspection. [PRODUCT.md](docs/PRODUCT.md), [DESIGN.md](docs/DESIGN.md), and the [deck contract](docs/MEME-DECK.md) record the behavior. Drag-and-drop lobby arrangement remains the companion Feature #11; the existing native team/role controls work with this game.
 
 ## Current state
 

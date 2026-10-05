@@ -148,6 +148,14 @@ describe("Authoritative complete-round rules", () => {
     state.round = generateRound();
     state.round.activeTeam = "red";
     const fine = DECK.find((entry) => entry.recognition.id === "this-is-fine")!;
+    const existing = state.round.cards.findIndex(
+      (card) => card.content?.id === fine.recognition.id,
+    );
+    if (existing > 0)
+      [state.round.cards[0], state.round.cards[existing]] = [
+        state.round.cards[existing],
+        state.round.cards[0],
+      ];
     state.round.cards[0] = {
       word: fine.recognition.name,
       content: fine.recognition,

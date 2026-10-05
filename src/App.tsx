@@ -54,6 +54,7 @@ export function App() {
   const [status, setStatus] = useState<ConnectionStatus>("connecting");
   const [pending, setPending] = useState(false);
   const [copied, setCopied] = useState("");
+  const [copyFallback, setCopyFallback] = useState<{ value: string; label: string } | null>(null);
   const connection = useRef<RoomConnection | null>(null);
   const roomHeading = useRef<HTMLHeadingElement>(null);
   const discardDialog = useRef<HTMLDialogElement>(null);
@@ -165,9 +166,13 @@ export function App() {
   async function copy(value: string, label: string) {
     try {
       await navigator.clipboard.writeText(value);
+      setCopyFallback(null);
       setCopied(`${label} copied.`);
     } catch {
-      setCopied("Copy is unavailable here. Select the invite link or code below.");
+      setCopyFallback({ value, label });
+      setCopied(
+        `Copy is unavailable here. Select the ${label.toLowerCase()} below and copy it manually.`,
+      );
     }
   }
 
@@ -176,6 +181,7 @@ export function App() {
     setPending(false);
     setStatus("connecting");
     setCopied("");
+    setCopyFallback(null);
     setCode(null);
     setView(null);
     setEnteredCode("");
@@ -447,6 +453,27 @@ export function App() {
           <p className={`copy-feedback ${copied ? "" : "empty-feedback"}`} role="status">
             {copied}
           </p>
+          {copyFallback && (
+            <div className="copy-fallback">
+              <label>
+                {copyFallback.label}
+                <input
+                  readOnly
+                  autoFocus
+                  value={copyFallback.value}
+                  onFocus={(event) => event.currentTarget.select()}
+                />
+              </label>
+              <button
+                onClick={() => {
+                  setCopyFallback(null);
+                  setCopied("");
+                }}
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
           {(status === "disconnected" ||
             status === "replaced" ||
             status === "reconnecting" ||

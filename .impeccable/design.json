@@ -8,7 +8,8 @@
       "agreedDate": "2026-10-05",
       "source": "docs/DESIGN.md",
       "incumbentStyles": "src/styles.css",
-      "note": "Mixed-media board, original covers/cardstock, inspector and OFL fonts implemented. User-approved pale playfield with original faint SVG faces and white Red/Blue UI is implemented. Companion lobby remains #11; independent review and refreshed visual evidence are coordinated before merge."
+      "note": "Mixed-media board, original covers/cardstock, inspector, OFL fonts and user-approved pale playfield with original faint SVG faces and white Red/Blue UI are implemented. Revised public/private/final desktop/tablet/phone and inspector evidence captured locally. Companion lobby remains #11; independent review and current-head CI are coordinated before merge.",
+      "visualEvidence": ".impeccable/review/meme-light-*.jpg (local ignored tooling evidence)"
     },
     "directionSelection": {
       "method": "user-pinned",
@@ -72,7 +73,8 @@
       "phoneGap": "4px",
       "phonePadding": "8px",
       "phoneMinHeight": "190px",
-      "selection": "Local only; explicit Reveal; inspect never selects."
+      "selection": "Local only; explicit Reveal; inspect never selects.",
+      "tabletMinHeight": "180px"
     },
     "lobby": {
       "permissions": "Players move themselves; host moves anyone.",
@@ -146,7 +148,8 @@
       "reference": "docs/assets/codememes-background-reference.png",
       "supersedes": "Green felt and pale on-felt UI lettering.",
       "asset": "public/art/table-v1/playfield.svg",
-      "patternOpacity": "3.5%"
+      "patternOpacity": "3.5%",
+      "bytes": 2760
     }
   },
   "components": [

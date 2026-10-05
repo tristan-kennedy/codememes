@@ -45,7 +45,7 @@ typography:
     lineHeight: 1.2
   meme-phrase:
     fontFamily: '"Bricolage Grotesque", system-ui, sans-serif'
-    fontSize: "clamp(0.875rem, 1.7vw, 1.5rem)"
+    fontSize: "clamp(0.875rem, 1.3vw, 1.125rem)"
     fontWeight: 800
     lineHeight: 1.1
   card-name:
@@ -55,7 +55,7 @@ typography:
     lineHeight: 1.2
   clue:
     fontFamily: '"Bricolage Grotesque", system-ui, sans-serif'
-    fontSize: "clamp(1.125rem, 2vw, 1.625rem)"
+    fontSize: "1.5rem"
     fontWeight: 800
     lineHeight: 1.15
 rounded:
@@ -155,7 +155,7 @@ The private spymaster view keeps readable meme faces with an identity edge tab a
 
 ### Phones and tablets
 
-Keep five columns and stable positions; no carousel or team-based reordering. Below about 900px move team racks into one compact row. At 320px, 8px page margins and 4px gaps leave roughly 58px-wide faces at least 64px high. This taller phone silhouette leaves a readable recognition name. Full captions and details belong in inspection.
+Keep five columns and stable positions; no carousel or team-based reordering. Below about 900px move team racks into one compact row. At 320px, 8px page margins and 4px gaps leave roughly 58px-wide faces 190px high, with 180px at tablet width and a 160px floor on desktop. This taller phone silhouette leaves a readable recognition name. Full captions and details belong in inspection.
 
 On desktop, each card has an explicit magnify control separate from card selection: the face selects when guessing is permitted; magnify only inspects. Below 540px, the whole card opens inspection, so a roughly 58px-wide face does not have to contain two competing 44px targets. The phone inspector offers a separate 44px Select action to permitted operatives; choosing it sets the local preview and closes inspection. The global Reveal remains a separate explicit action. Every inspect/select control has a reachable 44px target with no overlap.
 
@@ -241,4 +241,4 @@ Rules uses a small modal with protected reading focus, Escape/Close, and focus r
 - Give dragging equivalent tap and keyboard paths. [WCAG dragging guidance](https://www.w3.org/WAI/WCAG22/Understanding/dragging-movements/) requires a single-pointer alternative; keyboard access is separately required.
 - Respect [reduced motion](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion), keep content inspectable, and test the real deck at 320px.
 - Record provenance and optimize media, covers, and material before shipping.
-- Never autoplay a wall of GIFs, reveal by inspection, encode a key in media, or claim this design already exists.
+- Never autoplay a wall of GIFs, reveal by inspection, encode a key in media, or claim the companion lobby or deployment already exists.
