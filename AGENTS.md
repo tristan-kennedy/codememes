@@ -17,7 +17,7 @@ Read relevant docs and reuse unchanged context:
 ## Working rules
 
 - Keep changes scoped to the request. Prefer the smallest clear solution; do not invent speculative abstractions.
-- The current request establishes documentation and repository setup only. Do not implement an app, generate stories, or populate a backlog without a later request.
+- The baseline setup established documentation only. Implement app outcomes or populate the backlog only under later explicit user authorization; follow each dispatched item's scope.
 - Product and design choices for this baseline were delegated to the author. Preserve them unless later evidence or user direction changes them.
 - Use outcome-sized Feature/Bug/Task items. One writer owns each outcome. Delegate only when the user or applicable instructions authorize it and independent work has a useful benefit.
 - Require independent read-only review for meaningful code, behavior, security, integration, dependency, CI, and repository-policy changes. [CONTRIBUTING.md](docs/CONTRIBUTING.md) defines low-risk exceptions and reviewer boundaries. Return findings to the author.

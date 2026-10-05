@@ -30,6 +30,10 @@ dist-ssr
 .npmrc
 
 # Local environment
+.wrangler
+.dev.vars
+.dev.vars.*
+.vite
 .env
 .env.*
 !.env.example

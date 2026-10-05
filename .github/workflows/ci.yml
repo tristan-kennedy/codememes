@@ -14,6 +14,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  application:
+    name: Application
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: voidzero-dev/setup-vp@cff3efc7cbe0c9627b82dc3e846c89fd772a39a6 # v1.21.1
+        with:
+          node-version: "24.21.0"
+          version: "1.0.0"
+          run-install: false
+          cache: true
+      - run: vp install --frozen-lockfile
+      - run: vp check
+      - run: vp test --config vitest.config.ts
+      - run: vp build
+      - run: vp exec wrangler types --check
   documentation:
     name: Documentation
     runs-on: ubuntu-24.04
