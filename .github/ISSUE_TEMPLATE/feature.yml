@@ -1,0 +1,48 @@
+name: Feature
+description: One complete capability or coherent workflow improvement, including its implementation and validation.
+labels: [feature]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal and outcome
+      description: What complete capability or workflow should be available, and why?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and constraints
+      description: Include the UI, server/data work and recovery states needed for the outcome. State exclusions and authorization boundaries.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context and evidence
+      description: Current behavior, relevant code or documentation, and evidence supporting the change.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: Verifiable conditions for the whole outcome. Keep implementation steps here rather than creating items per page or layer.
+      placeholder: "- [ ] ..."
+    validations:
+      required: true
+  - type: textarea
+    id: ownership
+    attributes:
+      label: Dependencies and ownership
+      description: Native blocking issues, likely owned files, shared contracts and any work that cannot run simultaneously. No parent issue is required.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation
+      description: Narrow applicable checks and manual scenarios from docs/TESTING.md, plus known runtime gaps. Apply the review policy in docs/CONTRIBUTING.md and return findings to the original author.
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: Follow docs/CONTRIBUTING.md. Features are flat work items. Combine related changes into one workable outcome; split only independently useful outcomes with clear ownership. Set native dependencies and Priority, then move to Ready when scope, authorization and validation are clear and blockers are resolved.

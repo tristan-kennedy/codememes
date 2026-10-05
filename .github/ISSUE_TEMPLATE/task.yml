@@ -1,0 +1,23 @@
+name: Task
+description: Research, validation, documentation, operations or bounded maintenance with one concrete deliverable.
+labels: [task]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What needs to be done and why?
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context and constraints
+      description: Relevant background, scope boundaries, or guidance.
+  - type: textarea
+    id: completion
+    attributes:
+      label: Deliverable and Validation
+      description: What output completes this task, where should it be recorded, and how will it be verified? Apply the risk-based review policy in docs/CONTRIBUTING.md; a PR is only needed for repository changes.
+    validations:
+      required: true

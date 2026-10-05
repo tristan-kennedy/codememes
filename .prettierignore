@@ -1,0 +1,6 @@
+.agents/
+.git/
+.impeccable/
+licenses/
+node_modules/
+dist/

@@ -1,0 +1,25 @@
+name: Bug
+description: Report broken behavior with reproduction evidence and a verifiable fix.
+labels: [bug]
+body:
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+      description: What should happen, and what happens instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction and context
+      description: Steps to reproduce, affected environment, and relevant evidence. Note if reproduction is not yet known.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Acceptance Criteria and Validation
+      description: What demonstrates the bug is fixed, and how should regressions be checked?
+    validations:
+      required: true
