@@ -144,7 +144,7 @@ Names wrap in player pieces or expose the full name on activation. Core labels n
 
 ### Game first
 
-On desktop the board occupies approximately 70â€“80% of the useful viewport, centered between compact team/count racks. Target a table width up to 1440px and board around 1040px when room permits. Cards are landscape on roomy screens with a 160px height floor for phrase and corner-control clearance, in five stable columns and rows. Use 12px gaps on roomy screens and 4â€“6px on phones. Adjust racks/margins before shrinking the board.
+On desktop the board occupies approximately 70-80% of the useful viewport, centered between compact team/count racks. Target a table width up to 1440px and board around 1040px when room permits. Cards are landscape on roomy screens with a 160px height floor for phrase and corner-control clearance, in five stable columns and rows. Use 12px gaps on roomy screens and 4-6px on phones. Adjust racks/margins before shrinking the board.
 
 A small top edge holds Codememes, room/invite, Rules, and compact presence. The active team's rack gets a clear pointer and accessible turn text. One small white clue slip sits close to the board; the active spymaster's clue form occupies that same space. Operatives get a compact Reveal/End turn tray with the selected card's name/thumbnail. Keep controls outside card content; Reveal remains explicit.
 
@@ -182,7 +182,7 @@ Room code/Copy invite stay at the edge. Start sits between/below teams and becom
 
 Depth represents pieces: faint cardstock edge, soft downward resting shadow, stronger picked-up shadow, and cover laid over the face after reveal. Target `0 2px 4px rgb(27 31 44 / 0.16)` at rest and `0 10px 18px rgb(27 31 44 / 0.22)` while lifted. Clean controls have restrained borders and small shadows. Edge light belongs to the background; do not give individual controls luminous halos, glass, or hard block shadows.
 
-Use a static decorative SVG tile with original simplified troll/reaction/Doge/Wojak-style line faces and small plus/pixel marks, as explicitly requested by the user. Keep faces approximately 40â€“70px, widely spaced and around 2â€“4% opacity; reduce their visibility beneath cards and controls. CSS radial gradients provide the subtle edge light. A faint paper-grain raster is optional; it must remain almost invisible and have recorded provenance. Cardstock grain stays on cards. Media retains its own colors without team tinting. Decorative assets have no interaction or accessible content and never encode room/card identity.
+Use a static decorative SVG tile with original simplified troll/reaction/Doge/Wojak-style line faces and small plus/pixel marks, as explicitly requested by the user. Keep faces approximately 40-70px, widely spaced and around 2-4% opacity; reduce their visibility beneath cards and controls. CSS radial gradients provide the subtle edge light. A faint paper-grain raster is optional; it must remain almost invisible and have recorded provenance. Cardstock grain stays on cards. Media retains its own colors without team tinting. Decorative assets have no interaction or accessible content and never encode room/card identity.
 
 ## Shapes
 

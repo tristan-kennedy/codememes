@@ -4,7 +4,7 @@ Status: entry, lobby, complete-round rules, automatic reconnect, host transfer, 
 
 ## Selected stack
 
-The Codememes tabletop and persisted mixed-media deck are implemented; drag-and-drop lobby arrangement remains #11. See [PRODUCT.md](PRODUCT.md), [DESIGN.md](DESIGN.md), and [MEME-DECK.md](MEME-DECK.md).
+The Codememes tabletop, persisted mixed-media deck, and accessible drag/tap/keyboard lobby arrangement are implemented. See [PRODUCT.md](PRODUCT.md), [DESIGN.md](DESIGN.md), and [MEME-DECK.md](MEME-DECK.md).
 
 Use a React + TypeScript single-page app built with Vite, one Cloudflare Worker deployment, and one SQLite-backed Durable Object per room. Use native WebSockets with the Durable Objects Hibernation API. Keep plain CSS and the existing Vite+ tooling preference.
 
