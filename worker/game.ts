@@ -72,11 +72,40 @@ export function play(
   state: RoomState,
   actorId: string,
   command: Exclude<RoomCommand, { type: "assign" }>,
+  waitingForSpymaster = false,
 ): RoomState {
   const actor = state.seats.find((seat) => seat.id === actorId);
   if (!actor) throw new RoomError("unauthorized", "Join this room to continue.", 401);
   if (command.revision !== state.revision || command.roundId !== state.roundId)
     throw new RoomError("stale", "The round changed. Check the current board and try again.", 409);
+  if (command.type === "play_again" || command.type === "abandon") {
+    if (state.hostId !== actorId || actor.role === "watcher")
+      throw new RoomError(
+        "forbidden",
+        "Only the current host can return the group to the lobby.",
+        403,
+      );
+    if (
+      command.type === "play_again"
+        ? state.phase !== "ended"
+        : state.phase !== "playing" || !waitingForSpymaster
+    )
+      throw new RoomError(
+        "forbidden",
+        command.type === "play_again"
+          ? "Play again is available after the round ends."
+          : "Return to the lobby only while the active spymaster is disconnected.",
+        403,
+      );
+    return {
+      ...state,
+      phase: "lobby",
+      roundId: null,
+      round: null,
+      revision: state.revision + 1,
+      updatedAt: Date.now(),
+    };
+  }
   if (command.type === "start") {
     if (state.phase !== "lobby" || state.hostId !== actorId || actor.role === "watcher")
       throw new RoomError("forbidden", "Only the host can start from the lobby.", 403);

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { RoomConnection } from "./lib/room-connection";
 import type { ConnectionStatus } from "./lib/room-connection";
@@ -55,6 +55,23 @@ export function App() {
   const [pending, setPending] = useState(false);
   const [copied, setCopied] = useState("");
   const connection = useRef<RoomConnection | null>(null);
+  const roomHeading = useRef<HTMLHeadingElement>(null);
+  const previousPhase = useRef(view?.phase);
+  const acceptView = useCallback((next: RoomView) => {
+    setView((current) =>
+      current?.code === next.code && current.revision > next.revision ? current : next,
+    );
+  }, []);
+
+  useEffect(() => {
+    if (view?.phase === "lobby" && previousPhase.current && previousPhase.current !== "lobby")
+      roomHeading.current?.focus();
+    previousPhase.current = view?.phase;
+  }, [view?.phase]);
+  useEffect(() => {
+    setPending(false);
+    setError("");
+  }, [view?.roundId]);
 
   useEffect(() => {
     if (!code) return;
@@ -63,7 +80,7 @@ export function App() {
       .then(async (response) => {
         const message = (await response.json()) as ServerMessage;
         if (cancelled) return;
-        if (message.type === "snapshot") setView(message.view);
+        if (message.type === "snapshot") acceptView(message.view);
         else if (message.code !== "unauthorized") setError(message.message);
       })
       .catch(() => {
@@ -75,12 +92,12 @@ export function App() {
     return () => {
       cancelled = true;
     };
-  }, [code]);
+  }, [code, acceptView]);
 
   const roomCode = view?.code;
   useEffect(() => {
     if (!roomCode) return;
-    const next = new RoomConnection(roomCode, setView, setStatus, setError, () =>
+    const next = new RoomConnection(roomCode, acceptView, setStatus, setError, () =>
       setPending(false),
     );
     connection.current = next;
@@ -89,7 +106,7 @@ export function App() {
       next.close();
       connection.current = null;
     };
-  }, [roomCode]);
+  }, [roomCode, acceptView]);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -111,7 +128,7 @@ export function App() {
         displayName,
       );
       history.replaceState(null, "", `/room/${next.code}`);
-      setView(next);
+      acceptView(next);
     } catch (failure) {
       setError(
         failure instanceof Error ? failure.message : "The room could not be opened. Try again.",
@@ -213,6 +230,11 @@ export function App() {
               >
                 <option value="operative">Operative</option>
                 <option value="spymaster">Spymaster</option>
+                {player.role === "watcher" && (
+                  <option value="watcher" disabled>
+                    Watcher · choose a role
+                  </option>
+                )}
               </select>
             </label>
           </div>
@@ -347,7 +369,9 @@ export function App() {
         <>
           <section className="lobby-heading">
             <div>
-              <h1>Your room</h1>
+              <h1 ref={roomHeading} tabIndex={-1}>
+                {view.phase === "lobby" ? "Team lobby" : "Your room"}
+              </h1>
               <p>
                 {view.phase === "lobby"
                   ? "Choose a team and a role. The host can arrange everyone."
@@ -432,7 +456,30 @@ export function App() {
                 : "Ask them to reopen this room with the same browser."}
             </p>
           )}
-          {view.round && <Game view={view} usable={usable} pending={pending} onAction={dispatch} />}
+          {view.controls.abandon && (
+            <div className="round-actions">
+              <p>
+                Abandon this interrupted round to arrange the group again. The current board will be
+                discarded; everyone keeps their seat.
+              </p>
+              <button
+                className="secondary"
+                disabled={!usable}
+                onClick={() => dispatch({ type: "abandon" })}
+              >
+                Abandon round
+              </button>
+            </div>
+          )}
+          {view.round && (
+            <Game
+              key={view.roundId}
+              view={view}
+              usable={usable}
+              pending={pending}
+              onAction={dispatch}
+            />
+          )}
           <div className="teams">
             {(["red", "blue"] as const).map((team) => (
               <section key={team} className={`team ${team}`} aria-labelledby={`${team}-heading`}>

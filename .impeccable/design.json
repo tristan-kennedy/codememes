@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-05T04:03:34.000Z",
+  "generatedAt": "2026-10-05T04:21:34.000Z",
   "title": "Design System: Codenames",
   "extensions": {
     "colorMeta": {
@@ -19,7 +19,8 @@
     "breakpoints": [{ "name": "stack-teams", "value": "800px" }, { "name": "phone", "value": "540px" }],
     "board": { "columns": 5, "gap": "8px", "phoneGap": "4px", "minTileHeight": "120px", "phoneMinTileHeight": "92px", "borderWidth": "2px", "selection": "Local only; explicit Reveal commits after acceptance." },
     "dialog": { "backdrop": "rgb(24 39 51 / 0.45)", "width": "min(560px, calc(100% - 32px))", "maxHeight": "90vh", "focus": "Native modal, Escape/Close dismissal, focus returns to Rules." },
-    "recovery": { "feedback": "Literal connection state and bounded automatic recovery; explicit Reconnect after takeover or retry exhaustion.", "waiting": "Named missing active spymaster; saved seat instructions and paused actions.", "selection": "Clears on connection loss; accepted board remains visible." }
+    "recovery": { "feedback": "Literal connection state and bounded automatic recovery; explicit Reconnect after takeover or retry exhaustion.", "waiting": "Named missing active spymaster; saved seat instructions and paused actions.", "selection": "Clears on connection loss; accepted board remains visible." },
+    "roundActions": { "layout": "Flex wrapping", "gap": "16px", "margin": "24px 0", "textBasis": "260px", "measure": "70ch", "focus": "Accepted return focuses Team lobby; new round focuses its turn heading." }
   },
   "components": [
     {
@@ -74,6 +75,13 @@
       "description": "Quiet role-status text names the absent active spymaster without changing the saved seat or private-key authority.",
       "html": "<p class=\"ds-waiting\" role=\"status\">Waiting for Morgan, Red’s spymaster, to reconnect. Return using the browser that holds that seat.</p>",
       "css": ".ds-waiting { margin: 16px 0; padding: 16px 0; border-block: 1px solid var(--color-border, #becad2); overflow-wrap: anywhere; max-width: 70ch; }"
+    },
+    {
+      "name": "Same-group round action",
+      "kind": "custom",
+      "description": "Host Play again stays below the readable final board; abandonment uses the existing secondary button beside waiting feedback with explicit discard/preserve-seat copy.",
+      "html": "<div class=\"ds-round-actions\"><p>Return to the lobby with this group to arrange teams and start a fresh board.</p><button class=\"ds-primary\">Play again</button></div>",
+      "css": ".ds-round-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin: 24px 0; } .ds-round-actions p { flex: 1 1 260px; margin: 0; max-width: 70ch; }"
     }
   ],
   "narrative": {
@@ -82,6 +90,6 @@
     "keyCharacteristics": ["Flat readable surfaces", "Explicit team and role labels", "Wrapping player names", "Literal readiness and connection feedback", "Fixed five-column board", "Private key warning and deliberate Reveal"],
     "rules": [{ "name": "Visible focus", "body": "Use a 3px Violet outline with a 3px offset without changing layout.", "section": "components" }],
     "dos": ["Keep team names paired with color.", "Preserve native keyboard and touch behavior."],
-    "donts": ["Do not add nested panels or decorative shadows.", "Do not imply rematch, abandonment, or deployed availability is implemented."]
+    "donts": ["Do not add nested panels or decorative shadows.", "Do not imply deployed availability or round history exists."]
   }
 }

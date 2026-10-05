@@ -395,6 +395,105 @@ const revealCommand = {
   index: 0,
 };
 describe("Room game transition boundary", () => {
+  for (const type of ["play_again", "abandon"])
+    for (const failure of ["write", "commit", "alarm"] as const)
+      it(`keeps the current round and publishes no success when ${type} hits ${failure} failure`, async () => {
+        const initial = playing();
+        if (type === "play_again") {
+          initial.phase = "ended";
+          initial.round!.outcome = { winner: "red", reason: "agents" };
+        }
+        const check = fixture(failure, initial);
+        if (type === "abandon") check.sockets[2].close();
+        await check.room.webSocketMessage(
+          check.sockets[0],
+          JSON.stringify({ ...revealCommand, type, index: undefined }),
+        );
+        expect(check.state()).toEqual(initial);
+        expect(check.published).toHaveLength(1);
+        expect(check.published[0].message).toMatchObject({
+          type: "error",
+          code: "unavailable",
+          view: { roundId: "round-1" },
+        });
+        expect(check.order).toEqual(["publish"]);
+      });
+  it("serializes competing Play again requests and returns only the cleared current lobby on old-round errors", async () => {
+    const initial = playing();
+    initial.phase = "ended";
+    initial.round!.outcome = { winner: "red", reason: "agents" };
+    const check = fixture(undefined, initial);
+    const action = { ...revealCommand, type: "play_again", index: undefined };
+    await Promise.all([
+      check.room.webSocketMessage(check.sockets[0], JSON.stringify(action)),
+      check.room.webSocketMessage(
+        check.sockets[0],
+        JSON.stringify({ ...action, requestId: "competing" }),
+      ),
+    ]);
+    expect(check.state()).toMatchObject({
+      phase: "lobby",
+      roundId: null,
+      round: null,
+      revision: 11,
+      seats: initial.seats,
+    });
+    expect(check.order[0]).toBe("commit");
+    const snapshots = check.published.filter(({ message }) => message.type === "snapshot");
+    expect(snapshots).toHaveLength(4);
+    expect(
+      snapshots.every(({ message }) => "view" in message && message.view?.round === null),
+    ).toBe(true);
+    expect(check.published.at(-1)?.message).toMatchObject({
+      code: "stale",
+      view: { round: null, roundId: null },
+    });
+    await check.room.webSocketMessage(
+      check.sockets[2],
+      JSON.stringify({
+        ...revealCommand,
+        type: "clue",
+        index: undefined,
+        word: "old-clue",
+        number: 1,
+      }),
+    );
+    expect(check.published.at(-1)?.message).toMatchObject({ code: "stale", view: { round: null } });
+  });
+  it("uses transferred host and socket-derived missing-spymaster authority for abandon versus an old reveal", async () => {
+    const check = fixture(undefined, playing());
+    await check.room.webSocketClose(check.sockets[0]);
+    await check.room.webSocketClose(check.sockets[2]);
+    const before = check.state();
+    expect(before.hostId).toBe("red-op-2");
+    const action = {
+      ...revealCommand,
+      type: "abandon",
+      index: undefined,
+      revision: before.revision,
+    };
+    await check.room.webSocketMessage(check.sockets[3], JSON.stringify(action));
+    expect(check.published.at(-1)?.message).toMatchObject({ code: "forbidden" });
+    await Promise.all([
+      check.room.webSocketMessage(check.sockets[1], JSON.stringify(action)),
+      check.room.webSocketMessage(
+        check.sockets[1],
+        JSON.stringify({ ...revealCommand, revision: before.revision }),
+      ),
+    ]);
+    expect(check.state()).toMatchObject({
+      phase: "lobby",
+      round: null,
+      roundId: null,
+      hostId: "red-op-2",
+      seats: before.seats,
+    });
+    expect(check.published.at(-1)?.message).toMatchObject({
+      code: "stale",
+      view: { round: null, controls: { abandon: false } },
+    });
+    expect(check.alarm()).toBe(check.state().updatedAt + IDLE_TTL);
+  });
   for (const failure of ["write", "commit"] as const)
     it(`rejects a reveal on ${failure} failure without revealing or publishing success`, async () => {
       const check = fixture(failure, playing());

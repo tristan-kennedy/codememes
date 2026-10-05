@@ -2,7 +2,7 @@
 
 <!-- impeccable:product-schema 1 -->
 
-This is the agreed product baseline for a Codenames-style clone. The user delegated product and design decisions with simplicity as the priority. Entry, the lobby, complete rounds, lifecycle recovery, and expiry are implemented; subsequent rounds remain planned.
+This is the agreed product baseline for a Codenames-style clone. The user delegated product and design decisions with simplicity as the priority. Entry, the lobby, complete rounds, recovery/expiry, and subsequent rounds with the same group are implemented.
 
 ## Platform
 
@@ -12,7 +12,7 @@ web
 
 Delegated: React and TypeScript with Vite, using Vite+ (`vp`) for package management and development tooling as in Golf Club Curator. Use plain CSS, one Cloudflare Worker with Static Assets, and one SQLite-backed Durable Object per room with native hibernating WebSockets. Keep one package and deployment; no monorepo packages, component framework, authentication service, or external database at launch. [ARCHITECTURE.md](ARCHITECTURE.md) records the concrete boundaries and current plan research.
 
-This stack implements entry, the synchronized lobby, complete rounds, recovery, and expiry. Rematch and abandonment below remain agreed future capabilities. Node.js runs local tooling; Cloudflare's Workers runtime runs the application backend. No Cloudflare service or deployment has been created. Workers Free supports this baseline within its quotas.
+This stack implements entry, the synchronized lobby, complete rounds, recovery/expiry, Play again, and interrupted-round abandonment. Node.js runs local tooling; Cloudflare's Workers runtime runs the application backend. No Cloudflare service or deployment has been created. Workers Free supports this baseline within its quotas.
 
 ## Users
 
@@ -34,7 +34,7 @@ A small, account-free game for an existing group of friends. One shared board an
 2. Friends join by link or code, enter a name, and choose Red or Blue and a role. The host may adjust the lobby roster. Duplicate names are disambiguated visibly.
 3. The host starts once each team has exactly one spymaster and at least one operative. The starting team is chosen randomly.
 4. The active spymaster submits a clue and number. Their operatives discuss it outside the app and reveal guesses in the app.
-5. Play alternates until a team wins or reveals the assassin. The final board is visible to everyone; the host can start a new round with the same roster.
+5. Play alternates until a team wins or reveals the assassin. The final board remains visible until the current host chooses Play again. Everyone returns to the same lobby, adjusts teams/roles if desired, and the host uses Start game for a fresh round.
 
 There is no built-in chat, voice, tutorial tour, or turn timer. A short Rules panel explains roles, clues, guesses, and victory. Late arrivals can watch the public board and take a playing seat between rounds.
 
@@ -56,7 +56,7 @@ There is no built-in chat, voice, tutorial tour, or turn timer. A short Rules pa
 - Rooms are intended for friends, accessible by invite rather than listed publicly. Invites grant access; there are no passwords, accounts, profiles, or durable identities.
 - The server owns the key, turn, clue, revealed cards, and outcome. Every action validates the player's room seat, role, active turn, and current round revision.
 - Hidden identities never reach an operative or viewer through HTML, page data, network messages, logs, or client storage. A role change is not a client-side toggle. Host privileges do not grant the key.
-- Lock team and spymaster assignments during a round. Watchers may take seats only in the next lobby. A disconnected active spymaster retains their seat; play waits for reconnection. Host abandonment back to the lobby is planned separately.
+- Lock team and spymaster assignments during a round. Watchers may choose a playing team/role in the next lobby. A disconnected active spymaster retains their seat; play waits for reconnection, or the current host can explicitly abandon the round back to the lobby. Abandonment discards the board while preserving the group; it is never an undo or a silent role swap.
 - Persist the current room in its Durable Object's SQLite-backed storage so hibernation, eviction, or runtime restart does not end the game. Rooms remain temporary through explicit expiry. Refresh or a brief disconnect can reclaim the same seat with a room-scoped browser cookie while the room exists. Reconnect fetches current state instead of replaying pending guesses.
 - Reject stale or duplicate reveal submissions and return current state. Disable game actions while disconnected; never speculate that a card was revealed successfully.
 - If the host leaves, transfer host controls to the earliest remaining connected seated player, excluding watchers. With only watchers connected, no host exists; the first existing seated player returning becomes host, and a former host returning later does not reclaim it. An empty room expires after one hour; a room expires after twenty-four hours without meaningful activity even if idle sockets remain connected. Creation, new-seat joins, and accepted roster/game commands count as activity; reads, reconnects, disconnections, local selection, and rejected commands do not. Show an expired-room message with Create a room as recovery.
@@ -79,7 +79,7 @@ Core flows work with keyboard and touch. Give cards meaningful accessible names,
 
 ## Evidence on Hand
 
-This repository contains entry, a synchronized lobby, complete rounds, an original locally curated English word list, private spymaster projections, public watcher views, and an accessible five-column board with deliberate reveals. Local Workers checks cover game rules, competing/stale commands, projections, and persisted state. Focused actual-handler tests cover storage failures and simulated exact expiry boundaries. Isolated native workerd checks verify hibernating-socket wake and automatic cleanup retry after injected deallocation failures. Two IAB cookie origins verified a full round, automatic recovery after a real local process restart, host departure/first return, missing-spymaster waiting, takeover, keyboard behavior, and narrow layouts. There is no user research, production usage data, deployment, actual twenty-four-hour observation, rematch, or abandonment yet.
+This repository contains entry, synchronized lobbies, complete rounds, an original locally curated English word list, private spymaster/public watcher projections, and an accessible five-column board with deliberate reveals. Local Workers checks cover two-round reset, watcher admission, role privacy changes, old-round races, transferred-host abandonment, game rules, and persistence. Focused actual-handler tests cover storage failures and simulated exact expiry boundaries. Isolated native workerd checks verify hibernating-socket wake and automatic cleanup retry. Two IAB cookie origins verified full rounds, same-group lobby/reset, abandonment, automatic recovery after a real local restart, host departure/first return, missing-spymaster waiting, takeover, keyboard behavior, and narrow layouts. There is no user research, production usage data, deployment, or actual twenty-four-hour observation yet.
 
 ## Product Principles
 

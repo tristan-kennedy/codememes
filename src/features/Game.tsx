@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { normalizeClue } from "../shared/protocol";
 import type { CardIdentity, GameAction, RoomView } from "../shared/protocol";
 
@@ -30,6 +30,10 @@ export function Game({
   const [word, setWord] = useState("");
   const [number, setNumber] = useState("1");
   const [error, setError] = useState("");
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    heading.current?.focus();
+  }, []);
   useEffect(() => {
     setSelected(null);
     setError("");
@@ -69,6 +73,8 @@ export function Game({
         <div>
           <h2
             id="game-heading"
+            ref={heading}
+            tabIndex={-1}
             className={`turn-${ended ? round.outcome!.winner : round.activeTeam}`}
           >
             {turnText}
@@ -220,9 +226,23 @@ export function Game({
         ))}
       </div>
       {ended && (
-        <p className="round-complete">
-          Round complete. Your roster and final board are saved. New rounds are coming next.
-        </p>
+        <div className="round-actions">
+          <p className="round-complete">
+            Round complete.{" "}
+            {view.controls.playAgain
+              ? "Return to the lobby with this group to arrange teams and start a fresh board."
+              : "The host can choose Play again to return everyone to the lobby."}
+          </p>
+          {view.controls.playAgain && (
+            <button
+              className="primary"
+              disabled={!usable}
+              onClick={() => onAction({ type: "play_again" })}
+            >
+              Play again
+            </button>
+          )}
+        </div>
       )}
     </section>
   );

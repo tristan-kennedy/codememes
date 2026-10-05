@@ -58,6 +58,43 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 describe("Bounded client recovery", () => {
+  it("ignores an old reconnect fetch after a newer connection restores the next round", async () => {
+    let resolveOld!: (response: Response) => void;
+    vi.mocked(fetch).mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveOld = resolve;
+        }),
+    );
+    const check = fixture();
+    check.connection.connect();
+    await vi.advanceTimersByTimeAsync(0);
+    check.connection.connect();
+    await vi.advanceTimersByTimeAsync(0);
+    const current = { ...snapshot(12), view: { ...view, revision: 12, roundId: "next-round" } };
+    Socket.instances[0].receive(current);
+    resolveOld({ ok: true, json: async () => snapshot(5) } as Response);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(check.onView).toHaveBeenLastCalledWith(current.view);
+    expect(Socket.instances).toHaveLength(1);
+    check.connection.close();
+  });
+  it("ignores discarded socket callbacks after a new lobby/round snapshot", async () => {
+    const check = fixture();
+    check.connection.connect();
+    await vi.advanceTimersByTimeAsync(0);
+    const old = Socket.instances[0];
+    old.receive(snapshot());
+    check.connection.connect();
+    await vi.advanceTimersByTimeAsync(0);
+    const current = { ...snapshot(13), view: { ...view, revision: 13, roundId: "next-round" } };
+    Socket.instances[1].receive(current);
+    old.receive(snapshot(5));
+    old.onclose?.({ code: 4004 });
+    expect(check.onView).toHaveBeenLastCalledWith(current.view);
+    expect(check.onStatus).toHaveBeenLastCalledWith("connected");
+    check.connection.close();
+  });
   it("fetches fresh permitted state, settles losses, and never replays a sent command", async () => {
     const check = fixture();
     check.connection.connect();

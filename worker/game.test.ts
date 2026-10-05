@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vite-plus/test";
 import type { RoomCommand, Team } from "../src/shared/protocol";
 import { generateRound, otherTeam, play } from "./game";
-import { parseCommand, project } from "./state";
+import { assign, parseCommand, project } from "./state";
 import type { RoomState } from "./state";
 import { WORDS } from "./words";
 
@@ -96,6 +96,112 @@ function reveal(state: RoomState, index: number) {
 }
 
 describe("Authoritative complete-round rules", () => {
+  it("returns only the host's ended round to the same lobby and resets the fresh round without history", () => {
+    const ended = reveal(clue(), 24);
+    ended.emptySince = null;
+    ended.updatedAt -= 1000;
+    for (const actor of ["red-spy", "watcher"])
+      expect(() => play(ended, actor, command(ended, { type: "play_again" }))).toThrow(
+        "Only the current host",
+      );
+    const old = command(ended, { type: "play_again" });
+    const lobby = play(ended, "red-op", old);
+    expect(lobby).toMatchObject({
+      code: ended.code,
+      hostId: ended.hostId,
+      seats: ended.seats,
+      emptySince: null,
+      phase: "lobby",
+      roundId: null,
+      round: null,
+      revision: ended.revision + 1,
+    });
+    expect(lobby.updatedAt).toBeGreaterThan(ended.updatedAt);
+    expect(project(lobby, "red-spy", new Set()).round).toBeNull();
+    expect(() => play(lobby, "red-op", old)).toThrow("round changed");
+    const next = play(lobby, "red-op", command(lobby, { type: "start" }));
+    expect(next.roundId).not.toBe(ended.roundId);
+    expect(next.round).toMatchObject({
+      stage: "clue",
+      clue: null,
+      guessesUsed: 0,
+      lastReveal: null,
+      outcome: null,
+    });
+    expect(next.round?.cards.every((card) => !card.revealed)).toBe(true);
+    expect(next.round?.cards).not.toEqual(ended.round?.cards);
+    expect(
+      project(next, "red-op", new Set()).round?.cards.every((card) => !("identity" in card)),
+    ).toBe(true);
+    expect(() =>
+      play(next, "red-op", command(next, { type: "reveal", index: 0, roundId: ended.roundId })),
+    ).toThrow("round changed");
+  });
+  it("admits watchers and changes spymaster privacy in both directions only through the preserved lobby", () => {
+    const ended = reveal(clue(), 24);
+    let lobby = play(ended, "red-op", command(ended, { type: "play_again" }));
+    const change = (actor: string, seatId: string, team: Team, role: "operative" | "spymaster") => {
+      lobby = assign(
+        lobby,
+        actor,
+        parseCommand({
+          version: 1,
+          requestId: "role",
+          revision: lobby.revision,
+          roundId: lobby.roundId,
+          type: "assign",
+          seatId,
+          team,
+          role,
+        }) as Extract<RoomCommand, { type: "assign" }>,
+      );
+    };
+    change("watcher", "watcher", "blue", "spymaster");
+    expect(project(lobby, "watcher", new Set()).readiness.ready).toBe(false);
+    change("red-op", "blue-spy", "blue", "operative");
+    change("red-op", "red-spy", "red", "operative");
+    expect(() => play(lobby, "red-op", command(lobby, { type: "start" }))).toThrow("Each team");
+    change("red-op", "red-op", "red", "spymaster");
+    const next = play(lobby, "red-op", command(lobby, { type: "start" }));
+    for (const actor of ["watcher", "red-op"])
+      expect(project(next, actor, new Set()).round?.privateKey).toBe(true);
+    for (const actor of ["red-spy", "blue-spy"])
+      expect(
+        project(next, actor, new Set()).round?.cards.every((card) => !("identity" in card)),
+      ).toBe(true);
+    expect(() =>
+      assign(
+        next,
+        "red-op",
+        parseCommand({
+          version: 1,
+          requestId: "locked",
+          revision: next.revision,
+          roundId: next.roundId,
+          type: "assign",
+          seatId: "red-spy",
+          team: "red",
+          role: "spymaster",
+        }) as Extract<RoomCommand, { type: "assign" }>,
+      ),
+    ).toThrow("in the lobby");
+  });
+  it("only abandons live play as current host while the active spymaster is absent", () => {
+    const state = clue();
+    const action = command(state, { type: "abandon" });
+    expect(() => play(state, "red-op", action)).toThrow("disconnected");
+    for (const actor of ["red-spy", "watcher"])
+      expect(() => play(state, actor, action, true)).toThrow("Only the current host");
+    const lobby = play(state, "red-op", action, true);
+    expect(lobby.seats).toEqual(state.seats);
+    expect(lobby).toMatchObject({ phase: "lobby", round: null, roundId: null });
+    expect(() => play(lobby, "red-op", command(lobby, { type: "abandon" }), true)).toThrow(
+      "disconnected",
+    );
+    expect(() => play(state, "red-op", command(state, { type: "play_again" }))).toThrow(
+      "after the round ends",
+    );
+  });
   it("curates a unique short list and generates distinct fixed boards with correct identity counts", () => {
     expect(new Set(WORDS).size).toBe(WORDS.length);
     expect(WORDS.every((word) => /^[A-Z]{1,6}$/.test(word))).toBe(true);

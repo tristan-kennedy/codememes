@@ -43,6 +43,8 @@ export function parseCommand(value: unknown): RoomCommand {
     clue: ["word", "number"],
     reveal: ["index"],
     end_turn: [],
+    play_again: [],
+    abandon: [],
   };
   const kind = typeof cmd.type === "string" ? cmd.type : "";
   if (!Object.hasOwn(fields, kind))
@@ -144,6 +146,12 @@ export function project(state: RoomState, selfId: string, connected: Set<string>
       giveClue: !!active && self?.role === "spymaster" && state.round?.stage === "clue",
       reveal: !!guessing,
       endTurn: !!guessing && (state.round?.guessesUsed ?? 0) > 0,
+      playAgain: state.phase === "ended" && state.hostId === selfId && self?.role !== "watcher",
+      abandon:
+        state.phase === "playing" &&
+        !!waitingFor &&
+        state.hostId === selfId &&
+        self?.role !== "watcher",
     },
     round: state.round ? projectRound(state.round, self, state.phase === "ended") : null,
   };

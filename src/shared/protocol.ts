@@ -50,6 +50,8 @@ export interface RoomView {
     giveClue: boolean;
     reveal: boolean;
     endTurn: boolean;
+    playAgain: boolean;
+    abandon: boolean;
   };
   round: RoundView | null;
 }
@@ -80,11 +82,11 @@ export interface AssignCommand extends CommandBase {
 }
 export type RoomCommand =
   | AssignCommand
-  | (CommandBase & { type: "start" | "end_turn" })
+  | (CommandBase & { type: "start" | "end_turn" | "play_again" | "abandon" })
   | (CommandBase & { type: "clue"; word: string; number: number })
   | (CommandBase & { type: "reveal"; index: number });
 export type GameAction =
-  | { type: "start" | "end_turn" }
+  | { type: "start" | "end_turn" | "play_again" | "abandon" }
   | { type: "clue"; word: string; number: number }
   | { type: "reveal"; index: number };
 

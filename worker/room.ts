@@ -196,7 +196,12 @@ export class Room extends DurableObject<Env> {
           const connected = this.connected(current);
           const state = reconcile(current, connected);
           const missing = missingSpymaster(state, connected);
-          if (missing && command.type !== "assign" && command.type !== "start")
+          if (
+            missing &&
+            command.type !== "assign" &&
+            command.type !== "start" &&
+            command.type !== "abandon"
+          )
             throw new RoomError(
               "forbidden",
               `Waiting for ${missing.name}, ${missing.team === "red" ? "Red" : "Blue"}'s spymaster, to reconnect.`,
@@ -205,7 +210,7 @@ export class Room extends DurableObject<Env> {
           const next =
             command.type === "assign"
               ? assign(state, identity.seatId, command)
-              : play(state, identity.seatId, command);
+              : play(state, identity.seatId, command, !!missing);
           return reconcile(next, connected);
         },
         (next) => this.broadcast(next, socket, requestId),
