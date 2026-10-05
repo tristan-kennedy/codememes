@@ -180,8 +180,9 @@ async function prepare() {
 if (process.argv[2] === "--fixture") {
   const code = process.argv[3];
   assert.match(code, /^[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{12}$/);
-  const spy = await join(code, "Blue spymaster");
-  const operative = await join(code, "Blue operative");
+  let spy = await join(code, "Blue spymaster");
+  let operative = await join(code, "Blue operative");
+  let watcher;
   console.log(
     "Fixture seats joined and connected. Tokens remain only in memory; no game actions sent.",
   );
@@ -190,7 +191,22 @@ if (process.argv[2] === "--fixture") {
     try {
       const action = JSON.parse(input.trim());
       let result;
-      if (action.type === "clue") result = await command(spy, action);
+      if (action.type === "status") result = { type: "snapshot", view: (watcher ?? spy).view() };
+      else if (action.type === "watcher") {
+        watcher = await join(code, "Recovery watcher");
+        result = { type: "snapshot", view: watcher.view() };
+      } else if (action.type === "disconnect") {
+        for (const client of action.seat === "both"
+          ? [spy, operative]
+          : [action.seat === "spy" ? spy : operative])
+          client.ws.close();
+        console.log("Requested fixture seat disconnect; tokens retained only in memory.");
+        return;
+      } else if (action.type === "reconnect") {
+        if (action.seat === "spy") spy = await open(code, spy.cookie);
+        else operative = await open(code, operative.cookie);
+        result = { type: "snapshot", view: (action.seat === "spy" ? spy : operative).view() };
+      } else if (action.type === "clue") result = await command(spy, action);
       else if (action.type === "reveal-category") {
         const index = spy
           .view()
@@ -208,6 +224,8 @@ if (process.argv[2] === "--fixture") {
           stage: result.view?.round?.stage,
           guessesRemaining: result.view?.round?.guessesRemaining,
           outcome: result.view?.round?.outcome,
+          host: result.view?.players.find((player) => player.isHost)?.name ?? null,
+          controls: result.view?.controls,
         }),
       );
     } catch (error) {

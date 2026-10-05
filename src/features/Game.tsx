@@ -33,24 +33,26 @@ export function Game({
   useEffect(() => {
     setSelected(null);
     setError("");
-  }, [view.revision, view.roundId]);
+  }, [view.revision, view.roundId, usable]);
   const round = view.round;
   if (!round) return null;
   const self = view.players.find((player) => player.id === view.selfId);
   const active = teamName(round.activeTeam);
   const selectedWord = selected !== null ? round.cards[selected]?.word : null;
   const ended = view.phase === "ended";
-  const instruction = ended
-    ? "The complete final key is visible to everyone."
-    : self?.role === "watcher"
-      ? "You’re watching this round. The public board updates as teams play."
-      : view.controls.giveClue
-        ? "Give your operatives one word and a number."
-        : view.controls.reveal
-          ? "Choose a word, then press Reveal. Your selection stays on this device."
-          : round.stage === "clue"
-            ? `Waiting for ${active}'s spymaster to give a clue.`
-            : `Waiting for ${active}'s operatives to choose words.`;
+  const instruction = view.waitingFor
+    ? `Waiting for ${view.waitingFor.name} to reconnect as ${teamName(view.waitingFor.team)}'s spymaster.`
+    : ended
+      ? "The complete final key is visible to everyone."
+      : self?.role === "watcher"
+        ? "You’re watching this round. The public board updates as teams play."
+        : view.controls.giveClue
+          ? "Give your operatives one word and a number."
+          : view.controls.reveal
+            ? "Choose a word, then press Reveal. Your selection stays on this device."
+            : round.stage === "clue"
+              ? `Waiting for ${active}'s spymaster to give a clue.`
+              : `Waiting for ${active}'s operatives to choose words.`;
   const turnText = ended
     ? `${teamName(round.outcome!.winner)} team wins`
     : round.stage === "clue"

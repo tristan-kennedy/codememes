@@ -252,11 +252,17 @@ export function App() {
             <span className="connection" role="status">
               {status === "connected"
                 ? "Connected"
-                : status === "connecting"
-                  ? "Connecting…"
-                  : status === "replaced"
-                    ? "Seat open in another tab"
-                    : "Disconnected"}
+                : status === "reconnecting"
+                  ? "Reconnecting…"
+                  : status === "expired"
+                    ? "Room expired"
+                    : status === "unauthorized"
+                      ? "Seat unavailable"
+                      : status === "connecting"
+                        ? "Connecting…"
+                        : status === "replaced"
+                          ? "Seat replaced"
+                          : "Disconnected"}
             </span>
           </div>
         )}
@@ -379,27 +385,51 @@ export function App() {
           <p className="copy-feedback" role="status">
             {copied}
           </p>
-          {(status === "disconnected" || status === "replaced") && (
+          {(status === "disconnected" ||
+            status === "replaced" ||
+            status === "reconnecting" ||
+            status === "expired" ||
+            status === "unauthorized") && (
             <div className="connection-recovery">
               <p>
-                {status === "replaced"
-                  ? "Another tab took over your seat. Reconnect to take it back."
-                  : "You’re disconnected. Your team and role are saved."}
+                {status === "expired"
+                  ? "This room has expired. Create a room to play again."
+                  : status === "unauthorized"
+                    ? "This browser no longer has your room seat. Join again with the invite."
+                    : status === "reconnecting"
+                      ? "Reconnecting automatically. Accepted progress is saved; your actions are paused."
+                      : status === "replaced"
+                        ? "Another tab took over your seat. Reconnect to take it back."
+                        : "You’re disconnected. Your team and role are saved."}
               </p>
               <button
                 className="secondary"
                 onClick={() => {
                   setError("");
-                  connection.current?.connect();
+                  if (status === "expired" || status === "unauthorized") backToEntry();
+                  else connection.current?.connect();
                 }}
               >
-                Reconnect
+                {status === "expired"
+                  ? "Create a room"
+                  : status === "unauthorized"
+                    ? "Back to entry"
+                    : "Reconnect"}
               </button>
             </div>
           )}
           {error && (
             <p className="error" role="alert">
               {error}
+            </p>
+          )}
+          {view.waitingFor && (
+            <p className="waiting-room" role="status">
+              Waiting for {view.waitingFor.name}, {view.waitingFor.team === "red" ? "Red" : "Blue"}
+              ’s spymaster, to reconnect. Their seat and private key are saved.{" "}
+              {view.waitingFor.seatId === view.selfId
+                ? "Use Reconnect to return to your seat."
+                : "Ask them to reopen this room with the same browser."}
             </p>
           )}
           {view.round && <Game view={view} usable={usable} pending={pending} onAction={dispatch} />}

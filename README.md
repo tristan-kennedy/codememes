@@ -6,7 +6,7 @@ A Codenames-style word game for private rooms with friends. Create a room, share
 
 Entry, the synchronized team lobby, and a complete playable round are implemented with React/TypeScript, plain CSS, Vite+, and a Cloudflare Worker with Static Assets and one SQLite-backed Room Durable Object per room. Room cookies authenticate persistent seats; native hibernating WebSockets synchronize accepted actions. The host starts a ready roster, both spymasters receive private keys, operatives select locally then explicitly reveal, and late arrivals watch the public board. A server-owned original English word list supplies each randomized board.
 
-Automatic reconnect, room expiry, host transfer, rematches, abandonment, and deployment remain future work. No Cloudflare service has been created. [Protocol contracts](docs/PROTOCOL.md) define the implemented room/game boundary and extension responsibilities.
+Bounded automatic reconnect restores a fresh permitted snapshot without replaying commands. Host controls follow connected seated players; disconnected spymasters keep their seats with a visible waiting signal. Rooms expire after one empty hour or twenty-four hours without meaningful activity, with retry-safe storage cleanup. Rematches, abandonment, and deployment remain future work. No Cloudflare service has been created. [Protocol contracts](docs/PROTOCOL.md) define the implemented room/game/lifecycle boundary and extension responsibilities.
 
 ## Repository and Project
 
@@ -62,7 +62,7 @@ vp build
 vp exec wrangler types --check
 ```
 
-`vp dev` serves the app at <http://127.0.0.1:5173> with local Workers emulation. No credentials or Cloudflare service creation are needed. Use `localhost:5173` in a second browser session for an independent local cookie origin. `vp run test:runtime` checks the running local API and sockets; `vp run test:game` checks complete rounds with authenticated multi-client sockets. Both create disposable local rooms and retain tokens only in memory. Rates are local to a Cloudflare location, not strict global limits. See TESTING for evidence boundaries and configuration details.
+`vp dev` serves the app at <http://127.0.0.1:5173> with local Workers emulation. No credentials or Cloudflare service creation are needed. Use `localhost:5173` in a second browser session for an independent local cookie origin. `vp run test:runtime` checks the running local API and sockets; `vp run test:game` checks complete rounds with authenticated multi-client sockets. Both create disposable local rooms and retain tokens only in memory. After building, `vp run test:lifecycle` uses isolated local workerd/SQLite to check automatic cleanup retry and hibernating-socket reconstruction. Rates are local to a Cloudflare location, not strict global limits. See TESTING for evidence boundaries and configuration details.
 
 The existing documentation check remains:
 

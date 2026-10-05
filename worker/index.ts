@@ -64,7 +64,7 @@ export default {
         // Canonical API paths are required so the room-scoped cookie is sent.
         if (match[1] !== code)
           return errorResponse("invalid", "Use the canonical room address.", 400);
-        return env.ROOMS.getByName(code).fetch(request);
+        return await env.ROOMS.getByName(code).fetch(request);
       }
       return errorResponse("invalid", "This route does not accept that method.", 405);
     } catch (error) {

@@ -1,6 +1,6 @@
 # Architecture
 
-Status: entry, lobby, and complete-round rules implemented and verified in local Workers emulation October 4, 2026. No Cloudflare service or deployment has been created. Automatic reconnect, host transfer, expiry, rematch, and abandonment remain selected future architecture. [PROTOCOL.md](PROTOCOL.md) records actual current contracts, input/rate limits, the atomic boundary, and extension responsibilities.
+Status: entry, lobby, complete-round rules, automatic reconnect, host transfer, and expiry are implemented and verified in local Workers emulation. No Cloudflare service or deployment has been created. Rematch, abandonment, and deployment remain deferred. [PROTOCOL.md](PROTOCOL.md) records actual current contracts, input/rate limits, the atomic boundary, and extension responsibilities.
 
 ## Selected stack
 
@@ -67,15 +67,17 @@ Use `WebSocketPair`, `ctx.acceptWebSocket`, and `webSocketMessage`/close/error h
 
 Send state only on joins, accepted actions, and relevant connection changes. Local hover/selection and typing do not generate broadcasts. Avoid a server polling loop or periodic timers that keep rooms awake. If connection heartbeats are needed, use the Hibernation API's automatic response facility; heartbeats do not extend gameplay activity expiry.
 
-Derive connected seats from current sockets, not a persisted connected flag. When a seat's last socket disconnects, update host/empty-room decisions under the product rules. Reconnection preserves team and role; a disconnected spymaster is not silently replaced. Runtime restarts or deployments may interrupt connections, so the client reconnects with backoff and restores from a fresh permitted snapshot.
+Derive connected seats from OPEN sockets whose attachments match the persisted current connection ID, not a persisted connected flag or a closing socket. When a seat's last socket disconnects, atomically reconcile host/empty-room decisions. Preserve a connected seated host; otherwise select the earliest connected non-watcher by seat insertion order, or no host when only watchers remain. The first existing seated reconnect then becomes host. Reconnection preserves team and role; an absent active spymaster is named in the public waiting signal and is not silently replaced. Runtime restarts may interrupt connections, so the client makes at most six backoff retries, restores from a fresh permitted snapshot, and never replays commands.
 
-Schedule the next relevant deadline using the object's single alarm: one hour after all players/watchers disconnect, or twenty-four hours after meaningful room activity. Check deadlines on requests as well, so a delayed alarm never allows expired-room actions. Close remaining sockets and delete stored state on expiry. Cleanup must tolerate retries because alarms have at-least-once execution. [Cloudflare alarms API](https://developers.cloudflare.com/durable-objects/api/alarms/).
+Schedule the next relevant deadline using the object's single alarm: one hour after all players/watchers disconnect, or twenty-four hours after meaningful room activity. Creation, new seats joining, and accepted roster/game commands refresh activity; reads, same-cookie reconnects, handoff, closes, and rejected commands do not. Couple record/alarm writes in the storage transaction. Check exact deadlines on requests as well, so a delayed alarm never permits expired-room views/actions, including error recovery.
+
+Expiry commits room-record removal plus a two-second cleanup retry alarm, then calls native `deleteAll()` under a narrow concurrency guard and closes sockets. For the configured compatibility date, SQLite `deleteAll()` removes allocation metadata and the alarm atomically. Failed deallocation retains a durable retry without needing new traffic; failed record deletion still revokes expired views. Early alarm delivery reschedules the deadline and repeated cleanup is harmless. [Cloudflare alarms API](https://developers.cloudflare.com/durable-objects/api/alarms/), [SQLite deleteAll](https://developers.cloudflare.com/durable-objects/api/sqlite-storage-api/#deleteall).
 
 Runtime sleep or restart does not itself end a game. Rooms remain deliberately temporary through explicit expiry. Persist accepted changes before announcing success; a storage or quota error must never produce a successful reveal in the UI.
 
 ## Proposed repository layout
 
-The application implements the browser app, shared protocol, connection helper, Worker routing, room transport, server state/game rules/word generation, configuration, and generated bindings. Alarms and automatic recovery remain future boundaries:
+The application implements the browser app, shared protocol, connection helper, Worker routing, room transport/lifecycle, server state/game rules/word generation, configuration, and generated bindings:
 
 ```text
 src/                       React application and plain CSS
@@ -87,6 +89,7 @@ worker/
   room.ts                  Durable Object, storage, sockets, alarms
   state.ts                 Parsing, lobby transitions, atomic boundary and views
   game.ts                  Authoritative rules, board generation and key projection
+  lifecycle.ts             Deadlines, socket-derived host and missing-spy decisions
   words.ts                 Original locally curated English source words
 vite.config.ts             React and Cloudflare Vite plugins
 wrangler.jsonc             Assets, ROOMS binding, runtime settings
@@ -124,4 +127,4 @@ The account's current subscription and usage have not been inspected, and no bil
 
 ## Validation when implementation exists
 
-Follow [TESTING.md](TESTING.md). Current checks cover lobby synchronization, role-specific keys, all game rules and terminal paths, stale/competing/unauthorized commands, replacement sockets, persistence, and injected storage failures at the Room handler. Automatic recovery, expiry cleanup, and deployed Cloudflare runtime behavior need validation in their own outcomes. Tests remain optional tools; local emulation does not certify deployed runtime behavior.
+Follow [TESTING.md](TESTING.md). Current checks cover lobby/game rules, role-specific keys, stale/competing/unauthorized commands, takeover, storage/alarm failures, exact simulated expiry boundaries, and bounded client retries. Isolated native local workerd verifies hibernating-socket reconstruction and real alarm delivery after cleanup failure. Two IAB cookie origins verified live-round automatic recovery after a real local process restart, missing-spymaster waiting, host departure, watcher-only presence, and first seated return. Real twenty-four-hour observation and deployed Cloudflare runtime behavior remain unverified. Tests remain optional tools; local emulation does not certify deployment.

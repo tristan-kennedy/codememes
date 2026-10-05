@@ -1,4 +1,5 @@
-import { describe, expect, it, vi } from "vite-plus/test";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
+import { EMPTY_TTL, IDLE_TTL, deadline, reconcile } from "./lifecycle";
 import type { RoomState } from "./state";
 import type { ServerMessage } from "../src/shared/protocol";
 import { generateRound } from "./game";
@@ -13,15 +14,15 @@ vi.mock("cloudflare:workers", () => ({
 }));
 import { Room } from "./room";
 
-function fixture(failure?: "write" | "commit", initial?: RoomState) {
-  let stored: RoomState = initial ?? {
+function fixture(failure?: "write" | "commit" | "alarm" | "delete", initial?: RoomState) {
+  let stored: RoomState | undefined = initial ?? {
     schema: 1,
     code: "ABCDEFGHJKLM",
     phase: "lobby",
     revision: 5,
     roundId: null,
     hostId: "host",
-    updatedAt: 0,
+    updatedAt: Date.now(),
     seats: [
       {
         id: "host",
@@ -43,25 +44,44 @@ function fixture(failure?: "write" | "commit", initial?: RoomState) {
   };
   const published: { seat: string; message: ServerMessage }[] = [];
   const order: string[] = [];
-  const sockets = stored.seats.map(
-    (seat) =>
-      ({
-        readyState: 1,
-        deserializeAttachment: () => ({ seatId: seat.id, connectionId: seat.connectionId }),
-        send: (message: string) => {
-          order.push("publish");
-          published.push({ seat: seat.id, message: JSON.parse(message) as ServerMessage });
-        },
-      }) as unknown as WebSocket,
-  );
+  let alarmAt: number | null = null;
+  const sockets = stored.seats.map((seat) => {
+    let status = 1;
+    return {
+      get readyState() {
+        return status;
+      },
+      close: () => {
+        status = 3;
+      },
+      deserializeAttachment: () => ({ seatId: seat.id, connectionId: seat.connectionId }),
+      send: (message: string) => {
+        order.push("publish");
+        published.push({ seat: seat.id, message: JSON.parse(message) as ServerMessage });
+      },
+    } as unknown as WebSocket;
+  });
   let queued: Promise<unknown> = Promise.resolve();
   const storage = {
     get: async () => structuredClone(stored),
     transaction: (callback: (txn: DurableObjectTransaction) => Promise<unknown>) => {
       const transaction = queued.then(async () => {
         let draft = structuredClone(stored);
+        let draftAlarm = alarmAt;
         const result = await callback({
           get: async () => structuredClone(draft),
+          getAlarm: async () => draftAlarm,
+          setAlarm: async (next: number) => {
+            if (failure === "alarm") throw new Error("Injected alarm failure");
+            draftAlarm = next;
+          },
+          delete: async () => {
+            draft = undefined;
+            return true;
+          },
+          deleteAlarm: async () => {
+            draftAlarm = null;
+          },
           put: async (_key: string, next: RoomState) => {
             if (failure === "write") throw new Error("Injected write failure");
             draft = structuredClone(next);
@@ -70,16 +90,27 @@ function fixture(failure?: "write" | "commit", initial?: RoomState) {
         if (failure === "commit") throw new Error("Injected commit failure");
         order.push("commit");
         stored = draft;
+        alarmAt = draftAlarm;
         return result;
       });
       queued = transaction.catch(() => undefined);
       return transaction;
+    },
+    setAlarm: async (next: number) => {
+      alarmAt = next;
+    },
+    deleteAll: async () => {
+      if (failure === "delete") throw new Error("Injected deallocation failure");
+      stored = undefined;
+      alarmAt = null;
+      order.push("deleteAll");
     },
   } as unknown as DurableObjectStorage;
   const ctx = {
     storage,
     id: { toString: () => "room-object" },
     getWebSockets: () => sockets,
+    blockConcurrencyWhile: async (callback: () => Promise<unknown>) => callback(),
   } as unknown as DurableObjectState;
   const env = { COMMAND_RATE: { limit: async () => ({ success: true }) } } as unknown as Env;
   return {
@@ -87,7 +118,12 @@ function fixture(failure?: "write" | "commit", initial?: RoomState) {
     sockets,
     published,
     order,
-    state: () => structuredClone(stored),
+    state: () => structuredClone(stored!),
+    record: () => structuredClone(stored),
+    alarm: () => alarmAt,
+    fail: (next?: typeof failure) => {
+      failure = next;
+    },
   };
 }
 const command = {
@@ -155,6 +191,148 @@ describe("Room command commit boundary", () => {
   });
 });
 
+afterEach(() => vi.restoreAllMocks());
+describe("Room recovery and expiry boundary", () => {
+  it("hands host to the earliest open seated socket, excludes watchers, and preserves activity time", async () => {
+    const check = fixture(undefined, playing());
+    const previous = check.state();
+    await check.room.webSocketClose(check.sockets[0]);
+    expect(check.state().hostId).toBe("red-op-2");
+    expect(check.state().updatedAt).toBe(previous.updatedAt);
+    await check.room.webSocketClose(check.sockets[1]);
+    expect(check.state().hostId).toBe("spy");
+    await check.room.webSocketClose(check.sockets[2]);
+    expect(check.state().hostId).toBeNull();
+    expect(check.state().emptySince).toBeNull(); // Connected watcher keeps room nonempty.
+    expect(check.published.at(-1)?.message).toMatchObject({
+      view: {
+        waitingFor: { seatId: "spy" },
+        controls: { reveal: false, giveClue: false, assignOthers: false },
+      },
+    });
+    const restored = reconcile(check.state(), new Set(["watcher", "red-op-2"]));
+    expect(restored.hostId).toBe("red-op-2");
+    expect(reconcile(restored, new Set(["watcher", "red-op-2", "red-op"])).hostId).toBe("red-op-2");
+  });
+  it("keeps a disconnected spymaster's seat/key and rejects play while waiting", async () => {
+    const check = fixture(undefined, playing());
+    await check.room.webSocketClose(check.sockets[2]);
+    expect(check.state().seats[2].role).toBe("spymaster");
+    const previous = check.state();
+    await check.room.webSocketMessage(
+      check.sockets[0],
+      JSON.stringify({ ...revealCommand, revision: previous.revision }),
+    );
+    expect(check.state()).toEqual(previous);
+    expect(check.published.at(-1)?.message).toMatchObject({
+      type: "error",
+      code: "forbidden",
+      view: { waitingFor: { seatId: "spy" } },
+    });
+    expect(check.published.at(-1)?.message).not.toHaveProperty("view.round.cards.0.identity");
+  });
+  it("schedules exact empty deadlines, survives early alarms, and deallocates/ closes at the boundary idempotently", async () => {
+    const check = fixture();
+    const now = Date.now();
+    const time = vi.spyOn(Date, "now").mockReturnValue(now);
+    await check.room.webSocketClose(check.sockets[0]);
+    await check.room.webSocketClose(check.sockets[1]);
+    expect(check.state().emptySince).toBe(now);
+    expect(check.alarm()).toBe(now + EMPTY_TTL);
+    time.mockReturnValue(now + EMPTY_TTL - 1);
+    await check.room.alarm();
+    expect(check.record()).toBeDefined();
+    expect(check.alarm()).toBe(now + EMPTY_TTL);
+    time.mockReturnValue(now + EMPTY_TTL);
+    await check.room.alarm();
+    expect(check.record()).toBeUndefined();
+    expect(check.alarm()).toBeNull();
+    expect(check.order).toContain("deleteAll");
+    await check.room.alarm();
+    expect(check.record()).toBeUndefined();
+  });
+  it("expires idle open sockets at 24 hours, rejects malformed late requests, and never returns an expired key", async () => {
+    const initial = playing();
+    const check = fixture(undefined, initial);
+    vi.spyOn(Date, "now").mockReturnValue(initial.updatedAt + IDLE_TTL);
+    await check.room.webSocketMessage(check.sockets[0], "malformed");
+    expect(check.record()).toBeUndefined();
+    expect(check.sockets.every((socket) => socket.readyState === 3)).toBe(true);
+    expect(
+      check.published.every(
+        ({ message }) =>
+          message.type === "error" && message.code === "not_found" && !("view" in message),
+      ),
+    ).toBe(true);
+    const missing = await check.room.join("Late guest", null);
+    expect(missing.status).toBe(404);
+    expect(check.record()).toBeUndefined();
+  });
+  it("cancels empty expiry on reconnect without extending meaningful inactivity", () => {
+    const state = { ...playing(), emptySince: Date.now() - EMPTY_TTL + 1, hostId: null };
+    const returned = reconcile(state, new Set(["red-op"]));
+    expect(returned.emptySince).toBeNull();
+    expect(returned.updatedAt).toBe(state.updatedAt);
+    expect(deadline(returned)).toBe(state.updatedAt + IDLE_TTL);
+  });
+  it("rolls back gameplay when alarm scheduling fails and retries failed deallocation without a false success", async () => {
+    const check = fixture("alarm", playing());
+    const previous = check.state();
+    await check.room.webSocketMessage(check.sockets[0], JSON.stringify(revealCommand));
+    expect(check.state()).toEqual(previous);
+    expect(check.published).toHaveLength(1);
+    expect(check.published[0].message).toMatchObject({ type: "error", code: "unavailable" });
+    const expiring = fixture("delete", playing());
+    vi.spyOn(Date, "now").mockReturnValue(expiring.state().updatedAt + IDLE_TTL);
+    await expect(expiring.room.alarm()).rejects.toThrow("deallocation failure");
+    expect(expiring.record()).toBeUndefined();
+    expect(expiring.alarm()).toBe(Date.now() + 2000);
+    expect(
+      expiring.published.every(
+        ({ message }) => message.type === "error" && message.code === "unavailable",
+      ),
+    ).toBe(true);
+    expiring.fail();
+    await expiring.room.alarm();
+    expect(expiring.order).toContain("deleteAll");
+    expect(expiring.sockets.every((socket) => socket.readyState === 3)).toBe(true);
+  });
+  it("keeps a durable cleanup alarm after request-triggered deallocation failure without new traffic", async () => {
+    const initial = playing();
+    const check = fixture("delete", initial);
+    const time = vi.spyOn(Date, "now").mockReturnValue(initial.updatedAt + IDLE_TTL);
+    await expect(check.room.join("Late join", null)).rejects.toThrow("deallocation failure");
+    expect(check.record()).toBeUndefined();
+    const retryAt = check.alarm();
+    expect(retryAt).toBe(Date.now() + 2000);
+    check.fail();
+    time.mockReturnValue(retryAt!);
+    await check.room.alarm(); // Simulated delivery of the persisted alarm only.
+    expect(check.alarm()).toBeNull();
+    expect(check.order).toContain("deleteAll");
+    expect(check.sockets.every((socket) => socket.readyState === 3)).toBe(true);
+  });
+  for (const raw of [JSON.stringify(revealCommand), "malformed"])
+    it(`revokes every expired view despite persistent commit failure for ${raw === "malformed" ? "malformed" : "valid"} commands`, async () => {
+      const initial = playing();
+      const check = fixture("commit", initial);
+      vi.spyOn(Date, "now").mockReturnValue(initial.updatedAt + IDLE_TTL);
+      await check.room.webSocketMessage(check.sockets[2], raw);
+      expect(check.record()).toEqual(initial);
+      expect(
+        check.published.every(
+          ({ message }) =>
+            message.type === "error" && message.code === "not_found" && !("view" in message),
+        ),
+      ).toBe(true);
+      expect(check.alarm()).toBe(Date.now() + 2000);
+      check.fail();
+      await check.room.alarm();
+      expect(check.record()).toBeUndefined();
+      expect(check.alarm()).toBeNull();
+    });
+});
+
 function playing(): RoomState {
   const round = generateRound();
   round.startingTeam = round.activeTeam = "red";
@@ -170,7 +348,7 @@ function playing(): RoomState {
     revision: 10,
     roundId: "round-1",
     hostId: "red-op",
-    updatedAt: 0,
+    updatedAt: Date.now(),
     round,
     seats: [
       {

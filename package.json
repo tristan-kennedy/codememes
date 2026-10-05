@@ -9,7 +9,8 @@
     "check": "vp check",
     "types": "wrangler types",
     "test:runtime": "node scripts/verify-runtime.mjs",
-    "test:game": "node scripts/verify-game.mjs"
+    "test:game": "node scripts/verify-game.mjs",
+    "test:lifecycle": "node scripts/verify-lifecycle.mjs"
   },
   "dependencies": {
     "react": "19.3.0",
