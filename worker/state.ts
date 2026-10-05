@@ -99,6 +99,18 @@ export function assign(state: RoomState, actorId: string, command: AssignCommand
     throw new RoomError("stale", "The room changed. Check the updated roster and try again.", 409);
   if (!state.seats.some((seat) => seat.id === command.seatId))
     throw new RoomError("invalid", "That player is no longer in the room.");
+  if (
+    command.team !== null &&
+    command.role === "spymaster" &&
+    state.seats.some(
+      (seat) =>
+        seat.id !== command.seatId && seat.team === command.team && seat.role === "spymaster",
+    )
+  )
+    throw new RoomError(
+      "invalid",
+      `${command.team === "red" ? "Red" : "Blue"}’s spymaster slot is occupied. Move its spymaster first.`,
+    );
   return {
     ...state,
     revision: state.revision + 1,

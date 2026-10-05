@@ -4,7 +4,7 @@
 
 Codememes is a private, account-free meme association game for friends. It keeps the existing two-team clue-and-guess rules, replacing the noun deck with recognizable memes and presenting the game as physical cards on a shared table.
 
-This direction supersedes the original word-game product and visual baseline, agreed October 5, 2026. Entry, synchronized lobbies, complete meme rounds, mixed-media inspection, original illustrated covers, tabletop styling, recovery/expiry, and subsequent rounds with the same group are implemented. Drag-and-drop lobby arrangement remains planned in #11; native team/role controls currently arrange the group.
+This direction supersedes the original word-game product and visual baseline, agreed October 5, 2026. Entry, synchronized lobbies, complete meme rounds, mixed-media inspection, original illustrated covers, tabletop styling, recovery/expiry, and subsequent rounds with the same group are implemented. Named player pieces arrange the lobby by drag, tap and keyboard. The server rejects occupied spymaster placements without swapping or demoting the incumbent.
 
 The user's subsequent October 5 visual revision replaces green felt with the supplied pale background: blue light from the left edge, red from the right, and faint scattered meme-face line art. Keep the physical game board/cards and original illustrated covers; use clean, styled white UI surfaces with readable dark text and red/blue accents. [DESIGN.md](DESIGN.md) and the Impeccable sidecar own the updated tokens and implementation status.
 
@@ -104,7 +104,7 @@ Core flows work with keyboard, touch, and one pointer without dragging. Preserve
 
 ## Evidence on Hand
 
-Local Workers, focused-handler, native workerd and browser evidence covers meme rules, privacy, persisted recognition, legacy compatibility, recovery, inspection and subsequent rounds; see [TESTING.md](TESTING.md). Original shipping art and supplied reference artwork are recorded separately. Occupied-slot drops and drag/tap/keyboard lobby remain #11. No production deployment, usage research, physical-device study, or elapsed twenty-four-hour observation exists.
+Local Workers, focused-handler, native workerd and browser evidence covers meme rules, privacy, persisted recognition, legacy compatibility, recovery, inspection and subsequent rounds; see [TESTING.md](TESTING.md). Original shipping art and supplied reference artwork are recorded separately. Occupied-slot races and authorized drag/tap/keyboard lobby placement are implemented and locally verified. No production deployment, usage research, physical-device study, or elapsed twenty-four-hour observation exists.
 
 ## Product Principles
 

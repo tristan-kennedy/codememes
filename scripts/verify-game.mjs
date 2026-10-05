@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import WebSocket from "ws";
 
-const origin = "http://127.0.0.1:5173";
+const origin = process.env.CODEMEMES_TEST_ORIGIN ?? "http://127.0.0.1:5173";
+assert.match(origin, /^http:\/\/(127\.0\.0\.1|localhost):\d+$/);
 const actorKey = `game-check-${crypto.randomUUID()}`;
 const headers = {
   Origin: origin,
@@ -365,19 +366,32 @@ if (process.argv[2] === "--seat") {
       roster,
     );
     round.privacy();
-    await accepted(round.watcher, {
-      type: "assign",
-      seatId: round.watcher.view().selfId,
-      team: "blue",
-      role: "spymaster",
-    });
-    assert.equal(round.current().readiness.ready, false);
-    await rejected(round.host, { type: "start" }, "invalid");
+    const beforeOccupied = round.current().revision;
+    await rejected(
+      round.watcher,
+      {
+        type: "assign",
+        seatId: round.watcher.view().selfId,
+        team: "blue",
+        role: "spymaster",
+      },
+      "invalid",
+    );
+    assert.equal(round.current().revision, beforeOccupied);
+    assert.equal(round.current().readiness.ready, true);
     await accepted(round.host, {
       type: "assign",
       seatId: round.blueSpy.view().selfId,
       team: null,
       role: "operative",
+    });
+    assert.equal(round.current().readiness.ready, false);
+    await rejected(round.host, { type: "start" }, "invalid");
+    await accepted(round.watcher, {
+      type: "assign",
+      seatId: round.watcher.view().selfId,
+      team: "blue",
+      role: "spymaster",
     });
     await accepted(round.host, {
       type: "assign",

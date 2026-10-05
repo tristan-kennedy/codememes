@@ -248,9 +248,10 @@ describe("Authoritative complete-round rules", () => {
         }) as Extract<RoomCommand, { type: "assign" }>,
       );
     };
-    change("watcher", "watcher", "blue", "spymaster");
-    expect(project(lobby, "watcher", new Set()).readiness.ready).toBe(false);
+    expect(() => change("watcher", "watcher", "blue", "spymaster")).toThrow("occupied");
     change("red-op", "blue-spy", "blue", "operative");
+    expect(project(lobby, "watcher", new Set()).readiness.ready).toBe(false);
+    change("watcher", "watcher", "blue", "spymaster");
     change("red-op", "red-spy", "red", "operative");
     expect(() => play(lobby, "red-op", command(lobby, { type: "start" }))).toThrow("Each team");
     change("red-op", "red-op", "red", "spymaster");

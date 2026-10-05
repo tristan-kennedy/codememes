@@ -1,14 +1,14 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-05T23:00:00Z",
+  "generatedAt": "2026-10-05T23:08:11.636487+00:00",
   "title": "Design System: Codememes",
   "extensions": {
     "implementation": {
-      "status": "pale-playfield-implemented-lobby-planned",
+      "status": "pale-playfield-and-lobby-implemented",
       "agreedDate": "2026-10-05",
       "source": "docs/DESIGN.md",
       "incumbentStyles": "src/styles.css",
-      "note": "Mixed-media board, original covers/cardstock, inspector, OFL fonts and user-approved pale playfield with original faint SVG faces and white Red/Blue UI are implemented. Revised public/private/final desktop/tablet/phone and inspector evidence captured locally. Companion lobby remains #11; independent review and current-head CI are coordinated before merge.",
+      "note": "Mixed-media board, original covers/cardstock, inspector, OFL fonts, approved pale playfield and accessible drag/tap/keyboard lobby are implemented. White UI uses readable Red/Blue accents; server accepts placements and rejects occupied spymaster slots atomically. Local desktop/tablet/phone evidence is recorded in TESTING; exact-head independent review and CI are recorded in PRs.",
       "visualEvidence": ".impeccable/review/meme-light-*.jpg (local ignored tooling evidence)"
     },
     "directionSelection": {
@@ -56,7 +56,8 @@
       "offset": "3px",
       "onLight": "{colors.focus}",
       "onTeam": "Deep Blue outer outline plus Gold inset against fill",
-      "onCard": "{colors.focus-on-card}"
+      "onCard": "{colors.focus-on-card}",
+      "dragSelection": "#896314"
     },
     "breakpoints": [
       {
@@ -79,9 +80,10 @@
     "lobby": {
       "permissions": "Players move themselves; host moves anyone.",
       "destinations": "Red/Blue spymaster slot and operative area; shared unassigned/watch tray.",
-      "occupiedSlot": "Reject without demotion or swap; server change required.",
+      "occupiedSlot": "Server rejects before mutation without demotion or swap, including offline incumbents; host explicitly moves incumbent before replacement.",
       "alternatives": "Tap piece then named destination; keyboard placement/cancel.",
-      "placement": "Preview until server accepts; never publish optimistic roster."
+      "placement": "Preview until server accepts; never publish optimistic roster.",
+      "teamOrder": "Blue left / Red right; stacked in that order on phones."
     },
     "media": {
       "gif": "Poster first; explicit muted controllable inspector playback.",
@@ -167,7 +169,7 @@
     {
       "name": "Player piece",
       "kind": "custom",
-      "description": "Planned named drag handle with presence and host mark; tap/keyboard equivalents."
+      "description": "Implemented named piece with dedicated drag handle, initials, presence and host text; tap/keyboard destination picker, explicit Place/Cancel and accepted-state focus/announcements."
     },
     {
       "name": "Action tray",
@@ -209,7 +211,6 @@
     "donts": [
       "Do not autoplay a GIF wall.",
       "Do not add marketing or explanatory panels to the game.",
-      "Do not describe the companion lobby as delivered before #11.",
       "Do not reintroduce green felt or pale on-felt labels on the light background."
     ]
   }

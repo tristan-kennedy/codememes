@@ -1,7 +1,7 @@
 ---
 name: Codememes
 description: Physical meme cards on a pale playfield with red/blue edge light and clean game controls.
-# User-approved October 5 revision implemented; #11 lobby arrangement pending.
+# User-approved October 5 revision and accessible lobby implemented.
 colors:
   table: "#f3f1ec"
   surface: "#ffffff"
@@ -22,6 +22,7 @@ colors:
   focus-on-team: "#ffe08a"
   focus-on-card: "#21598f"
   selection: "#f2c65c"
+  selection-outline: "#896314"
   selection-edge: "#896314"
   hover: "#eef2f8"
   blue-surface: "#eaf2f9"
@@ -61,7 +62,7 @@ typography:
 rounded:
   card: "10px"
   control: "8px"
-  player-piece: "999px"
+  player-piece: "24px"
 spacing:
   xs: "4px"
   sm: "8px"
@@ -107,7 +108,7 @@ Open the room and see the game: twenty-five real-looking cards on a pale off-whi
 
 The user's October 5 revision rejects green felt and pins the [supplied background](assets/codememes-background-reference.png). It preserves the physical card-game arrangement, sparse copy, original meme covers, and drag-and-drop lobby, while replacing the surrounding material and control styling. Impeccable informs hierarchy, contrast, interaction, and accessibility within this brief. [PRODUCT.md](PRODUCT.md) owns rules and permissions.
 
-**Status: pale playfield and shared controls implemented; independent review and companion lobby pending.** The five-column board, mixed-media deck, inspector, local selection, accepted identity covers and self-hosted fonts are implemented in #10. Its prior felt screenshots are superseded. #10 implements the playfield and shared controls in this direction; #11 delivers the matching accessible lobby arrangement. References guide original assets and are not shipped as application media.
+**Status: pale playfield, game and accessible lobby implemented.** The five-column board, mixed-media deck, inspector, local selection, accepted identity covers and self-hosted fonts are implemented in #10. Its prior felt screenshots are superseded. #11 integrates named drag/tap/keyboard pieces, occupied-slot rejection and compact room/readiness tools in [Lobby.tsx](../src/features/Lobby.tsx) and [lobby.css](../src/features/lobby.css). Exact-revision independent review and CI are recorded in the corresponding PRs. References guide original assets and are not shipped as application media.
 
 ![Approved background reference: an off-white center, soft blue left and red right edge glow, faint scattered reaction faces, plus signs and pixel marks.](assets/codememes-background-reference.png)
 
@@ -127,6 +128,8 @@ Selection uses a dark golden `selection-edge` outline and small raised offset, n
 
 ## Typography
 
+Lobby Blue/Red destination fills are `#f0f6fc`/`#fcf3f2`, with dashed edges `#b3c9df`/`#dbb9b7`. The shared tray uses `#fafaf9` and `#c8cbd4`; initials use `#a3a8b6`. These are quiet surface/edge tones, not text colors. Picked pieces and drop targets use the dark golden `selection-outline` for visible contrast on pale surfaces. Team headings use a readable 20px step; named pieces use 15px labels and 12px presence text.
+
 Type serves pieces rather than explanatory text. Bricolage Grotesque at 800 gives phrase cards and the active clue warm printed lettering, and serves as the provisional text wordmark. Atkinson Hyperlegible at 400/700 serves names, inputs, labels, and controls. Self-host required font files and licenses when building; system fallbacks keep play usable while loading. No giant game-screen display heading.
 
 The supplied wordmark example suggests a compact, heavy condensed italic mark: **CODE** in Blue, **MEMES** in Red, with a small monochrome Wojak motif inside the O. Adapt this into original lettering and illustration, using the game's palette and a flat printed treatment. Simplify or omit the face at small sizes so Codememes stays readable. Keep the mark small at the game edge; the example's oversized presentation is not the game layout. This reference does not specify a font or approve final logo artwork.
@@ -141,7 +144,7 @@ Names wrap in player pieces or expose the full name on activation. Core labels n
 
 ### Game first
 
-On desktop the board occupies approximately 70–80% of the useful viewport, centered between compact team/count racks. Target a table width up to 1440px and board around 1040px when room permits. Cards are landscape on roomy screens with a 160px height floor for phrase and corner-control clearance, in five stable columns and rows. Use 12px gaps on roomy screens and 4–6px on phones. Adjust racks/margins before shrinking the board.
+On desktop the board occupies approximately 70-80% of the useful viewport, centered between compact team/count racks. Target a table width up to 1440px and board around 1040px when room permits. Cards are landscape on roomy screens with a 160px height floor for phrase and corner-control clearance, in five stable columns and rows. Use 12px gaps on roomy screens and 4-6px on phones. Adjust racks/margins before shrinking the board.
 
 A small top edge holds Codememes, room/invite, Rules, and compact presence. The active team's rack gets a clear pointer and accessible turn text. One small white clue slip sits close to the board; the active spymaster's clue form occupies that same space. Operatives get a compact Reveal/End turn tray with the selected card's name/thumbnail. Keep controls outside card content; Reveal remains explicit.
 
@@ -149,7 +152,7 @@ No hero, tagline, welcome paragraph, stats dashboard, large "your turn" heading,
 
 The game centers a board up to 1040px wide. Portrait view keeps five columns and 12px minimum card names, allowing vertical scrolling and a sticky explicit action tray. The inspector shows uncropped media and attribution; GIF Play is explicit and Pause/Stop returns its poster. Original generated covers and cardstock live under `public/art/table-v1`; [shipping-art.json](assets/shipping-art.json) holds exact prompts and reference roles. Unused felt is removed from shipping assets. Original decorative SVG linework lives in `public/art/table-v1/playfield.svg` (3.5% stroke opacity, 960 by 720px repeat); CSS supplies static edge light. The compact adapted mark uses original Bricolage lettering in the deep Blue/Red colors, omitting the face motif at this small size. Board identity symbols are authored SVG geometry independent of illustration.
 
-UI hover surfaces use subtle neutral or team-tinted fills with dark text. Small tools use 12/13/14px steps; count numerals use 20/26px and full inspector phrases reach 44px. Dialog backdrops use `rgb(27 31 44 / 0.55)`. Neutral hover uses `#eef2f8`, Blue/Red areas `#eaf2f9`/`#f8eceb`; compact entry uses a 12px radius and `0 6px 20px rgb(27 31 44 / 0.10)` shadow. Existing native lobby headings use 1.35rem; 2px mini-mark geometry is dormant. These and the 12/13/14px small-tool steps, 20/26px counts, 44px inspector text are intentional detector advisories. Record any final implementation-specific tones with their contrast roles; do not retain pale on-felt label colors on the new light playfield.
+UI hover surfaces use subtle neutral or team-tinted fills with dark text. Small tools use 12/13/14px steps; count numerals use 20/26px and full inspector phrases reach 44px. Dialog backdrops use `rgb(27 31 44 / 0.55)`. Neutral hover uses `#eef2f8`, Blue/Red areas `#eaf2f9`/`#f8eceb`; compact entry uses a 12px radius and `0 6px 20px rgb(27 31 44 / 0.10)` shadow. Lobby team headings use 1.25rem (20px); named pieces use 24px corners. The prior native roster is removed. These and the 12/13/14px small-tool steps, 20/26px counts, 44px inspector text are intentional detector advisories. Record any final implementation-specific tones with their contrast roles; do not retain pale on-felt label colors on the new light playfield.
 
 The private spymaster view keeps readable meme faces with an identity edge tab and distinct symbol from the permitted server snapshot, plus one small Spymaster marker. Do not cover all memes with portraits before reveal or render a key for public clients and hide it with CSS.
 
@@ -179,7 +182,7 @@ Room code/Copy invite stay at the edge. Start sits between/below teams and becom
 
 Depth represents pieces: faint cardstock edge, soft downward resting shadow, stronger picked-up shadow, and cover laid over the face after reveal. Target `0 2px 4px rgb(27 31 44 / 0.16)` at rest and `0 10px 18px rgb(27 31 44 / 0.22)` while lifted. Clean controls have restrained borders and small shadows. Edge light belongs to the background; do not give individual controls luminous halos, glass, or hard block shadows.
 
-Use a static decorative SVG tile with original simplified troll/reaction/Doge/Wojak-style line faces and small plus/pixel marks, as explicitly requested by the user. Keep faces approximately 40–70px, widely spaced and around 2–4% opacity; reduce their visibility beneath cards and controls. CSS radial gradients provide the subtle edge light. A faint paper-grain raster is optional; it must remain almost invisible and have recorded provenance. Cardstock grain stays on cards. Media retains its own colors without team tinting. Decorative assets have no interaction or accessible content and never encode room/card identity.
+Use a static decorative SVG tile with original simplified troll/reaction/Doge/Wojak-style line faces and small plus/pixel marks, as explicitly requested by the user. Keep faces approximately 40-70px, widely spaced and around 2-4% opacity; reduce their visibility beneath cards and controls. CSS radial gradients provide the subtle edge light. A faint paper-grain raster is optional; it must remain almost invisible and have recorded provenance. Cardstock grain stays on cards. Media retains its own colors without team tinting. Decorative assets have no interaction or accessible content and never encode room/card identity.
 
 ## Shapes
 
@@ -241,4 +244,4 @@ Rules uses a small modal with protected reading focus, Escape/Close, and focus r
 - Give dragging equivalent tap and keyboard paths. [WCAG dragging guidance](https://www.w3.org/WAI/WCAG22/Understanding/dragging-movements/) requires a single-pointer alternative; keyboard access is separately required.
 - Respect [reduced motion](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion), keep content inspectable, and test the real deck at 320px.
 - Record provenance and optimize media, covers, and material before shipping.
-- Never autoplay a wall of GIFs, reveal by inspection, encode a key in media, or claim the companion lobby or deployment already exists.
+- Never autoplay a wall of GIFs, reveal by inspection, encode a key in media, or claim production deployment already exists.

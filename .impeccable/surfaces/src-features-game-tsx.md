@@ -7,7 +7,7 @@ related_targets: ["src/App.tsx"]
 
 # Codememes table and lobby
 
-Status: pale playfield and shared controls implemented; companion lobby pending, October 5, 2026. Mode: Operate. Primary target: src/features/Game.tsx; related target: src/App.tsx. Companion lobby arrangement remains #11.
+Status: pale playfield, shared controls and companion lobby implemented, October 5, 2026. Mode: Operate. Primary target: src/features/Game.tsx; related target: src/App.tsx. The matching lobby arrangement is implemented in src/features/Lobby.tsx.
 
 The user pinned a physical card-game table, sparse copy, original AI meme covers and a drag-and-drop lobby. Answers: mixed classics/current references; host moves anyone, others move themselves. Preserve rules, privacy, recovery and deliberate Reveal. Source product/design/deck documents own global details.
 

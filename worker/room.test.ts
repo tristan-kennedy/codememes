@@ -137,6 +137,60 @@ const command = {
   role: "spymaster",
 };
 
+describe("Room occupied-slot transaction boundary", () => {
+  it("settles competing placements once and rejects an occupied retry without publication or activity", async () => {
+    const check = fixture();
+    await Promise.all([
+      check.room.webSocketMessage(check.sockets[0], JSON.stringify(command)),
+      check.room.webSocketMessage(
+        check.sockets[1],
+        JSON.stringify({
+          ...command,
+          requestId: "competing-placement",
+          seatId: "guest",
+        }),
+      ),
+    ]);
+    const accepted = check.state();
+    expect(accepted.revision).toBe(6);
+    expect(
+      accepted.seats
+        .filter((seat) => seat.team === "red" && seat.role === "spymaster")
+        .map((seat) => seat.id),
+    ).toEqual(["host"]);
+    expect(
+      check.published.find((entry) => entry.message.requestId === "competing-placement")?.message,
+    ).toMatchObject({ type: "error", code: "stale", view: { revision: 6 } });
+
+    const publications = check.published.length;
+    await check.room.webSocketMessage(
+      check.sockets[1],
+      JSON.stringify({
+        ...command,
+        requestId: "occupied-retry",
+        revision: 6,
+        seatId: "guest",
+      }),
+    );
+    expect(check.state()).toEqual(accepted);
+    expect(check.published.slice(publications)).toHaveLength(1);
+    expect(check.published.at(-1)).toMatchObject({
+      seat: "guest",
+      message: {
+        type: "error",
+        code: "invalid",
+        requestId: "occupied-retry",
+        view: { revision: 6, round: null },
+      },
+    });
+    expect(check.published.at(-1)?.message).toHaveProperty(
+      "message",
+      "Red’s spymaster slot is occupied. Move its spymaster first.",
+    );
+    expect(JSON.stringify(check.published)).not.toContain("private-hash");
+  });
+});
+
 describe("Room command commit boundary", () => {
   for (const failure of ["write", "commit"] as const) {
     it(`rejects ${failure} failures without state change, acknowledgement, or broadcast`, async () => {
