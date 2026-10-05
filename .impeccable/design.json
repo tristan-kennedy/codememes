@@ -80,7 +80,7 @@
     "lobby": {
       "permissions": "Players move themselves; host moves anyone.",
       "destinations": "Red/Blue spymaster slot and operative area; shared unassigned/watch tray.",
-      "occupiedSlot": "Reject without demotion or swap; server change required.",
+      "occupiedSlot": "Server rejects before mutation without demotion or swap, including offline incumbents; host explicitly moves incumbent before replacement.",
       "alternatives": "Tap piece then named destination; keyboard placement/cancel.",
       "placement": "Preview until server accepts; never publish optimistic roster.",
       "teamOrder": "Blue left / Red right; stacked in that order on phones."
