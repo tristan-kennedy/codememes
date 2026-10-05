@@ -390,7 +390,7 @@ export function Lobby({
         </section>
       )}
       <div className="lobby-team-areas">
-        {(["red", "blue"] as const).map((team) => (
+        {(["blue", "red"] as const).map((team) => (
           <section className={`lobby-team ${team}`} key={team} aria-labelledby={`lobby-${team}`}>
             <h2 id={`lobby-${team}`}>
               <span className="lobby-team-symbol" aria-hidden="true">

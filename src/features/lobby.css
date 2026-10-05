@@ -65,7 +65,7 @@
   font-weight: 700;
 }
 .lobby-destination.is-target {
-  outline: 3px solid #f2c65c;
+  outline: 3px solid #896314;
   outline-offset: 3px;
 }
 .lobby-destination.is-occupied {
@@ -96,7 +96,7 @@
   box-shadow: 0 2px 4px rgb(27 31 44 / 0.16);
 }
 .player-piece.is-picked {
-  outline: 3px solid #f2c65c;
+  outline: 3px solid #896314;
   outline-offset: 2px;
 }
 .tabletop-lobby .piece-grip,
