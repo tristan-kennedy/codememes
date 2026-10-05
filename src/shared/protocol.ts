@@ -55,8 +55,23 @@ export interface RoomView {
   };
   round: RoundView | null;
 }
+// Recognition only. Curator metadata and hidden assignments never cross this boundary.
+export interface Recognition {
+  id: string;
+  family: string;
+  name: string;
+  description: string;
+  kind: "phrase" | "image" | "gif";
+  phrase: string;
+  asset?: string;
+  poster?: string;
+  width: number;
+  height: number;
+  attribution?: string;
+}
 export interface RoundView {
-  cards: { word: string; revealed: boolean; identity?: CardIdentity }[];
+  contentVersion: string;
+  cards: { word: string; content: Recognition; revealed: boolean; identity?: CardIdentity }[];
   startingTeam: Team;
   activeTeam: Team;
   stage: "clue" | "guessing";

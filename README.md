@@ -1,17 +1,19 @@
-# Codenames
+# Codememes
 
-A Codenames-style word game for private rooms with friends. Create a room, share an invite, and choose Red or Blue on phones or desktops without accounts.
+A private meme association game for friends, built on Codenames-style rules. Create a room, share an invite, and play Red or Blue on phones or desktops without accounts.
+
+Codememes mixes 36 classic and recent meme references as phrases, original image graphics, and a silent GIF on a physical card-game board. Original generated identity covers, readable inspection, and deliberate reveals are implemented. The approved background revision uses a pale center, soft red/blue edge light and faint meme faces with clean styled controls; local desktop, tablet and phone evidence covers public/private/final states and inspection. [PRODUCT.md](docs/PRODUCT.md), [DESIGN.md](docs/DESIGN.md), and the [deck contract](docs/MEME-DECK.md) record the behavior. Drag-and-drop lobby arrangement remains the companion Feature #11; the existing native team/role controls work with this game.
 
 ## Current state
 
-Entry, the synchronized team lobby, and a complete playable round are implemented with React/TypeScript, plain CSS, Vite+, and a Cloudflare Worker with Static Assets and one SQLite-backed Room Durable Object per room. Room cookies authenticate persistent seats; native hibernating WebSockets synchronize accepted actions. The host starts a ready roster, both spymasters receive private keys, operatives select locally then explicitly reveal, and late arrivals watch the public board. A server-owned original English word list supplies each randomized board.
+Entry, the synchronized team lobby, and a complete playable round are implemented with React/TypeScript, plain CSS, Vite+, and a Cloudflare Worker with Static Assets and one SQLite-backed Room Durable Object per room. Room cookies authenticate persistent seats; native hibernating WebSockets synchronize accepted actions. The host starts a ready roster, both spymasters receive private keys, operatives select locally then explicitly reveal, and late arrivals watch the public board. The server deals 25 distinct meme families and separately randomizes the key. Recognition data, clue exclusions and immutable media paths are pinned in room storage. Existing persisted word boards continue unchanged until ended or abandoned; subsequent Start uses the meme deck.
 
 Bounded automatic reconnect restores a fresh permitted snapshot without replaying commands. Host controls follow connected seated players; disconnected spymasters keep their seats with a visible waiting signal. Play again returns the same group to the lobby, where watchers can join teams before a fresh round. The host can abandon interrupted play while the active spymaster is absent. Rooms expire after one empty hour or twenty-four hours without meaningful activity, with retry-safe storage cleanup. Deployment remains future work. No Cloudflare service has been created. [Protocol contracts](docs/PROTOCOL.md) define the implemented room/game/lifecycle boundary and extension responsibilities.
 
 ## Repository and Project
 
-- [Public GitHub repository](https://github.com/tristan-kennedy/codenames)
-- [Public Codenames Project](https://github.com/users/tristan-kennedy/projects/8)
+- [Public GitHub repository](https://github.com/tristan-kennedy/codememes)
+- [Public Codememes Project](https://github.com/users/tristan-kennedy/projects/8)
 - Views: Kanban Board, Ready Queue, Features.
 - Status: Backlog → Ready → In Progress → In Review → Done.
 - Priority: High, Medium, Low.
@@ -23,8 +25,9 @@ The Project uses outcome-sized Features, Bugs, and Tasks with explicit dependenc
 
 | File                                 | Purpose                                                                           |
 | ------------------------------------ | --------------------------------------------------------------------------------- |
-| [Product](docs/PRODUCT.md)           | Audience, game rules, scope, constraints, and the future stack.                   |
-| [Design](docs/DESIGN.md)             | Implemented entry, lobby, board, and rules tokens in the game-table direction.    |
+| [Product](docs/PRODUCT.md)           | Codememes audience, rules, scope, content, and implementation boundaries.         |
+| [Design](docs/DESIGN.md)             | Target tabletop design, sparse copy, illustrated covers, and lobby interaction.   |
+| [Meme deck](docs/MEME-DECK.md)       | Planned mixed-media catalog, recognition, provenance, and round stability.        |
 | [Architecture](docs/ARCHITECTURE.md) | Selected React/Workers/Durable Objects stack, room lifecycle, and plan research.  |
 | [Contributing](docs/CONTRIBUTING.md) | Adapted Golf Club Curator work-item, delivery, review, and authorization policy.  |
 | [Validation](docs/TESTING.md)        | Static checks, focused fault tests, local Workers checks, and browser evidence.   |
@@ -47,7 +50,9 @@ Inspect the installation with `npx --yes skills list`. On Windows, load project 
 & .\.agents\skills\impeccable\scripts\impeccable.cmd context
 ```
 
-Read the skill before invoking other commands. The implemented tokens are recorded in DESIGN and its [.impeccable/design.json](.impeccable/design.json) sidecar. A design hook is not configured.
+Read the skill before invoking other commands. DESIGN and its [.impeccable/design.json](.impeccable/design.json) sidecar record the delivered tabletop and planned lobby arrangement. [Shipping art provenance](docs/assets/shipping-art.json) records exact built-in imagegen prompts; supplied references and the earlier contact sheet remain reference-only. Fonts and OFL licenses are self-hosted. A design hook is not configured.
+
+The repository and main directory are named `codememes`. The existing local Worker configuration and lifecycle bundle still use the internal identifier `codenames`; changing a repository name does not migrate a runtime service or room data. No service has been deployed.
 
 ## Validation
 

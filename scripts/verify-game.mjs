@@ -131,6 +131,8 @@ async function prepare() {
         continue;
       }
       assert.equal(round.cards.length, 25);
+      assert.equal(round.contentVersion, "deck-2026-10-05");
+      assert.equal(new Set(round.cards.map((card) => card.content.family)).size, 25);
       assert.equal(new Set(round.cards.map((card) => card.word)).size, 25);
       const isSpy =
         snapshot.players.find((player) => player.id === snapshot.selfId).role === "spymaster";
@@ -138,6 +140,7 @@ async function prepare() {
         assert.equal("identity" in card, snapshot.phase === "ended" || isSpy || card.revealed);
       assert.equal(round.privateKey, snapshot.phase === "playing" && isSpy);
       assert(!JSON.stringify(snapshot).match(/tokenHash|connectionId|updatedAt|schema/));
+      assert(!JSON.stringify(snapshot).match(/exclusions|visibleWords|provenance|aliases/));
     }
   };
   await delay(30);

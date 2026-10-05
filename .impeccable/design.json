@@ -1,95 +1,216 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-05T04:21:34.000Z",
-  "title": "Design System: Codenames",
+  "generatedAt": "2026-10-05T23:00:00Z",
+  "title": "Design System: Codememes",
   "extensions": {
-    "colorMeta": {
-      "ink": { "role": "primary", "displayName": "Dark Ink" },
-      "ground": { "role": "neutral", "displayName": "Slate Ground" },
-      "red": { "role": "secondary", "displayName": "Deep Red" },
-      "blue": { "role": "secondary", "displayName": "Deep Blue" },
-      "neutral-surface": { "role": "neutral", "displayName": "Neutral card" }
+    "implementation": {
+      "status": "pale-playfield-implemented-lobby-planned",
+      "agreedDate": "2026-10-05",
+      "source": "docs/DESIGN.md",
+      "incumbentStyles": "src/styles.css",
+      "note": "Mixed-media board, original covers/cardstock, inspector, OFL fonts and user-approved pale playfield with original faint SVG faces and white Red/Blue UI are implemented. Revised public/private/final desktop/tablet/phone and inspector evidence captured locally. Companion lobby remains #11; independent review and current-head CI are coordinated before merge.",
+      "visualEvidence": ".impeccable/review/meme-light-*.jpg (local ignored tooling evidence)"
     },
-    "typographyMeta": { "heading": { "displayName": "Task heading", "purpose": "Entry and lobby titles." }, "board-word": { "displayName": "Board word", "purpose": "Untruncated original uppercase words, up to six letters." } },
-    "shadows": [],
-    "motion": [
-      { "name": "duration-fast", "value": "140ms", "purpose": "Accepted reveal fill/color and button feedback; disabled under reduced motion." },
-      { "name": "ease-out", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Quiet control feedback." }
+    "directionSelection": {
+      "method": "user-pinned",
+      "seed": "d55a6ea8",
+      "brief": "Physical game cards and original meme covers on the approved pale off-white background with blue-left/red-right edge glow, faint original SVG meme faces and clean red/blue UI. Drag, tap and keyboard lobby.",
+      "revision": "2026-10-05-user-background-replacement"
+    },
+    "typographyMeta": {
+      "brand": {
+        "displayName": "Printed game lettering",
+        "purpose": "Self-hosted Bricolage Grotesque 800 for phrases, clues and small original split-color lettering; face motif omitted at this size."
+      },
+      "body": {
+        "displayName": "Readable game labels",
+        "purpose": "Self-hosted Atkinson Hyperlegible 400/700 for readable names and controls."
+      }
+    },
+    "shadows": [
+      {
+        "name": "rest",
+        "value": "0 2px 4px rgb(27 31 44 / 0.16)",
+        "purpose": "Physical card contact."
+      },
+      {
+        "name": "lift",
+        "value": "0 10px 18px rgb(27 31 44 / 0.22)",
+        "purpose": "Picked-up piece."
+      }
     ],
-    "breakpoints": [{ "name": "stack-teams", "value": "800px" }, { "name": "phone", "value": "540px" }],
-    "board": { "columns": 5, "gap": "8px", "phoneGap": "4px", "minTileHeight": "120px", "phoneMinTileHeight": "92px", "borderWidth": "2px", "selection": "Local only; explicit Reveal commits after acceptance." },
-    "dialog": { "backdrop": "rgb(24 39 51 / 0.45)", "width": "min(560px, calc(100% - 32px))", "maxHeight": "90vh", "focus": "Native modal, Escape/Close dismissal, focus returns to Rules." },
-    "recovery": { "feedback": "Literal connection state and bounded automatic recovery; explicit Reconnect after takeover or retry exhaustion.", "waiting": "Named missing active spymaster; saved seat instructions and paused actions.", "selection": "Clears on connection loss; accepted board remains visible." },
-    "roundActions": { "layout": "Flex wrapping", "gap": "16px", "margin": "24px 0", "textBasis": "260px", "measure": "70ch", "focus": "Accepted return focuses Team lobby; new round focuses its turn heading." }
+    "motion": [
+      {
+        "name": "accepted-cover",
+        "value": "180ms",
+        "purpose": "Downward cover settle only after acceptance; immediate under reduced motion."
+      },
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Piece settling."
+      }
+    ],
+    "focus": {
+      "width": "3px",
+      "offset": "3px",
+      "onLight": "{colors.focus}",
+      "onTeam": "Deep Blue outer outline plus Gold inset against fill",
+      "onCard": "{colors.focus-on-card}"
+    },
+    "breakpoints": [
+      {
+        "name": "compact-racks",
+        "value": "900px",
+        "status": "target; verify with real content"
+      }
+    ],
+    "board": {
+      "columns": 5,
+      "rows": 5,
+      "cardAspect": "Landscape, 160px height floor; taller narrow cards",
+      "gap": "12px",
+      "phoneGap": "4px",
+      "phonePadding": "8px",
+      "phoneMinHeight": "190px",
+      "selection": "Local only; explicit Reveal; inspect never selects.",
+      "tabletMinHeight": "180px"
+    },
+    "lobby": {
+      "permissions": "Players move themselves; host moves anyone.",
+      "destinations": "Red/Blue spymaster slot and operative area; shared unassigned/watch tray.",
+      "occupiedSlot": "Reject without demotion or swap; server change required.",
+      "alternatives": "Tap piece then named destination; keyboard placement/cancel.",
+      "placement": "Preview until server accepts; never publish optimistic roster."
+    },
+    "media": {
+      "gif": "Poster first; explicit muted controllable inspector playback.",
+      "fit": "contain",
+      "fallback": "Same canonical name/phrase; stable geometry.",
+      "content": "Pinned reference/version; IDs and media never encode hidden identity."
+    },
+    "coverArt": {
+      "composition": "Large recognizable meme-character portrait, bold ink outlines, layered flat shading and quiet scene hints. Avoid elaborate scenery and ornamental frames.",
+      "category": "Dominant Red, Blue or tan across character and background; Assassin remains predominantly near-black with restrained gray/cream facial lines.",
+      "assassin": "Original Wojak-style reaction portrait; supplied black portrait and hooded wordmark face are character cues, not final drawings.",
+      "cast": "Red, Blue and Neutral cast remains open. Choose directly recognizable meme characters rather than generic meme-like props.",
+      "production": "Separate full-frame landscape covers; semantic edges, shadows, symbols and recognition strips. Supplied sheets remain references requiring adaptation."
+    },
+    "wordmark": {
+      "direction": "Heavy condensed italic CODE in Blue, MEMES in Red; optional simplified monochrome Wojak inside O.",
+      "adaptation": "Original lettering and illustration, game palette, flat print treatment; omit face when too small. Keep mark compact on the game screen.",
+      "status": "Reference direction only; no final logo or font selected."
+    },
+    "references": [
+      {
+        "path": "docs/assets/codememes-background-reference.png",
+        "kind": "user-approved-background-direction",
+        "approved": true,
+        "note": "October 5 user request pins this pale neutral playfield, soft Blue/Red edge glow and sparse meme-face line art. Original SVG adaptation for the app; reference pixels are not shipping media."
+      },
+      {
+        "path": "docs/assets/codememes-meme-covers-reference.png",
+        "kind": "user-supplied-art-reference",
+        "approved": false,
+        "note": "Primary cover style reference; adapt portraits, scene and finish. Not shipping cover assets."
+      },
+      {
+        "path": "docs/assets/codememes-wordmark-reference.png",
+        "kind": "user-supplied-brand-reference",
+        "approved": false,
+        "note": "Split-color condensed italic wordmark example; original adaptation required. Not final logo artwork."
+      },
+      {
+        "path": "docs/assets/physical-cover-reference.png",
+        "kind": "user-supplied-style-reference",
+        "approved": false,
+        "note": "Secondary physical portrait composition reference only."
+      },
+      {
+        "path": "docs/assets/physical-board-reference.png",
+        "kind": "user-supplied-style-reference",
+        "approved": false,
+        "note": "Secondary physical board/component context only."
+      },
+      {
+        "path": "docs/assets/codememes-token-reference.png",
+        "kind": "generated-art-direction-reference",
+        "approved": false,
+        "status": "superseded-direction",
+        "note": "Historical exploration; cast, detailed scenes, decorative frames and skeleton Assassin superseded by the supplied portrait brief."
+      }
+    ],
+    "playfield": {
+      "ground": "#f3f1ec",
+      "edgeLight": "Soft static Blue left / Red right; neutral center.",
+      "pattern": "Original decorative SVG troll/reaction/Doge/Wojak-style faces, plus and pixel marks; 40\u201370px faces, widely spaced, around 2\u20134% opacity.",
+      "controlSurface": "White with dark ink, clear borders and Red/Blue accents. Cream is reserved for physical cards.",
+      "reference": "docs/assets/codememes-background-reference.png",
+      "supersedes": "Green felt and pale on-felt UI lettering.",
+      "asset": "public/art/table-v1/playfield.svg",
+      "patternOpacity": "3.5%",
+      "bytes": 2760
+    }
   },
   "components": [
     {
-      "name": "Primary button",
-      "kind": "button",
-      "refersTo": "button-primary",
-      "description": "Neutral primary room action.",
-      "html": "<button class=\"ds-primary\">Create room</button>",
-      "css": ".ds-primary { font: 600 1rem system-ui; color: var(--color-surface, #fff); background: var(--color-ink, #182733); border: 1px solid var(--color-ink, #182733); border-radius: var(--radius-control, 6px); padding: 10px 16px; min-height: 44px; cursor: pointer; } .ds-primary:hover { background: #2d4354; } .ds-primary:focus-visible { outline: 3px solid var(--color-focus, #6553a6); outline-offset: 3px; } .ds-primary:disabled { opacity: .58; cursor: not-allowed; }"
-    },
-    {
-      "name": "Secondary button",
-      "kind": "button",
-      "refersTo": "button-secondary",
-      "description": "Invite copying and explicit reconnection.",
-      "html": "<button class=\"ds-secondary\">Copy invite</button>",
-      "css": ".ds-secondary { font: 600 1rem system-ui; background: var(--color-surface, #fff); color: var(--color-ink, #182733); border: 1px solid var(--color-border, #becad2); border-radius: var(--radius-control, 6px); padding: 10px 16px; min-height: 44px; cursor: pointer; } .ds-secondary:hover { background: #e1e8ed; } .ds-secondary:focus-visible { outline: 3px solid var(--color-focus, #6553a6); outline-offset: 3px; }"
-    },
-    {
-      "name": "Name field",
-      "kind": "input",
-      "refersTo": "input",
-      "description": "Visible label and readable placeholder.",
-      "html": "<label class=\"ds-label\">Your name<input class=\"ds-input\" placeholder=\"The name your friends know\"></label>",
-      "css": ".ds-label { display: grid; gap: 8px; font: 600 1rem system-ui; color: var(--color-ink, #182733); } .ds-input { font: 400 1rem system-ui; color: var(--color-ink, #182733); background: var(--color-surface, #fff); border: 1px solid var(--color-border, #becad2); border-radius: var(--radius-control, 6px); padding: 10px 12px; min-height: 44px; caret-color: var(--color-ink, #182733); } .ds-input::placeholder { color: var(--color-muted, #536572); opacity: 1; } .ds-input:focus-visible { outline: 3px solid var(--color-focus, #6553a6); outline-offset: 3px; }"
-    },
-    {
-      "name": "Player role control",
-      "kind": "input",
-      "description": "Native select with a player-specific accessible label.",
-      "html": "<label class=\"ds-role-label\">Role for Alex<select class=\"ds-role\"><option>Operative</option><option>Spymaster</option></select></label>",
-      "css": ".ds-role-label { display: grid; gap: 8px; font: 600 1rem system-ui; } .ds-role { font: 400 .875rem system-ui; background: var(--color-surface, #fff); color: var(--color-ink, #182733); border: 1px solid var(--color-border, #becad2); border-radius: var(--radius-control, 6px); padding: 8px 4px; min-height: 44px; cursor: pointer; } .ds-role:focus-visible { outline: 3px solid var(--color-focus, #6553a6); outline-offset: 3px; } .ds-role:disabled { opacity: .58; cursor: not-allowed; }"
-    },
-    {
-      "name": "Team heading",
+      "name": "Meme face",
       "kind": "custom",
-      "description": "Explicit team text paired with semantic color.",
-      "html": "<div class=\"ds-red\"><h2>Red team</h2><p>One spymaster · at least one operative</p></div>",
-      "css": ".ds-red { background: var(--color-red-surface, #fff1f1); color: var(--color-ink, #182733); padding: 24px; border-radius: var(--radius-control, 6px); font: 400 1rem system-ui; } .ds-red h2 { color: var(--color-red, #a52b36); font-size: 1.35rem; margin: 0 0 16px; } .ds-red p { margin: 0; }"
+      "refersTo": "meme-card",
+      "description": "Implemented phrase, image, or GIF poster with recognition text and separate inspector control."
     },
     {
-      "name": "Board word",
-      "kind": "button",
-      "refersTo": "word-tile",
-      "description": "Fixed-grid word with explicit selected/revealed state; identity exists only in the permitted projection.",
-      "html": "<button class=\"ds-word\" aria-pressed=\"false\"><strong>ANCHOR</strong><span>Identity hidden</span></button>",
-      "css": ".ds-word { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 120px; padding: 8px 4px; border: 2px solid var(--color-border, #becad2); border-radius: 6px; background: #fff; color: #182733; } .ds-word strong { font: 750 clamp(.6875rem, 2.75vw, 1.25rem)/1.2 system-ui; white-space: nowrap; } .ds-word span { font: 400 clamp(.5625rem, 1.4vw, .8125rem)/1.2 system-ui; } .ds-word:focus-visible { outline: 3px solid #6553a6; outline-offset: 3px; } .ds-word[aria-pressed=true] { border-color: #182733; background: #cfdae5; } @media(max-width:540px) { .ds-word { min-height:92px; padding:8px 1px; } }"
-    },
-    {
-      "name": "Spymaster waiting signal",
+      "name": "Identity cover",
       "kind": "custom",
-      "description": "Quiet role-status text names the absent active spymaster without changing the saved seat or private-key authority.",
-      "html": "<p class=\"ds-waiting\" role=\"status\">Waiting for Morgan, Red’s spymaster, to reconnect. Return using the browser that holds that seat.</p>",
-      "css": ".ds-waiting { margin: 16px 0; padding: 16px 0; border-block: 1px solid var(--color-border, #becad2); overflow-wrap: anywhere; max-width: 70ch; }"
+      "description": "Implemented original meme-character portraits with dominant Red/Blue/tan/near-black category color, Wojak-style Assassin, semantic identity symbol and preserved recognition strip."
     },
     {
-      "name": "Same-group round action",
+      "name": "Player piece",
       "kind": "custom",
-      "description": "Host Play again stays below the readable final board; abandonment uses the existing secondary button beside waiting feedback with explicit discard/preserve-seat copy.",
-      "html": "<div class=\"ds-round-actions\"><p>Return to the lobby with this group to arrange teams and start a fresh board.</p><button class=\"ds-primary\">Play again</button></div>",
-      "css": ".ds-round-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin: 24px 0; } .ds-round-actions p { flex: 1 1 260px; margin: 0; max-width: 70ch; }"
+      "description": "Planned named drag handle with presence and host mark; tap/keyboard equivalents."
+    },
+    {
+      "name": "Action tray",
+      "kind": "custom",
+      "refersTo": "action",
+      "description": "Implemented compact clue or deliberate Reveal/End turn controls."
     }
   ],
   "narrative": {
-    "northStar": "The Game Table",
-    "overview": "A clear shared table for friends: pale slate ground, white controls, readable dark type and explicit Red and Blue teams. Flat surfaces and native controls keep attention on the group.",
-    "keyCharacteristics": ["Flat readable surfaces", "Explicit team and role labels", "Wrapping player names", "Literal readiness and connection feedback", "Fixed five-column board", "Private key warning and deliberate Reveal"],
-    "rules": [{ "name": "Visible focus", "body": "Use a 3px Violet outline with a 3px offset without changing layout.", "section": "components" }],
-    "dos": ["Keep team names paired with color.", "Preserve native keyboard and touch behavior."],
-    "donts": ["Do not add nested panels or decorative shadows.", "Do not imply deployed availability or round history exists."]
+    "northStar": "The meme night table.",
+    "overview": "Physical cream meme cards and original illustrated covers on a pale off-white playfield, with soft Blue/Red edge light and sparse decorative meme faces. Clean styled UI recedes around the game.",
+    "keyCharacteristics": [
+      "Fixed five-by-five board",
+      "Sparse functional copy",
+      "Original meme-inspired covers",
+      "Physical resting/lifted pieces",
+      "Drag, tap and keyboard lobby",
+      "Explicit inspection and deliberate Reveal"
+    ],
+    "rules": [
+      {
+        "name": "Private identity",
+        "body": "Never deliver an unrevealed identity to a public client, including through media metadata.",
+        "section": "components"
+      },
+      {
+        "name": "Accepted-state feedback",
+        "body": "No committed cover, count or roster placement before server acceptance.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "Keep recognition text readable.",
+      "Serve posters before optional animation.",
+      "Preserve keyboard and pointer alternatives.",
+      "Use the approved pale playfield with faint meme faces and Red/Blue edge light.",
+      "Keep controls clean, styled and readable on white/light surfaces."
+    ],
+    "donts": [
+      "Do not autoplay a GIF wall.",
+      "Do not add marketing or explanatory panels to the game.",
+      "Do not describe the companion lobby as delivered before #11.",
+      "Do not reintroduce green felt or pale on-felt labels on the light background."
+    ]
   }
 }

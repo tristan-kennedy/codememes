@@ -29,14 +29,16 @@ export function Rules() {
         <h3>Give a clue</h3>
         <p>
           The active spymaster gives one word and a whole number from 1 to 9. The number tells the
-          team how many words relate to the clue. A clue cannot exactly match an unrevealed board
-          word. Your group judges broader language disputes.
+          team how many cards relate to the clue. A clue cannot match an unrevealed meme's name,
+          recognition alias, or a printed word (for example, “fine” in “This is fine”). Your group
+          judges broader associations.
         </p>
         <h3>Choose, then reveal</h3>
         <p>
-          Active operatives select a word locally, then press Reveal to commit it. Reveals cannot be
-          undone. A team can guess up to the clue number plus one. After at least one guess, they
-          may end their turn early.
+          Active operatives select a card locally, then press Reveal to commit it. Inspecting a card
+          or playing a GIF never selects or reveals it. On phones, inspect a face, then use Select
+          card. Reveals cannot be undone. A team can guess up to the clue number plus one. After at
+          least one guess, they may end their turn early.
         </p>
         <h3>Pass the turn</h3>
         <p>
@@ -46,7 +48,7 @@ export function Rules() {
         </p>
         <h3>Win the round</h3>
         <p>
-          The starting team has nine agents; the other has eight. Seven words are neutral and one is
+          The starting team has nine agents; the other has eight. Seven cards are neutral and one is
           the assassin. A team wins as soon as all its agents are revealed, even by the other team.
           Revealing the assassin immediately loses the round. Everyone sees the final key.
         </p>
