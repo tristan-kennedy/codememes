@@ -1,0 +1,50 @@
+{
+  "created": "2026-10-05",
+  "method": "Built-in imagegen",
+  "references": [
+    "docs/assets/codememes-meme-covers-reference.png",
+    "docs/assets/physical-board-reference.png",
+    "docs/assets/codememes-wordmark-reference.png"
+  ],
+  "shipping": [
+    {
+      "file": "public/art/table-v1/red.webp",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e29-d379-7c20-8eb6-3108fc1e1078\\exec-7dbe63e7-9a70-4e5f-9aeb-5646068c6f5a.png",
+      "prompt": "Use case: stylized-concept. Asset type: shipping landscape 3:2 identity cover for original Codememes tabletop game. Primary request: original expressive Doge-style Shiba Inu head-and-shoulders portrait with knowing sideways glance, large recognizable face, bold ink outlines and layered flat printed shading. Predominantly brick red #b83e3b across character and quiet background; small warm pale highlights. Input reference role: user supplied cover sheet style/composition only, do not trace pixels. Recompose large face for landscape. Full bleed rectangular raster art, no frame, no rounded corners, no symbols, no text, no shadow, no props, no watermark. Original adaptation, simple strong portrait."
+    },
+    {
+      "file": "public/art/table-v1/blue.webp",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e29-d379-7c20-8eb6-3108fc1e1078\\exec-ff3432fa-ec57-4a60-9f5a-42b3e778478c.png",
+      "prompt": "Use case: stylized-concept. Asset type: shipping landscape 3:2 identity cover for original Codememes tabletop game. Primary request: original Hide-the-Pain-Harold-style smiling older man's head-and-shoulders reaction portrait, smile with uncertain eyes, large recognizable face, bold ink outlines and layered flat printed shading. Predominantly denim blue #296aa1 across character and quiet background; small pale blue highlights. Input reference role: user supplied cover sheet style/composition only, do not trace pixels. Recompose large face for landscape. Full bleed rectangular raster art, no frame, no rounded corners, no symbols, no text, no shadow, no props, no watermark. Original adaptation, simple strong portrait."
+    },
+    {
+      "file": "public/art/table-v1/neutral.webp",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e29-d379-7c20-8eb6-3108fc1e1078\\exec-31da94a6-0c4b-4f70-8673-8f64e732e601.png",
+      "prompt": "Use case: stylized-concept. Asset type: shipping landscape 3:2 identity cover for original Codememes tabletop game. Primary request: original skeptical side-eye woman head-and-shoulders reaction portrait with raised eyebrow, deadpan expression, large expressive face, bold ink outlines and layered flat printed shading. Broad muted tan #c8ad7f field across both character and quiet background; subdued brown shadows. Input reference role: user supplied cover sheet style/composition only, do not trace pixels. Recompose large face for landscape. Full bleed rectangular raster art, no frame, no rounded corners, no symbols, no text, no shadow, no props, no watermark. Original adaptation, simple strong portrait."
+    },
+    {
+      "file": "public/art/table-v1/assassin.webp",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e29-d379-7c20-8eb6-3108fc1e1078\\exec-c220cf25-c934-47b2-b092-f9e082fa53e1.png",
+      "prompt": "Use case: stylized-concept. Asset type: shipping full-bleed landscape 3:2 Assassin cover, original Codememes. Draw a classic Wojak-style simple bald cartoon face inside a black hoodie. The character must be unmistakably the hand-drawn Wojak reaction language: simple irregular thin linework, oval bald head, small tired oval eyes, several forehead wrinkles, small plain downturned mouth, no hair, no beard, no realism, no painterly older-man portrait. Original pose: three-quarter shoulders with face looking out flatly. Predominantly black field #252323 across background and hood; face charcoal gray with restrained thin cream outlines and very few pale highlights. Large head-and-shoulders composition. No text, no skull, no frames, no corner rounding, no shadows, no props, no watermark."
+    },
+    {
+      "file": "public/art/table-v1/paper.webp",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e29-d379-7c20-8eb6-3108fc1e1078\\exec-b04258a8-c61a-4954-85f5-41799ea5b6c5.png",
+      "prompt": "Use case: stylized-concept. Asset type: shipping subtle seamless cardstock raster material for Codememes game cards. Primary request: close-up evenly lit cream #f5e9cf uncoated cardstock with very subtle short paper fibers, top-down flat material, no shadows, no vignettes, no marks, no objects, no text, no frames, no patterns. Uniform edges suitable for tiling, quiet warm printed card material."
+    }
+  ],
+  "superseded": [
+    {
+      "file": "public/art/table-v1/felt.webp",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e29-d379-7c20-8eb6-3108fc1e1078\\exec-7b6859a0-770e-42d6-9ff4-b6d5f414e676.png",
+      "prompt": "Use case: stylized-concept. Asset type: shipping seamless raster material tile for Codememes tabletop background. Primary request: evenly lit close-up deep green wool felt, muted #24483f, fine subtle short fibers, flat top-down texture without directional lighting, no vignette, no objects, no text, no pattern, no frame. Quiet tactile physical card-game table, perfectly uniform edges suitable for repetition."
+    }
+  ],
+  "decorativePattern": {
+    "file": "public/art/table-v1/playfield.svg",
+    "method": "Original hand-authored SVG linework",
+    "license": "CC0 1.0",
+    "reference": "docs/assets/codememes-background-reference.png",
+    "note": "User explicitly requested a sparse decorative SVG adaptation. No traced or shipped reference pixels; no game-state data."
+  }
+}

@@ -56,6 +56,8 @@ export function App() {
   const [copied, setCopied] = useState("");
   const connection = useRef<RoomConnection | null>(null);
   const roomHeading = useRef<HTMLHeadingElement>(null);
+  const discardDialog = useRef<HTMLDialogElement>(null);
+  const discardTrigger = useRef<HTMLButtonElement>(null);
   const previousPhase = useRef(view?.phase);
   const acceptView = useCallback((next: RoomView) => {
     setView((current) =>
@@ -252,7 +254,11 @@ export function App() {
   }
 
   return (
-    <main className={view ? "table" : "entry"}>
+    <main
+      className={
+        view ? `table ${view.phase === "lobby" ? "lobby-table" : "playing-table"}` : "entry"
+      }
+    >
       <header className="page-header">
         <a
           className="brand"
@@ -262,14 +268,44 @@ export function App() {
             backToEntry();
           }}
         >
-          Codenames
-          <span className="brand-mark" aria-hidden="true">
-            <i></i>
-            <i></i>
-          </span>
+          <span className="brand-code">CODE</span>
+          <span className="brand-memes">MEMES</span>
         </a>
         {view && (
           <div className="room-tools">
+            {view.phase !== "lobby" && (
+              <>
+                <button
+                  aria-label={`Copy room code ${displayCode(view.code)}`}
+                  onClick={() => {
+                    void copy(displayCode(view.code), "Room code");
+                  }}
+                >
+                  {displayCode(view.code)}
+                </button>
+                <button
+                  onClick={() => {
+                    void copy(invite, "Invite link");
+                  }}
+                >
+                  Invite
+                </button>
+                <details className="game-roster">
+                  <summary>
+                    Players ({view.players.filter((player) => player.connected).length})
+                  </summary>
+                  <ul>
+                    {view.players.map((player) => (
+                      <li key={player.id}>
+                        <strong>{player.name}</strong> · {player.team ?? "Watching"} · {player.role}
+                        {player.isHost ? " · Host" : ""}
+                        {!player.connected ? " · Offline" : ""}
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </>
+            )}
             <Rules />
             <span className="connection" role="status">
               {status === "connected"
@@ -291,8 +327,7 @@ export function App() {
       </header>
       {!view ? (
         <section className="entry-body" aria-labelledby="entry-heading">
-          <h1 id="entry-heading">A table for your friends.</h1>
-          <p className="intro">Create a private room, share the invite, and choose your teams.</p>
+          <h1 id="entry-heading">{mode === "create" ? "Create a room" : "Join a room"}</h1>
           <div className="entry-tabs" role="group" aria-label="Room action">
             <button
               type="button"
@@ -363,50 +398,53 @@ export function App() {
               {loading ? "Opening room…" : mode === "create" ? "Create room" : "Join room"}
             </button>
           </form>
-          <p className="entry-note">No accounts. Just an invite and your name.</p>
         </section>
       ) : (
         <>
-          <section className="lobby-heading">
-            <div>
-              <h1 ref={roomHeading} tabIndex={-1}>
-                {view.phase === "lobby" ? "Team lobby" : "Your room"}
-              </h1>
-              <p>
-                {view.phase === "lobby"
-                  ? "Choose a team and a role. The host can arrange everyone."
-                  : self?.role === "watcher"
-                    ? "You’re watching this round."
-                    : `${self?.team === "red" ? "Red" : "Blue"} team · ${self?.role === "spymaster" ? "Spymaster" : "Operative"}`}
-              </p>
-            </div>
-            <div className="room-code">
-              <span>Room code</span>
-              <button
-                aria-label={`Copy room code ${displayCode(view.code)}`}
-                onClick={() => {
-                  void copy(displayCode(view.code), "Room code");
-                }}
-              >
-                {displayCode(view.code)}
-              </button>
-            </div>
-          </section>
-          <section className="invite-row" aria-label="Invite friends">
-            <label>
-              Invite link
-              <input readOnly value={invite} onFocus={(event) => event.target.select()} />
-            </label>
-            <button
-              className="secondary"
-              onClick={() => {
-                void copy(invite, "Invite link");
-              }}
-            >
-              Copy invite
-            </button>
-          </section>
-          <p className="copy-feedback" role="status">
+          {view.phase === "lobby" && (
+            <>
+              <section className="lobby-heading">
+                <div>
+                  <h1 ref={roomHeading} tabIndex={-1}>
+                    {view.phase === "lobby" ? "Team lobby" : "Your room"}
+                  </h1>
+                  <p>
+                    {view.phase === "lobby"
+                      ? "Choose a team and a role. The host can arrange everyone."
+                      : self?.role === "watcher"
+                        ? "You’re watching this round."
+                        : `${self?.team === "red" ? "Red" : "Blue"} team · ${self?.role === "spymaster" ? "Spymaster" : "Operative"}`}
+                  </p>
+                </div>
+                <div className="room-code">
+                  <span>Room code</span>
+                  <button
+                    aria-label={`Copy room code ${displayCode(view.code)}`}
+                    onClick={() => {
+                      void copy(displayCode(view.code), "Room code");
+                    }}
+                  >
+                    {displayCode(view.code)}
+                  </button>
+                </div>
+              </section>
+              <section className="invite-row" aria-label="Invite friends">
+                <label>
+                  Invite link
+                  <input readOnly value={invite} onFocus={(event) => event.target.select()} />
+                </label>
+                <button
+                  className="secondary"
+                  onClick={() => {
+                    void copy(invite, "Invite link");
+                  }}
+                >
+                  Copy invite
+                </button>
+              </section>
+            </>
+          )}
+          <p className={`copy-feedback ${copied ? "" : "empty-feedback"}`} role="status">
             {copied}
           </p>
           {(status === "disconnected" ||
@@ -449,26 +487,47 @@ export function App() {
           )}
           {view.waitingFor && (
             <p className="waiting-room" role="status">
-              Waiting for {view.waitingFor.name}, {view.waitingFor.team === "red" ? "Red" : "Blue"}
-              ’s spymaster, to reconnect. Their seat and private key are saved.{" "}
-              {view.waitingFor.seatId === view.selfId
-                ? "Use Reconnect to return to your seat."
-                : "Ask them to reopen this room with the same browser."}
+              Waiting for {view.waitingFor.name} to reconnect as{" "}
+              {view.waitingFor.team === "red" ? "Red" : "Blue"} spymaster.
             </p>
           )}
           {view.controls.abandon && (
             <div className="round-actions">
-              <p>
-                Abandon this interrupted round to arrange the group again. The current board will be
-                discarded; everyone keeps their seat.
-              </p>
               <button
                 className="secondary"
+                ref={discardTrigger}
                 disabled={!usable}
-                onClick={() => dispatch({ type: "abandon" })}
+                onClick={() => discardDialog.current?.showModal()}
               >
                 Abandon round
               </button>
+              <dialog
+                className="rules-dialog"
+                ref={discardDialog}
+                aria-labelledby="discard-title"
+                onClose={() => discardTrigger.current?.focus()}
+              >
+                <h2 id="discard-title">Discard this board?</h2>
+                <p>
+                  Return everyone to the lobby. Your group keeps its seats; this board and clue are
+                  discarded.
+                </p>
+                <div className="inspector-actions">
+                  <button autoFocus onClick={() => discardDialog.current?.close()}>
+                    Cancel
+                  </button>
+                  <button
+                    className="primary"
+                    disabled={!usable || !view.controls.abandon}
+                    onClick={() => {
+                      discardDialog.current?.close();
+                      dispatch({ type: "abandon" });
+                    }}
+                  >
+                    Discard board
+                  </button>
+                </div>
+              </dialog>
             </div>
           )}
           {view.round && (
@@ -480,80 +539,88 @@ export function App() {
               onAction={dispatch}
             />
           )}
-          <div className="teams">
-            {(["red", "blue"] as const).map((team) => (
-              <section key={team} className={`team ${team}`} aria-labelledby={`${team}-heading`}>
-                <h2 id={`${team}-heading`}>
-                  {team === "red" ? "Red team" : "Blue team"}
-                  <span>
-                    {view.players.filter((player) => player.team === team).length} players
-                  </span>
-                </h2>
-                {(["spymaster", "operative"] as const).map((role) => (
-                  <div className="role-group" key={role}>
-                    <h3>{role === "spymaster" ? "Spymaster" : "Operatives"}</h3>
-                    <ul>
-                      {view.players
-                        .filter((player) => player.team === team && player.role === role)
-                        .map(playerRow)}
-                    </ul>
-                    {!view.players.some(
-                      (player) => player.team === team && player.role === role,
-                    ) && (
-                      <p className="empty-slot">
-                        {role === "spymaster"
-                          ? "One spymaster needed"
-                          : "At least one operative needed"}
-                      </p>
+          {view.phase === "lobby" && (
+            <>
+              <div className="teams">
+                {(["red", "blue"] as const).map((team) => (
+                  <section
+                    key={team}
+                    className={`team ${team}`}
+                    aria-labelledby={`${team}-heading`}
+                  >
+                    <h2 id={`${team}-heading`}>
+                      {team === "red" ? "Red team" : "Blue team"}
+                      <span>
+                        {view.players.filter((player) => player.team === team).length} players
+                      </span>
+                    </h2>
+                    {(["spymaster", "operative"] as const).map((role) => (
+                      <div className="role-group" key={role}>
+                        <h3>{role === "spymaster" ? "Spymaster" : "Operatives"}</h3>
+                        <ul>
+                          {view.players
+                            .filter((player) => player.team === team && player.role === role)
+                            .map(playerRow)}
+                        </ul>
+                        {!view.players.some(
+                          (player) => player.team === team && player.role === role,
+                        ) && (
+                          <p className="empty-slot">
+                            {role === "spymaster"
+                              ? "One spymaster needed"
+                              : "At least one operative needed"}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </section>
+                ))}
+              </div>
+              {view.players.some((player) => player.team === null) && (
+                <section className="unassigned">
+                  <h2>{view.phase === "lobby" ? "Choose a team" : "Watching"}</h2>
+                  <ul>{view.players.filter((player) => player.team === null).map(playerRow)}</ul>
+                </section>
+              )}
+              {view.phase === "lobby" && (
+                <section className="readiness" aria-labelledby="readiness-heading">
+                  <div>
+                    <h2 id="readiness-heading">
+                      {view.readiness.ready ? "Teams are ready" : "Getting the teams ready"}
+                    </h2>
+                    {view.readiness.ready ? (
+                      <p>Each team has one spymaster and at least one operative.</p>
+                    ) : (
+                      <ul>
+                        {view.readiness.reasons.map((reason) => (
+                          <li key={reason}>{reason}</li>
+                        ))}
+                      </ul>
                     )}
                   </div>
-                ))}
-              </section>
-            ))}
-          </div>
-          {view.players.some((player) => player.team === null) && (
-            <section className="unassigned">
-              <h2>{view.phase === "lobby" ? "Choose a team" : "Watching"}</h2>
-              <ul>{view.players.filter((player) => player.team === null).map(playerRow)}</ul>
-            </section>
-          )}
-          {view.phase === "lobby" && (
-            <section className="readiness" aria-labelledby="readiness-heading">
-              <div>
-                <h2 id="readiness-heading">
-                  {view.readiness.ready ? "Teams are ready" : "Getting the teams ready"}
-                </h2>
-                {view.readiness.ready ? (
-                  <p>Each team has one spymaster and at least one operative.</p>
-                ) : (
-                  <ul>
-                    {view.readiness.reasons.map((reason) => (
-                      <li key={reason}>{reason}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              {self?.isHost ? (
-                <button
-                  className="primary"
-                  disabled={!usable || !view.controls.startRound}
-                  onClick={() => dispatch({ type: "start" })}
-                >
-                  {pending ? "Saving…" : "Start game"}
-                </button>
-              ) : (
-                <p className="round-note">The host starts when both teams are ready.</p>
+                  {self?.isHost ? (
+                    <button
+                      className="primary"
+                      disabled={!usable || !view.controls.startRound}
+                      onClick={() => dispatch({ type: "start" })}
+                    >
+                      {pending ? "Saving…" : "Start game"}
+                    </button>
+                  ) : (
+                    <p className="round-note">The host starts when both teams are ready.</p>
+                  )}
+                </section>
               )}
-            </section>
+              <details className="role-help">
+                <summary>What do the roles do?</summary>
+                <p>
+                  <strong>Spymasters</strong> see the secret key and give clues.{" "}
+                  <strong>Operatives</strong> discuss those clues and choose cards. Each team needs
+                  exactly one spymaster and at least one operative.
+                </p>
+              </details>
+            </>
           )}
-          <details className="role-help">
-            <summary>What do the roles do?</summary>
-            <p>
-              <strong>Spymasters</strong> see the secret key and give clues.{" "}
-              <strong>Operatives</strong> discuss those clues and choose words. Each team needs
-              exactly one spymaster and at least one operative.
-            </p>
-          </details>
           <footer>
             <span>{self ? `Playing as ${self.name}` : ""}</span>
             <button className="text-button" onClick={backToEntry}>

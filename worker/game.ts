@@ -1,11 +1,30 @@
 import { normalizeClue } from "../src/shared/protocol";
-import type { CardIdentity, RoomCommand, RoundView, Team } from "../src/shared/protocol";
+import type {
+  CardIdentity,
+  Recognition,
+  RoomCommand,
+  RoundView,
+  Team,
+} from "../src/shared/protocol";
 import type { RoomState, Seat } from "./state";
 import { RoomError } from "./errors";
-import { WORDS } from "./words";
+import {
+  CONTENT_VERSION,
+  DECK,
+  legacyRecognition,
+  normalizeRecognition,
+  recognitionView,
+} from "./deck";
 
 export interface RoundState {
-  cards: { word: string; identity: CardIdentity; revealed: boolean }[];
+  contentVersion?: string;
+  cards: {
+    word: string;
+    content?: Recognition;
+    exclusions?: string[];
+    identity: CardIdentity;
+    revealed: boolean;
+  }[];
   startingTeam: Team;
   activeTeam: Team;
   stage: "clue" | "guessing";
@@ -43,9 +62,25 @@ export function generateRound(): RoundState {
     "assassin",
   ]);
   return {
-    cards: shuffle(WORDS)
+    contentVersion: CONTENT_VERSION,
+    cards: shuffle(
+      DECK.filter(
+        (entry, index, all) =>
+          all.findIndex(
+            (candidate) => candidate.recognition.family === entry.recognition.family,
+          ) === index,
+      ),
+    )
       .slice(0, 25)
-      .map((word, index) => ({ word, identity: identities[index], revealed: false })),
+      .map((entry, index) => ({
+        word: entry.recognition.name,
+        content: recognitionView(entry.recognition),
+        exclusions: [entry.recognition.name, ...entry.aliases, ...entry.visibleWords].map(
+          normalizeRecognition,
+        ),
+        identity: identities[index],
+        revealed: false,
+      })),
     startingTeam,
     activeTeam: startingTeam,
     stage: "clue",
@@ -139,10 +174,15 @@ export function play(
       round.cards.some(
         (card) =>
           !card.revealed &&
-          card.word.toLocaleLowerCase("en-US") === word.toLocaleLowerCase("en-US"),
+          (card.exclusions ?? [card.word]).some(
+            (value) => normalizeRecognition(value) === normalizeRecognition(word),
+          ),
       )
     )
-      throw new RoomError("invalid", "Your clue cannot be an unrevealed board word.");
+      throw new RoomError(
+        "invalid",
+        "Your clue cannot be an unrevealed board word, name, alias, or printed word.",
+      );
     round.clue = { word, number: command.number };
     round.stage = "guessing";
     round.guessesUsed = 0;
@@ -151,12 +191,12 @@ export function play(
       throw new RoomError("forbidden", "Only the active operatives can guess after a clue.", 403);
     if (command.type === "end_turn") {
       if (round.guessesUsed < 1)
-        throw new RoomError("invalid", "Reveal at least one word before ending the turn.");
+        throw new RoomError("invalid", "Reveal at least one card before ending the turn.");
       nextTurn(round);
     } else if (command.type === "reveal") {
       const card = round.cards[command.index];
       if (!card || card.revealed || round.guessesUsed >= round.clue.number + 1)
-        throw new RoomError("invalid", "That word cannot be revealed. Check the current board.");
+        throw new RoomError("invalid", "That card cannot be revealed. Check the current board.");
       card.revealed = true;
       round.guessesUsed += 1;
       round.lastReveal = { word: card.word, identity: card.identity, byTeam: actor.team };
@@ -195,8 +235,10 @@ export function projectRound(
 ): RoundView {
   const privateKey = !ended && viewer?.role === "spymaster";
   return {
-    cards: round.cards.map((card) => ({
+    contentVersion: round.contentVersion ?? "legacy-words-v1",
+    cards: round.cards.map((card, index) => ({
       word: card.word,
+      content: recognitionView(card.content ?? legacyRecognition(card.word, index)),
       revealed: card.revealed,
       ...(ended || privateKey || card.revealed ? { identity: card.identity } : {}),
     })),

@@ -9,6 +9,7 @@ Read relevant docs and reuse unchanged context:
 - [README.md](README.md): repository state, GitHub Project, installed skill, and current commands.
 - [docs/PRODUCT.md](docs/PRODUCT.md): audience, rules, scope, constraints, and planned stack.
 - [docs/DESIGN.md](docs/DESIGN.md): directional visual seed; distinguish decisions from implemented tokens.
+- [docs/MEME-DECK.md](docs/MEME-DECK.md): planned mixed-media recognition, sourcing, stable content, and privacy contract.
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): selected Cloudflare runtime, room boundaries, persistence, and sourced plan limits.
 - [docs/TESTING.md](docs/TESTING.md): applicable validation, optional automated tests, and current tooling limits.
 - [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md): work sizing, ownership, review, Project status, and handoffs.
@@ -19,6 +20,7 @@ Read relevant docs and reuse unchanged context:
 - Keep changes scoped to the request. Prefer the smallest clear solution; do not invent speculative abstractions.
 - The baseline setup established documentation only. Implement app outcomes or populate the backlog only under later explicit user authorization; follow each dispatched item's scope.
 - Product and design choices for this baseline were delegated to the author. Preserve them unless later evidence or user direction changes them.
+- Codememes is the current product/repository name. PRODUCT and DESIGN specify the planned meme/tabletop replacement; the existing word-game implementation is not evidence that the replacement ships. Preserve the sparse game screen, original illustrated covers, and drag/drop with tap/keyboard equivalents when implementing that direction.
 - Use outcome-sized Feature/Bug/Task items. One writer owns each outcome. Delegate only when the user or applicable instructions authorize it and independent work has a useful benefit.
 - Require independent read-only review for meaningful code, behavior, security, integration, dependency, CI, and repository-policy changes. [CONTRIBUTING.md](docs/CONTRIBUTING.md) defines low-risk exceptions and reviewer boundaries. Return findings to the author.
 - Never send hidden card identities to unauthorized clients. Validate room membership, role, turn, and current round on the server when implementation exists.

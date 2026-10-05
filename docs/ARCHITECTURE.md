@@ -4,6 +4,8 @@ Status: entry, lobby, complete-round rules, automatic reconnect, host transfer, 
 
 ## Selected stack
 
+The Codememes tabletop and persisted mixed-media deck are implemented; drag-and-drop lobby arrangement remains #11. See [PRODUCT.md](PRODUCT.md), [DESIGN.md](DESIGN.md), and [MEME-DECK.md](MEME-DECK.md).
+
 Use a React + TypeScript single-page app built with Vite, one Cloudflare Worker deployment, and one SQLite-backed Durable Object per room. Use native WebSockets with the Durable Objects Hibernation API. Keep plain CSS and the existing Vite+ tooling preference.
 
 ```text
@@ -55,7 +57,7 @@ For each command, validate its JSON shape, bounded size, authenticated seat, rol
 
 Send small complete snapshots rather than a patch protocol. Build each snapshot from an explicit allowlist:
 
-- Operatives and watchers receive words, revealed identities, roster, clue, counts, turn, and permitted controls.
+- Operatives and watchers receive recognition data, revealed identities, roster, clue, counts, turn, and permitted controls.
 - Spymasters additionally receive the complete key during play.
 - Everyone receives the complete key once the round has ended.
 
@@ -90,7 +92,8 @@ worker/
   state.ts                 Parsing, lobby transitions, atomic boundary and views
   game.ts                  Authoritative rules, board generation and key projection
   lifecycle.ts             Deadlines, socket-derived host and missing-spy decisions
-  words.ts                 Original locally curated English source words
+  deck.ts                  Versioned curated catalog and recognition allowlist
+  words.ts                 Legacy source retained for compatibility fixtures
 vite.config.ts             React and Cloudflare Vite plugins
 wrangler.jsonc             Assets, ROOMS binding, runtime settings
 ```
@@ -98,6 +101,16 @@ wrangler.jsonc             Assets, ROOMS binding, runtime settings
 Keep one package and one deployment. The `Room` binding, initial `new_sqlite_classes` migration, tested compatibility date, and generated binding types are configured. Vite+ 1.0.0 and Cloudflare Vite plugin 1.62.5 build and run together in local workerd emulation. The package manager reports peer-version warnings because the aliased Vite+ core identifies as 1.0.0; local verification covers the configured pair. Keep local and deployed room data separate.
 
 No SSR framework, Node server, Socket.IO, Agents SDK, D1, Workers KV, Redis, queues, or microservices are needed for this baseline. The native platform APIs cover room coordination and connections. CI checks the application and documentation; deployment automation remains future work.
+
+## Codememes extension boundaries
+
+The deck replaces the Worker-only noun source with a curated versioned catalog. Pin public recognition data and content version per round; retain immutable asset paths across deployments until active rooms expire. Approved stills, posters, and animations can use the existing Static Assets pipeline. No runtime meme API, arbitrary URL proxy, external fetch inside a room transaction, or new storage service is required. Media failure falls back to the same reference's name/phrase without replacing the card.
+
+Identity remains separately randomized and private. Media IDs, paths, captions, and descriptions never encode the key. Round records now persist contentVersion, per-card recognition and clue exclusions. Additive schema-1 handling preserves existing word boards without replacing them; projections adapt their original words to phrase recognition. Subsequent Start deals the current catalog. Clue checks use curated names, aliases, and visible words. Inspection/playback remains client-local and does not refresh room activity.
+
+Lobby dragging uses the existing authenticated assignment boundary, not pointer broadcasts. Commit destination changes only. Host/self permissions, phase, and revision checks remain mandatory. Occupied-slot rejection needs an atomic server validation change; existing duplicate-spymaster acceptance plus blocked readiness is not that behavior. Previews stay local; placement publishes after acceptance.
+
+The additive meme persistence/projection and local versioned media are implemented and validated locally. Companion lobby placement is planned in #11; deployment and production validation remain future responsibilities. The runtime and quotas below have not been re-researched for this documentation change.
 
 ## Workers plan decision
 

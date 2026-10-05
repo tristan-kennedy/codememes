@@ -1,6 +1,6 @@
 # Contributing
 
-Use the public [Codenames Project](https://github.com/users/tristan-kennedy/projects/8), linked to this repository.
+Use the public [Codememes Project](https://github.com/users/tristan-kennedy/projects/8), linked to this repository.
 
 [AGENTS.md](../AGENTS.md) holds durable agent constraints and contextual documentation pointers. This workflow is adapted from Golf Club Curator. This file holds the shared contribution workflow; issues hold outcome-specific scope and acceptance. Keep reusable tool procedures in relevant skills rather than duplicating this policy in every agent prompt.
 
@@ -86,7 +86,7 @@ Add future issues to the Project explicitly and use Linked pull requests to reac
 
 Reuse useful context; choose a fresh session when a separate outcome or persistently failed approach benefits from it, not at an arbitrary context percentage. Prefer retaining the author and reviewer through normal fix/integration rounds. Use completion notifications or bounded waits instead of polling unchanged work.
 
-Save a checkpoint outside chat **only when an agent needs to stop or hand off**, as a concise comment on the relevant GitHub issue in [Codenames Project](https://github.com/users/tristan-kennedy/projects/8). Include branch/checkout, exact head, PR, checks and their revision, blocker/next action, and task references needed to resume. Do not create progress files or routine checkpoint comments. Routine status stays in Project fields and existing PR evidence.
+Save a checkpoint outside chat **only when an agent needs to stop or hand off**, as a concise comment on the relevant GitHub issue in [Codememes Project](https://github.com/users/tristan-kennedy/projects/8). Include branch/checkout, exact head, PR, checks and their revision, blocker/next action, and task references needed to resume. Do not create progress files or routine checkpoint comments. Routine status stays in Project fields and existing PR evidence.
 
 ## Development and validation
 

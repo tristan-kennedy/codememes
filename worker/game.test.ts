@@ -4,6 +4,8 @@ import { generateRound, otherTeam, play } from "./game";
 import { assign, parseCommand, project } from "./state";
 import type { RoomState } from "./state";
 import { WORDS } from "./words";
+import { CONTENT_VERSION, DECK } from "./deck";
+import { readFileSync, existsSync } from "node:fs";
 
 function fixture(): RoomState {
   return {
@@ -96,6 +98,88 @@ function reveal(state: RoomState, index: number) {
 }
 
 describe("Authoritative complete-round rules", () => {
+  it("pins a suitable distinct mixed-media catalog, immutable assets and public recognition without curator fields", () => {
+    expect(DECK.length).toBeGreaterThan(25);
+    expect(new Set(DECK.map((entry) => entry.recognition.id)).size).toBe(DECK.length);
+    expect(new Set(DECK.map((entry) => entry.recognition.family)).size).toBe(DECK.length);
+    expect(new Set(DECK.map((entry) => entry.recognition.kind))).toEqual(
+      new Set(["phrase", "image", "gif"]),
+    );
+    for (const entry of DECK) {
+      expect(entry.provenance.curated).toBe("2026-10-05");
+      expect(entry.recognition.description).toBeTruthy();
+      expect(entry.recognition.width).toBe(600);
+      expect(entry.recognition.height).toBe(400);
+      for (const path of [entry.recognition.asset, entry.recognition.poster].filter(
+        Boolean,
+      ) as string[]) {
+        expect(path.startsWith(`/media/${CONTENT_VERSION}/`)).toBe(true);
+        expect(existsSync(`public${path}`)).toBe(true);
+      }
+    }
+    const gif = readFileSync("public/media/deck-2026-10-05/dvd.gif");
+    expect(gif.subarray(0, 6).toString()).toBe("GIF89a");
+    const state = fixture();
+    state.round = generateRound();
+    const restored = JSON.parse(JSON.stringify(state)) as RoomState;
+    expect(restored.round).toEqual(state.round);
+    expect(restored.round?.contentVersion).toBe(CONTENT_VERSION);
+    expect(new Set(restored.round?.cards.map((card) => card.content?.family)).size).toBe(25);
+    // Future catalog/curator changes cannot replace a live round's pinned data.
+    restored.round!.cards[0].content!.name = "Pinned old edition";
+    restored.round!.cards[0].exclusions = ["oldedition"];
+    restored.round!.activeTeam = "red";
+    const publicView = project(restored, "red-op", new Set());
+    expect(publicView.round?.cards[0].content.name).toBe("Pinned old edition");
+    expect(JSON.stringify(publicView)).not.toMatch(
+      /exclusions|aliases|visibleWords|provenance|curated/,
+    );
+    expect(publicView.round?.cards.every((card) => !("identity" in card))).toBe(true);
+    expect(() =>
+      play(restored, "red-spy", command(restored, { type: "clue", word: "oldedition", number: 1 })),
+    ).toThrow("printed word");
+    for (const seat of ["red-spy", "blue-spy"])
+      expect(
+        project(restored, seat, new Set()).round?.cards.every((card) => "identity" in card),
+      ).toBe(true);
+  });
+  it("rejects normalized recognition names, aliases and visible words only while unrevealed", () => {
+    const state = fixture();
+    state.round = generateRound();
+    state.round.activeTeam = "red";
+    const fine = DECK.find((entry) => entry.recognition.id === "this-is-fine")!;
+    state.round.cards[0] = {
+      word: fine.recognition.name,
+      content: fine.recognition,
+      exclusions: [fine.recognition.name, ...fine.aliases, ...fine.visibleWords],
+      identity: "red",
+      revealed: false,
+    };
+    for (const word of ["fine", "FINE", "ｆｉｎｅ"])
+      expect(() =>
+        play(state, "red-spy", command(state, { type: "clue", word, number: 1 })),
+      ).toThrow("printed word");
+    expect(
+      play(state, "red-spy", command(state, { type: "clue", word: "fire", number: 1 })).round?.clue
+        ?.word,
+    ).toBe("fire");
+    state.round.cards[0].revealed = true;
+    expect(
+      play(state, "red-spy", command(state, { type: "clue", word: "fine", number: 1 })).round
+        ?.stage,
+    ).toBe("guessing");
+  });
+  it("projects and continues legacy persisted word boards without replacing or rewriting them", () => {
+    const state = fixture(),
+      saved = JSON.stringify(state.round);
+    const view = project(state, "red-op", new Set());
+    expect(view.round?.contentVersion).toBe("legacy-words-v1");
+    expect(view.round?.cards.map((card) => card.content.phrase)).toEqual(WORDS.slice(0, 25));
+    expect(JSON.stringify(state.round)).toBe(saved);
+    const next = reveal(clue(state), 0);
+    expect(next.round?.cards.map((card) => card.word)).toEqual(WORDS.slice(0, 25));
+    expect(next.round?.contentVersion).toBeUndefined();
+  });
   it("returns only the host's ended round to the same lobby and resets the fresh round without history", () => {
     const ended = reveal(clue(), 24);
     ended.emptySince = null;
