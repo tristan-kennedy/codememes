@@ -8,7 +8,8 @@ Read relevant docs and reuse unchanged context:
 
 - [README.md](README.md): repository state, GitHub Project, installed skill, and current commands.
 - [docs/PRODUCT.md](docs/PRODUCT.md): audience, rules, scope, constraints, and planned stack.
-- [DESIGN.md](DESIGN.md): directional visual seed; distinguish decisions from implemented tokens.
+- [docs/DESIGN.md](docs/DESIGN.md): directional visual seed; distinguish decisions from implemented tokens.
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): selected Cloudflare runtime, room boundaries, persistence, and sourced plan limits.
 - [docs/TESTING.md](docs/TESTING.md): applicable validation and the absence of application tooling and automated tests.
 - [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md): work sizing, ownership, review, Project status, and handoffs.
 - [.agents/skills/impeccable/SKILL.md](.agents/skills/impeccable/SKILL.md): design workflow when the request needs it.

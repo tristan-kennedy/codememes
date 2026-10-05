@@ -29,6 +29,6 @@ jobs:
       - name: Check documentation and configuration formatting
         run: >-
           npx --yes prettier@3.9.9 --check
-          README.md AGENTS.md DESIGN.md THIRD_PARTY_NOTICES.md
+          README.md AGENTS.md
           "docs/**/*.md" ".github/**/*.md" ".github/**/*.yml"
           skills-lock.json .prettierrc.json

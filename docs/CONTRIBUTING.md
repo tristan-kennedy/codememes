@@ -1,6 +1,6 @@
 # Contributing
 
-Use the private [Codenames Project](https://github.com/users/tristan-kennedy/projects/8), linked to this repository.
+Use the public [Codenames Project](https://github.com/users/tristan-kennedy/projects/8), linked to this repository.
 
 [AGENTS.md](../AGENTS.md) holds durable agent constraints and contextual documentation pointers. This workflow is adapted from Golf Club Curator. This file holds the shared contribution workflow; issues hold outcome-specific scope and acceptance. Keep reusable tool procedures in relevant skills rather than duplicating this policy in every agent prompt.
 

@@ -10,9 +10,9 @@ web
 
 ## Stack
 
-Delegated: React and TypeScript with Vite, using Vite+ (`vp`) for package management and development tooling as in Golf Club Curator. Use plain CSS and a small Node.js server with WebSockets for shared room state. Keep one application and one server in a single repository; no monorepo packages, component framework, authentication service, or database at launch.
+Delegated: React and TypeScript with Vite, using Vite+ (`vp`) for package management and development tooling as in Golf Club Curator. Use plain CSS, one Cloudflare Worker with Static Assets, and one SQLite-backed Durable Object per room with native hibernating WebSockets. Keep one package and deployment; no monorepo packages, component framework, authentication service, or external database at launch. [ARCHITECTURE.md](ARCHITECTURE.md) records the concrete boundaries and current plan research.
 
-This is a future stack choice only. No application scaffold, dependencies, server, or deployment is established yet. Choose hosting when implementation requires it; it must support a long-running Node process and WebSockets.
+This is a future stack choice only. No application scaffold, dependencies, Cloudflare resources, or deployment is established yet. Node.js runs local tooling; Cloudflare's Workers runtime runs the application backend. Workers Free supports this baseline within its quotas.
 
 ## Users
 
@@ -57,7 +57,7 @@ There is no built-in chat, voice, tutorial tour, or turn timer. A short Rules pa
 - The server owns the key, turn, clue, revealed cards, and outcome. Every action validates the player's room seat, role, active turn, and current round revision.
 - Hidden identities never reach an operative or viewer through HTML, page data, network messages, logs, or client storage. A role change is not a client-side toggle. Host privileges do not grant the key.
 - Lock team and spymaster assignments during a round. Watchers may take seats only in the next lobby. A disconnected spymaster retains their seat; their team waits for reconnection or the host abandons the round back to the lobby.
-- Keep room state in server memory. A server restart ends rooms; this limitation is explicit. Refresh or a brief disconnect can reclaim the same seat with a room-scoped browser token while the room exists. Reconnect fetches current state instead of replaying pending guesses.
+- Persist the current room in its Durable Object's SQLite-backed storage so hibernation, eviction, or runtime restart does not end the game. Rooms remain temporary through explicit expiry. Refresh or a brief disconnect can reclaim the same seat with a room-scoped browser cookie while the room exists. Reconnect fetches current state instead of replaying pending guesses.
 - Reject stale or duplicate reveal submissions and return current state. Disable game actions while disconnected; never speculate that a card was revealed successfully.
 - If the host leaves, transfer host controls to the earliest remaining connected seated player. An empty room expires after one hour; a room expires after twenty-four hours without activity. These limits also apply to an abandoned round. Show an expired-room message with Create a room as recovery.
 

@@ -7,15 +7,15 @@ This repository currently contains planning, contribution policy, GitHub templat
 From the repository root:
 
 ```powershell
-npx --yes prettier@3.9.9 --check README.md AGENTS.md DESIGN.md THIRD_PARTY_NOTICES.md "docs/**/*.md" ".github/**/*.md" ".github/**/*.yml" skills-lock.json .prettierrc.json
+npx --yes prettier@3.9.9 --check README.md AGENTS.md "docs/**/*.md" ".github/**/*.md" ".github/**/*.yml" skills-lock.json .prettierrc.json
 git diff --check -- . ":(exclude).agents/**"
 ```
 
 - Inspect rendered Markdown, including tables, lists, and code fences.
 - Confirm relative links resolve to tracked files and headings.
-- Confirm README, PRODUCT, DESIGN, agent rules, and contribution policy agree on what exists versus what is planned.
+- Confirm README, PRODUCT, DESIGN, ARCHITECTURE, agent rules, and contribution policy agree on what exists versus what is planned.
 - Parse JSON and YAML configuration and confirm issue forms use existing labels.
-- For repository setup, verify private visibility, the linked Project, Status and Priority options, view filters, and the absence of issues or draft items.
+- For repository setup, verify public visibility, the linked Project, Status and Priority options, view filters, and the absence of issues or draft items.
 - Treat the upstream Impeccable files as vendored content. Do not reformat them to satisfy project checks. The whitespace command excludes that directory because the installed upstream references contain trailing whitespace. Its runtime and temporary outputs are not product implementation. During initial setup or before committing staged work, add `--cached` to the whitespace command.
 
 ## CI
