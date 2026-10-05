@@ -57,9 +57,9 @@ export function Lobby({
   const gesture = useRef<Gesture | null>(null);
   const scrollFrame = useRef<number | null>(null);
   const opener = useRef<HTMLButtonElement | null>(null);
+  const captor = useRef<HTMLButtonElement | null>(null);
   const picker = useRef<HTMLDivElement | null>(null);
   const root = useRef<HTMLDivElement | null>(null);
-  const suppressClick = useRef(false);
   const submitted = useRef<{ seatId: string; destination: Destination; revision: number } | null>(
     null,
   );
@@ -79,7 +79,11 @@ export function Lobby({
     );
   }
   function stopGesture() {
+    const current = gesture.current;
     gesture.current = null;
+    if (current && captor.current?.hasPointerCapture(current.pointerId))
+      captor.current.releasePointerCapture(current.pointerId);
+    captor.current = null;
     if (scrollFrame.current !== null) cancelAnimationFrame(scrollFrame.current);
     scrollFrame.current = null;
     setDrag(null);
@@ -89,6 +93,13 @@ export function Lobby({
     setPicked(null);
     setChoice(null);
     if (restoreFocus) opener.current?.focus();
+  }
+  function focusAcceptedPiece(seatId: string) {
+    const target = root.current?.querySelector<HTMLButtonElement>(
+      `[data-seat-id="${seatId}"] .piece-name`,
+    );
+    if (target && !target.disabled) target.focus();
+    else root.current?.focus();
   }
 
   useEffect(() => {
@@ -101,23 +112,19 @@ export function Lobby({
           : "Placement was not accepted. Check the roster and try again.",
       );
       submitted.current = null;
-      const target = root.current?.querySelector<HTMLButtonElement>(
-        `[data-seat-id="${move.seatId}"] .piece-name`,
-      );
-      if (target && !target.disabled) target.focus();
+      focusAcceptedPiece(move.seatId);
     }
     priorPending.current = pending;
   }, [pending, view]);
 
   // Every gesture is based on one accepted roster. Reconnect never replays it.
   useEffect(() => {
-    gesture.current = null;
-    if (scrollFrame.current !== null) cancelAnimationFrame(scrollFrame.current);
-    scrollFrame.current = null;
-    setDrag(null);
+    const interruptedSeat = picked ?? gesture.current?.seatId;
+    stopGesture();
     setPicked(null);
     setChoice(null);
     if (!usable && !pending) submitted.current = null;
+    if (interruptedSeat) focusAcceptedPiece(interruptedSeat);
   }, [view.revision, view.roundId, view.selfId, host, usable, pending]);
   useEffect(() => {
     if (picked) picker.current?.querySelector<HTMLButtonElement>("button:not(:disabled)")?.focus();
@@ -128,6 +135,24 @@ export function Lobby({
     },
     [],
   );
+  useEffect(() => {
+    const interrupt = () => {
+      const seatId = picked ?? gesture.current?.seatId;
+      if (!seatId) return;
+      cancel();
+      focusAcceptedPiece(seatId);
+      setAnnouncement("Placement canceled.");
+    };
+    const hidden = () => {
+      if (document.hidden) interrupt();
+    };
+    window.addEventListener("blur", interrupt);
+    document.addEventListener("visibilitychange", hidden);
+    return () => {
+      window.removeEventListener("blur", interrupt);
+      document.removeEventListener("visibilitychange", hidden);
+    };
+  }, [picked]);
 
   function pick(player: PlayerView, button: HTMLButtonElement) {
     if (!permitted(player)) return;
@@ -176,6 +201,7 @@ export function Lobby({
   function lift(event: PointerEvent<HTMLButtonElement>, player: PlayerView) {
     if (event.button !== 0 || !event.isPrimary || !permitted(player)) return;
     opener.current = event.currentTarget;
+    captor.current = event.currentTarget;
     event.currentTarget.setPointerCapture(event.pointerId);
     gesture.current = {
       seatId: player.id,
@@ -202,7 +228,6 @@ export function Lobby({
   function drop(event: PointerEvent<HTMLButtonElement>, player: PlayerView) {
     const current = gesture.current;
     if (!current || current.pointerId !== event.pointerId) return;
-    suppressClick.current = true;
     stopGesture();
     if (!current.moved) pick(player, event.currentTarget);
     else if (current.target) place(player, current.target);
@@ -241,11 +266,9 @@ export function Lobby({
               if (gesture.current) cancel();
             }}
             onClick={(event) => {
-              if (suppressClick.current) {
-                suppressClick.current = false;
-                return;
-              }
-              pick(player, event.currentTarget);
+              // Pointer clicks are handled by pointer-up; keyboard/AT clicks
+              // still open the same destination picker.
+              if (event.detail === 0) pick(player, event.currentTarget);
             }}
           >
             <Grip />
@@ -315,6 +338,9 @@ export function Lobby({
     <div
       ref={root}
       className="tabletop-lobby"
+      role="region"
+      aria-label="Team arrangement"
+      tabIndex={-1}
       onKeyDown={(event) => {
         if (event.key === "Escape" && (picked || gesture.current)) {
           event.preventDefault();
