@@ -126,9 +126,14 @@ async function prepare() {
     for (const client of members) {
       const snapshot = client.view(),
         round = snapshot.round;
+      if (snapshot.phase === "lobby") {
+        assert.equal(round, null);
+        continue;
+      }
       assert.equal(round.cards.length, 25);
       assert.equal(new Set(round.cards.map((card) => card.word)).size, 25);
-      const isSpy = client === redSpy || client === blueSpy;
+      const isSpy =
+        snapshot.players.find((player) => player.id === snapshot.selfId).role === "spymaster";
       for (const card of round.cards)
         assert.equal("identity" in card, snapshot.phase === "ended" || isSpy || card.revealed);
       assert.equal(round.privateKey, snapshot.phase === "playing" && isSpy);
@@ -177,7 +182,49 @@ async function prepare() {
   };
 }
 
-if (process.argv[2] === "--fixture") {
+if (process.argv[2] === "--seat") {
+  const code = process.argv[3];
+  assert.match(code, /^[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{12}$/);
+  let client = await join(code, process.argv[4] ?? "Fixture seat");
+  console.log("Ordinary fixture seat joined; tokens remain only in memory.");
+  process.stdin.setEncoding("utf8");
+  process.stdin.on("data", async (input) => {
+    try {
+      const action = JSON.parse(input.trim());
+      let result;
+      if (action.type === "disconnect") {
+        client.ws.close();
+        console.log("Seat disconnected; cookie retained in memory.");
+        return;
+      }
+      if (action.type === "reconnect") {
+        client = await open(code, client.cookie);
+        result = { type: "snapshot", view: client.view() };
+      } else if (action.type === "status") result = { type: "snapshot", view: client.view() };
+      else result = await command(client, action);
+      const view = result.view;
+      console.log(
+        JSON.stringify({
+          type: result.type,
+          code: result.code,
+          message: result.message,
+          phase: view?.phase,
+          role: view?.players.find((player) => player.id === view.selfId)?.role,
+          host: view?.players.find((player) => player.isHost)?.name ?? null,
+          activeTeam: view?.round?.activeTeam,
+          stage: view?.round?.stage,
+          privateKey: view?.round?.privateKey,
+          unrevealedHidden: view?.round?.cards
+            .filter((card) => !card.revealed)
+            .every((card) => !("identity" in card)),
+          controls: view?.controls,
+        }),
+      );
+    } catch (error) {
+      console.log(error.message);
+    }
+  });
+} else if (process.argv[2] === "--fixture") {
   const code = process.argv[3];
   assert.match(code, /^[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{12}$/);
   let spy = await join(code, "Blue spymaster");
@@ -285,6 +332,146 @@ if (process.argv[2] === "--fixture") {
     assert.deepEqual((await persisted.json()).view.round, round.current().round);
     console.log(
       "PASS public/private/late-watcher projections, clues, budget, explicit End turn, stale/competing reveals, complete agent victory and persisted final key",
+    );
+
+    const ended = structuredClone(round.current());
+    const roster = ended.players.map((player) => ({
+      id: player.id,
+      name: player.name,
+      team: player.team,
+      role: player.role,
+    }));
+    await rejected(round.redSpy, { type: "play_again" }, "forbidden");
+    await rejected(round.watcher, { type: "play_again" }, "forbidden");
+    const resetRevision = ended.revision;
+    const resets = await Promise.all([
+      command(round.host, { type: "play_again", revision: resetRevision }),
+      command(round.host, { type: "play_again", revision: resetRevision }),
+    ]);
+    assert.equal(resets.filter((message) => message.type === "snapshot").length, 1);
+    assert.equal(resets.filter((message) => message.code === "stale").length, 1);
+    assert.equal(round.current().phase, "lobby");
+    assert.equal(round.current().round, null);
+    assert.deepEqual(
+      round.current().players.map((player) => ({
+        id: player.id,
+        name: player.name,
+        team: player.team,
+        role: player.role,
+      })),
+      roster,
+    );
+    round.privacy();
+    await accepted(round.watcher, {
+      type: "assign",
+      seatId: round.watcher.view().selfId,
+      team: "blue",
+      role: "spymaster",
+    });
+    assert.equal(round.current().readiness.ready, false);
+    await rejected(round.host, { type: "start" }, "invalid");
+    await accepted(round.host, {
+      type: "assign",
+      seatId: round.blueSpy.view().selfId,
+      team: null,
+      role: "operative",
+    });
+    await accepted(round.host, {
+      type: "assign",
+      seatId: round.redSpy.view().selfId,
+      team: "red",
+      role: "operative",
+    });
+    await rejected(round.host, { type: "start" }, "invalid");
+    await accepted(round.host, {
+      type: "assign",
+      seatId: round.host.view().selfId,
+      team: "red",
+      role: "spymaster",
+    });
+    await accepted(round.host, { type: "start" });
+    assert.notEqual(round.current().roundId, ended.roundId);
+    assert.notDeepEqual(
+      round.current().round.cards.map((card) => card.word),
+      ended.round.cards.map((card) => card.word),
+    );
+    assert.equal(round.current().round.clue, null);
+    assert.equal(round.current().round.guessesUsed, 0);
+    assert.equal(round.current().round.lastReveal, null);
+    assert.equal(round.current().round.outcome, null);
+    assert(round.current().round.cards.every((card) => !card.revealed));
+    assert.equal(round.current().round.remaining[round.current().round.startingTeam], 9);
+    round.privacy();
+    assert.equal(round.watcher.view().round.privateKey, true);
+    assert.equal(round.redSpy.view().round.privateKey, false);
+    assert.equal(round.blueSpy.view().round.privateKey, false);
+    assert.equal(
+      round.blueSpy.view().players.find((player) => player.id === round.blueSpy.view().selfId).role,
+      "watcher",
+    );
+    await rejected(
+      round.redSpy,
+      { type: "clue", word: "old-clue", number: 1, roundId: ended.roundId },
+      "stale",
+    );
+    await rejected(round.blueOp, { type: "reveal", index: 0, roundId: ended.roundId }, "stale");
+    await rejected(round.host, { type: "play_again", roundId: ended.roundId }, "stale");
+    const secondTeam = round.current().round.activeTeam;
+    const secondSpy = secondTeam === "red" ? round.host : round.watcher;
+    const secondOp = secondTeam === "red" ? round.redOp2 : round.blueOp;
+    await accepted(secondSpy, { type: "clue", word: "signal", number: 1 });
+    await accepted(secondOp, { type: "reveal", index: indexOf(secondSpy, "assassin") });
+    assert.equal(round.current().phase, "ended");
+    round.privacy();
+    console.log(
+      "PASS same-room two-round flow: final key, competing host Play again, preserved roster, watcher admission, exact readiness, role privacy both directions, fresh board/round/reset and previous-round command rejection",
+    );
+
+    await accepted(round.host, { type: "play_again" });
+    await accepted(round.host, {
+      type: "assign",
+      seatId: round.host.view().selfId,
+      team: "red",
+      role: "operative",
+    });
+    await accepted(round.host, {
+      type: "assign",
+      seatId: round.redSpy.view().selfId,
+      team: "red",
+      role: "spymaster",
+    });
+    await accepted(round.host, { type: "start" });
+    const latest = () => round.blueOp.view();
+    const liveRoundId = latest().roundId;
+    await rejected(round.host, { type: "abandon" }, "forbidden");
+    const lateWatcher = await join(round.host.code, "Recovery watcher");
+    round.host.ws.close();
+    await wait(
+      () => !latest().players.find((player) => player.id === round.host.view().selfId).connected,
+    );
+    const missingSpy = latest().round.activeTeam === "red" ? round.redSpy : round.watcher;
+    missingSpy.ws.close();
+    await wait(() => latest().waitingFor?.seatId === missingSpy.view().selfId);
+    const hostSeat = latest().players.find((player) => player.isHost).id;
+    const currentHost = round.members.find((client) => client.view().selfId === hostSeat);
+    assert(currentHost);
+    await rejected(lateWatcher, { type: "abandon" }, "forbidden");
+    const returnedHost = await open(round.host.code, round.host.cookie);
+    assert.equal(returnedHost.view().controls.abandon, false);
+    await rejected(returnedHost, { type: "abandon" }, "forbidden");
+    const savedSeats = latest().players.map((player) => player.id);
+    await accepted(currentHost, { type: "abandon" });
+    assert.equal(latest().phase, "lobby");
+    assert.equal(latest().round, null);
+    assert.equal(latest().waitingFor, null);
+    assert.deepEqual(
+      latest().players.map((player) => player.id),
+      savedSeats,
+    );
+    await rejected(returnedHost, { type: "reveal", index: 0, roundId: liveRoundId }, "stale");
+    assert.equal(returnedHost.view().round, null);
+    console.log(
+      "PASS socket-derived transferred-host abandonment: active-spy loss, watcher/former-host denial, saved seats and discarded-key-free lobby/error snapshots",
     );
 
     const opposing = await prepare();

@@ -154,6 +154,8 @@ Recovery preserves the accepted board while actions pause and automatic backoff 
 
 The committed reveal is a short 140ms fill/color change with exponential ease-out that keeps each word readable; the revealed label and counts update only after server acceptance. Reduced motion makes tile/control changes immediate. Local selection sends no update and names the chosen word beside explicit Reveal; revision changes clear that choice. The active spy has a clue/number form; accepted clues shrink and wrap within the available width, exposing every character without truncation. Other players receive concise role/turn instructions. The final board exposes every identity with a literal winner and reason.
 
+Play again remains below the existing final board, with one host action and a short return-to-lobby explanation. Host abandonment appears beside the missing-spymaster waiting signal with explicit board-discard/group-preservation copy. Action rows use existing primary/secondary buttons, flex wrapping, a 16px gap, 24px vertical margin, and a 70ch reading width. They wrap naturally on phones. Accepted return focuses the Team lobby heading, preserves the roster/invite, and removes old board/clue/private state. A fresh UUID mounts a new board with reset selection/clue inputs and focuses its turn heading. Watchers see their current role explicitly in the lobby's native role select before choosing a playing role.
+
 Rules uses a native modal dialog to protect reading focus, with an explicit Close rules button, Escape dismissal, and focus returned to Rules. Accepted reveal/turn announcements use one restrained live region; no typing/selection/presence chatter is announced.
 
 ## Do's and Don'ts
@@ -165,4 +167,4 @@ Rules uses a native modal dialog to protect reading focus, with an explicit Clos
 - **Don't** add ornamental badges, persistent navigation, nested panels, or spy-terminal styling.
 - **Don't** use color alone to indicate identity, selection, connection, or outcome.
 - **Don't** introduce a font pipeline, component framework, gradients, glass, or shadows.
-- **Don't** imply rematch, abandonment, or deployed availability already exists.
+- **Don't** imply deployed availability or round history exists.

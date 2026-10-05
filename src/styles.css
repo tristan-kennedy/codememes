@@ -447,6 +447,18 @@ footer span {
   overflow-wrap: anywhere;
   max-width: 70ch;
 }
+.round-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin: 24px 0;
+}
+.round-actions p {
+  flex: 1 1 260px;
+  margin: 0;
+  max-width: 70ch;
+}
 .visually-hidden {
   position: absolute;
   width: 1px;

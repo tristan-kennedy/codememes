@@ -1,6 +1,6 @@
 # Architecture
 
-Status: entry, lobby, complete-round rules, automatic reconnect, host transfer, and expiry are implemented and verified in local Workers emulation. No Cloudflare service or deployment has been created. Rematch, abandonment, and deployment remain deferred. [PROTOCOL.md](PROTOCOL.md) records actual current contracts, input/rate limits, the atomic boundary, and extension responsibilities.
+Status: entry, lobby, complete-round rules, automatic reconnect, host transfer, expiry, Play again, and interrupted-round abandonment are implemented and verified in local Workers emulation. No Cloudflare service or deployment has been created. Deployment remains deferred. [PROTOCOL.md](PROTOCOL.md) records actual current contracts, input/rate limits, the atomic boundary, and extension responsibilities.
 
 ## Selected stack
 
@@ -49,7 +49,7 @@ The browser reconnects with the same room cookie and receives a current snapshot
 
 ## State, commands, and privacy
 
-Keep one versioned room record containing the roster and token hashes, host, current round, complete key, current clue/turn, reveals, monotonically increasing revision, and activity/expiry timestamps. Store only the current room; rematches replace the round, and expiry removes it. Begin with the storage `get`/`put` API on a SQLite-backed class. A custom SQL schema, ORM, event log, and external database are unnecessary for this small record. SQLite-backed objects support this key-value API and strongly consistent transactional storage. [Durable Object storage API](https://developers.cloudflare.com/durable-objects/api/sqlite-storage-api/).
+Keep one versioned room record containing the roster and token hashes, host, current round, complete key, current clue/turn, reveals, monotonically increasing revision, and activity/expiry timestamps. Store only the current room. Host Play again after ending, or host abandonment while the active spy is absent, atomically clears the round/ID and returns the same seats/roster to the lobby. Lobby assignments admit watchers and change roles before Start creates a fresh UUID, randomized board/key/start team, and reset game state. No round history or old key remains in the record. Expiry removes the room. Use storage `get`/`put` on the SQLite-backed class; a custom SQL schema, ORM, event log, and external database are unnecessary. SQLite-backed objects support this key-value API and strongly consistent transactional storage. [Durable Object storage API](https://developers.cloudflare.com/durable-objects/api/sqlite-storage-api/).
 
 For each command, validate its JSON shape, bounded size, authenticated seat, role, phase, round ID, and expected revision. Apply the game rules to the latest record, persist the next record atomically, then acknowledge and broadcast. Keep external network I/O outside this transition. If two players reveal at the same revision, the first accepted transition wins; the stale command receives current state. Do not replay unacknowledged game commands after reconnection.
 
