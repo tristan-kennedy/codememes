@@ -1,7 +1,7 @@
 ---
 name: Codememes
 description: Physical meme cards on a pale playfield with red/blue edge light and clean game controls.
-# User-approved October 5 revision implemented; #11 lobby arrangement pending.
+# User-approved October 5 revision and accessible lobby implemented.
 colors:
   table: "#f3f1ec"
   surface: "#ffffff"
@@ -22,6 +22,7 @@ colors:
   focus-on-team: "#ffe08a"
   focus-on-card: "#21598f"
   selection: "#f2c65c"
+  selection-outline: "#896314"
   selection-edge: "#896314"
   hover: "#eef2f8"
   blue-surface: "#eaf2f9"
@@ -61,7 +62,7 @@ typography:
 rounded:
   card: "10px"
   control: "8px"
-  player-piece: "999px"
+  player-piece: "24px"
 spacing:
   xs: "4px"
   sm: "8px"
@@ -107,7 +108,7 @@ Open the room and see the game: twenty-five real-looking cards on a pale off-whi
 
 The user's October 5 revision rejects green felt and pins the [supplied background](assets/codememes-background-reference.png). It preserves the physical card-game arrangement, sparse copy, original meme covers, and drag-and-drop lobby, while replacing the surrounding material and control styling. Impeccable informs hierarchy, contrast, interaction, and accessibility within this brief. [PRODUCT.md](PRODUCT.md) owns rules and permissions.
 
-**Status: pale playfield and shared controls implemented; independent review and companion lobby pending.** The five-column board, mixed-media deck, inspector, local selection, accepted identity covers and self-hosted fonts are implemented in #10. Its prior felt screenshots are superseded. #10 implements the playfield and shared controls in this direction; #11 delivers the matching accessible lobby arrangement. References guide original assets and are not shipped as application media.
+**Status: pale playfield, game and accessible lobby implemented.** The five-column board, mixed-media deck, inspector, local selection, accepted identity covers and self-hosted fonts are implemented in #10. Its prior felt screenshots are superseded. #11 integrates named drag/tap/keyboard pieces, occupied-slot rejection and compact room/readiness tools in [Lobby.tsx](../src/features/Lobby.tsx) and [lobby.css](../src/features/lobby.css). Exact-revision independent review and CI are recorded in the corresponding PRs. References guide original assets and are not shipped as application media.
 
 ![Approved background reference: an off-white center, soft blue left and red right edge glow, faint scattered reaction faces, plus signs and pixel marks.](assets/codememes-background-reference.png)
 
@@ -126,6 +127,8 @@ Identity combines hue and shape: Red's angular pennant, Blue's round target, Neu
 Selection uses a dark golden `selection-edge` outline and small raised offset, never a team tint. Light Gold remains text selection and the filled-action inset focus cue. Focus is a 3px deep Blue outer outline with 3px offset on light surroundings; filled primary actions add a Gold inset next to their team fill. This keeps focus visible against both surfaces and distinguishable from selection. Errors use a clean white status surface with Ink and brief cause/action; Red remains a team identity.
 
 ## Typography
+
+Lobby Blue/Red destination fills are `#f0f6fc`/`#fcf3f2`, with dashed edges `#b3c9df`/`#dbb9b7`. The shared tray uses `#fafaf9` and `#c8cbd4`; initials use `#a3a8b6`. These are quiet surface/edge tones, not text colors. Picked pieces and drop targets use the dark golden `selection-outline` for visible contrast on pale surfaces. Team headings use a readable 20px step; named pieces use 15px labels and 12px presence text.
 
 Type serves pieces rather than explanatory text. Bricolage Grotesque at 800 gives phrase cards and the active clue warm printed lettering, and serves as the provisional text wordmark. Atkinson Hyperlegible at 400/700 serves names, inputs, labels, and controls. Self-host required font files and licenses when building; system fallbacks keep play usable while loading. No giant game-screen display heading.
 

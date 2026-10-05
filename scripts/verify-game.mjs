@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import WebSocket from "ws";
 
-const origin = "http://127.0.0.1:5173";
+const origin = process.env.CODEMEMES_TEST_ORIGIN ?? "http://127.0.0.1:5173";
+assert.match(origin, /^http:\/\/(127\.0\.0\.1|localhost):\d+$/);
 const actorKey = `game-check-${crypto.randomUUID()}`;
 const headers = {
   Origin: origin,

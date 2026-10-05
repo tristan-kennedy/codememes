@@ -2,7 +2,7 @@
 
 A private meme association game for friends, built on Codenames-style rules. Create a room, share an invite, and play Red or Blue on phones or desktops without accounts.
 
-Codememes mixes 36 classic and recent meme references as phrases, original image graphics, and a silent GIF on a physical card-game board. Original generated identity covers, readable inspection, and deliberate reveals are implemented. The approved background revision uses a pale center, soft red/blue edge light and faint meme faces with clean styled controls; local desktop, tablet and phone evidence covers public/private/final states and inspection. [PRODUCT.md](docs/PRODUCT.md), [DESIGN.md](docs/DESIGN.md), and the [deck contract](docs/MEME-DECK.md) record the behavior. Drag-and-drop lobby arrangement remains the companion Feature #11; the existing native team/role controls work with this game.
+Codememes mixes 36 classic and recent meme references as phrases, original image graphics, and a silent GIF on a physical card-game board. Original generated identity covers, readable inspection, and deliberate reveals are implemented. The approved background revision uses a pale center, soft red/blue edge light and faint meme faces with clean styled controls; local desktop, tablet and phone evidence covers public/private/final states and inspection. [PRODUCT.md](docs/PRODUCT.md), [DESIGN.md](docs/DESIGN.md), and the [deck contract](docs/MEME-DECK.md) record the behavior. Named player pieces arrange teams by drag, tap or keyboard, with server-owned acceptance and occupied-spymaster rejection.
 
 ## Current state
 
@@ -50,7 +50,7 @@ Inspect the installation with `npx --yes skills list`. On Windows, load project 
 & .\.agents\skills\impeccable\scripts\impeccable.cmd context
 ```
 
-Read the skill before invoking other commands. DESIGN and its [.impeccable/design.json](.impeccable/design.json) sidecar record the delivered tabletop and planned lobby arrangement. [Shipping art provenance](docs/assets/shipping-art.json) records exact built-in imagegen prompts; supplied references and the earlier contact sheet remain reference-only. Fonts and OFL licenses are self-hosted. A design hook is not configured.
+Read the skill before invoking other commands. DESIGN and its [.impeccable/design.json](.impeccable/design.json) sidecar record the implemented tabletop and accessible lobby arrangement. [Shipping art provenance](docs/assets/shipping-art.json) records exact built-in imagegen prompts; supplied references and the earlier contact sheet remain reference-only. Fonts and OFL licenses are self-hosted. A design hook is not configured.
 
 The repository and main directory are named `codememes`. The existing local Worker configuration and lifecycle bundle still use the internal identifier `codenames`; changing a repository name does not migrate a runtime service or room data. No service has been deployed.
 

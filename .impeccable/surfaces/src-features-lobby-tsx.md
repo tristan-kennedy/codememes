@@ -7,7 +7,7 @@ related_targets: ["src/App.tsx", "src/features/lobby.css"]
 
 # Codememes entry and arrangement
 
-Mode: Operate. Status: component implemented; integration and browser verification pending.
+Mode: Operate. Status: integrated and locally verified, October 5, 2026.
 
 The October 5 user revision pins a pale off-white playfield, Blue-left/Red-right edge light and faint scattered meme-face SVG decoration. Preserve the physical game arrangement and original covers while giving controls clean white surfaces, dark labels and Red/Blue accents. DESIGN.md owns shared tokens; PRODUCT.md and issue #11 own scope and permissions.
 
