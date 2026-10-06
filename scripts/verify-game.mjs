@@ -132,7 +132,6 @@ async function prepare() {
         continue;
       }
       assert.equal(round.cards.length, 25);
-      assert.equal(round.contentVersion, "deck-2026-10-05");
       assert.equal(new Set(round.cards.map((card) => card.content.family)).size, 25);
       assert.equal(new Set(round.cards.map((card) => card.word)).size, 25);
       const isSpy =

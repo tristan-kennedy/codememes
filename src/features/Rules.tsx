@@ -35,10 +35,9 @@ export function Rules() {
         </p>
         <h3>Choose, then reveal</h3>
         <p>
-          Active operatives select a card locally, then press Reveal to commit it. Inspecting a card
-          or playing a GIF never selects or reveals it. On phones, inspect a face, then use Select
-          card. Reveals cannot be undone. A team can guess up to the clue number plus one. After at
-          least one guess, they may end their turn early.
+          Active operatives tap or click a card to select it locally, then press Reveal to commit
+          it. GIFs play directly on the board. Reveals cannot be undone. A team can guess up to the
+          clue number plus one. After at least one guess, they may end their turn early.
         </p>
         <h3>Pass the turn</h3>
         <p>

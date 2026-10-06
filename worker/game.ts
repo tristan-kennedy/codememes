@@ -8,21 +8,15 @@ import type {
 } from "../src/shared/protocol";
 import type { RoomState, Seat } from "./state";
 import { RoomError } from "./errors";
-import {
-  CONTENT_VERSION,
-  DECK,
-  legacyRecognition,
-  normalizeRecognition,
-  recognitionView,
-} from "./deck";
+import { DECK, normalizeRecognition, recognitionView } from "./deck";
 
 export interface RoundState {
-  contentVersion?: string;
   cards: {
     word: string;
-    content?: Recognition;
-    exclusions?: string[];
+    content: Recognition;
+    exclusions: string[];
     identity: CardIdentity;
+    coverVariant: number;
     revealed: boolean;
   }[];
   startingTeam: Team;
@@ -45,7 +39,7 @@ function randomBelow(limit: number): number {
   } while (value >= ceiling);
   return value % limit;
 }
-function shuffle<T>(source: readonly T[]): T[] {
+export function shuffle<T>(source: readonly T[]): T[] {
   const result = [...source];
   for (let index = result.length - 1; index > 0; index--) {
     const other = randomBelow(index + 1);
@@ -61,8 +55,13 @@ export function generateRound(): RoundState {
     ...Array<CardIdentity>(7).fill("neutral"),
     "assassin",
   ]);
+  const coverVariants = {
+    red: shuffle(Array.from({ length: startingTeam === "red" ? 9 : 8 }, (_, index) => index + 1)),
+    blue: shuffle(Array.from({ length: startingTeam === "blue" ? 9 : 8 }, (_, index) => index + 1)),
+    neutral: shuffle([1, 2, 3, 4, 5, 6, 7]),
+    assassin: [1],
+  };
   return {
-    contentVersion: CONTENT_VERSION,
     cards: shuffle(
       DECK.filter(
         (entry, index, all) =>
@@ -79,6 +78,7 @@ export function generateRound(): RoundState {
           normalizeRecognition,
         ),
         identity: identities[index],
+        coverVariant: coverVariants[identities[index]].pop()!,
         revealed: false,
       })),
     startingTeam,
@@ -106,7 +106,7 @@ export function ready(seats: Seat[]): boolean {
 export function play(
   state: RoomState,
   actorId: string,
-  command: Exclude<RoomCommand, { type: "assign" }>,
+  command: Exclude<RoomCommand, { type: "assign" | "randomize" }>,
   waitingForSpymaster = false,
 ): RoomState {
   const actor = state.seats.find((seat) => seat.id === actorId);
@@ -174,7 +174,7 @@ export function play(
       round.cards.some(
         (card) =>
           !card.revealed &&
-          (card.exclusions ?? [card.word]).some(
+          card.exclusions.some(
             (value) => normalizeRecognition(value) === normalizeRecognition(word),
           ),
       )
@@ -235,12 +235,12 @@ export function projectRound(
 ): RoundView {
   const privateKey = !ended && viewer?.role === "spymaster";
   return {
-    contentVersion: round.contentVersion ?? "legacy-words-v1",
-    cards: round.cards.map((card, index) => ({
+    cards: round.cards.map((card) => ({
       word: card.word,
-      content: recognitionView(card.content ?? legacyRecognition(card.word, index)),
+      content: recognitionView(card.content),
       revealed: card.revealed,
       ...(ended || privateKey || card.revealed ? { identity: card.identity } : {}),
+      ...(card.revealed ? { coverVariant: card.coverVariant } : {}),
     })),
     startingTeam: round.startingTeam,
     activeTeam: round.activeTeam,

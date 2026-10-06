@@ -1,16 +1,10 @@
 import { useEffect, useState } from "react";
 import type { Recognition } from "../shared/protocol";
 
-export function CardMedia({
-  content,
-  playing = false,
-}: {
-  content: Recognition;
-  playing?: boolean;
-}) {
+export function CardMedia({ content }: { content: Recognition }) {
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
-  const src = content.kind === "gif" && !playing ? content.poster : content.asset;
+  const src = content.asset;
   useEffect(() => {
     setLoaded(false);
     setFailed(false);

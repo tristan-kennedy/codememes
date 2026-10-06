@@ -1,50 +1,337 @@
 {
   "created": "2026-10-05",
-  "method": "Built-in imagegen",
-  "references": [
-    "docs/assets/codememes-meme-covers-reference.png",
-    "docs/assets/physical-board-reference.png",
-    "docs/assets/codememes-wordmark-reference.png"
-  ],
+  "method": "Built-in imagegen edits of the user-supplied Codenames card artwork, replacing characters with recognizable memes; sourced SVG page decoration retained.",
   "shipping": [
     {
-      "file": "public/art/table-v1/red.webp",
-      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e29-d379-7c20-8eb6-3108fc1e1078\\exec-7dbe63e7-9a70-4e5f-9aeb-5646068c6f5a.png",
-      "prompt": "Use case: stylized-concept. Asset type: shipping landscape 3:2 identity cover for original Codememes tabletop game. Primary request: original expressive Doge-style Shiba Inu head-and-shoulders portrait with knowing sideways glance, large recognizable face, bold ink outlines and layered flat printed shading. Predominantly brick red #b83e3b across character and quiet background; small warm pale highlights. Input reference role: user supplied cover sheet style/composition only, do not trace pixels. Recompose large face for landscape. Full bleed rectangular raster art, no frame, no rounded corners, no symbols, no text, no shadow, no props, no watermark. Original adaptation, simple strong portrait."
+      "file": "public/art/covers/blue-1.png",
+      "identity": "blue",
+      "character": "Doge",
+      "doubleAgent": false,
+      "input": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-5b6baa8a-8b71-4a01-bbf4-1ffa4fa0490a.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-2677c713-1364-42ba-ae39-0c7f9e42036d.png",
+      "prompt": "Use case: precise-object-edit. Asset type: Codememes shipping cover. Image 1 is the existing cover edit target. Make only the following clothing/color correction. Keep the room background, all architectural geometry, viewpoint, lighting, texture, illustration style, character placement, face and pose unchanged except where the requested correction requires it. Remove every piece of human clothing, including the suit jacket, lapels and undershirt. Show Doge's natural furry Shiba Inu chest and shoulders with canine proportions below the unchanged head; absolutely no clothes. Keep the same distinctive sideways look. Preserve the full-bleed landscape 3:2 framing and existing canvas dimensions. No new text, captions, logos, border, rounded corners, white canvas, or extra objects. This is one finished card illustration."
     },
     {
-      "file": "public/art/table-v1/blue.webp",
-      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e29-d379-7c20-8eb6-3108fc1e1078\\exec-ff3432fa-ec57-4a60-9f5a-42b3e778478c.png",
-      "prompt": "Use case: stylized-concept. Asset type: shipping landscape 3:2 identity cover for original Codememes tabletop game. Primary request: original Hide-the-Pain-Harold-style smiling older man's head-and-shoulders reaction portrait, smile with uncertain eyes, large recognizable face, bold ink outlines and layered flat printed shading. Predominantly denim blue #296aa1 across character and quiet background; small pale blue highlights. Input reference role: user supplied cover sheet style/composition only, do not trace pixels. Recompose large face for landscape. Full bleed rectangular raster art, no frame, no rounded corners, no symbols, no text, no shadow, no props, no watermark. Original adaptation, simple strong portrait."
+      "file": "public/art/covers/blue-2.png",
+      "identity": "blue",
+      "character": "Grumpy Cat (Tardar Sauce's downturned mouth)",
+      "doubleAgent": false,
+      "input": "C:/Users/tdoug/AppData/Local/Temp/codex-clipboard-62450176-20dc-462d-b9a2-0d4ef09588ec.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-df0ee769-3e47-46c0-bc39-dcaf37b48983.png",
+      "prompt": "Use case: precise-object-edit. Asset type: one shipping Codememes revealed identity-cover illustration, blue-2. Input image is the edit target. Extract the blue agent tile at upper right into a single straight-on full-bleed LANDSCAPE 3:2 image, without surrounding sheet or other tiles. Preserve the actual blue room backdrop, including its doorway, wall panels, overhead pipes, shelves and subdued perspective; retain the actual background composition and drawn geometry from this reference, filling only the area previously hidden by the replaced character. Change only the character to Grumpy Cat (Tardar Sauce's downturned mouth). The meme character must be immediately recognizable as the named real meme, with its distinctive face, proportions and expression, adapted to the same printed illustration linework and flat shading as the existing card. Replace the existing foreground person or dog entirely with the named meme's head-and-shoulders portrait, leaving generous visible scene background around its head and shoulders. Blue team palette #1d507b, #0badd7, #42d4ea; these are the only blue shades; off-white and ink portrait highlights allowed. This is one card asset, not a preview or contact sheet. Full-bleed rectangular artwork, no tile frame, no rounded corners, no white outer canvas, no shadow, no text or captions or labels or watermark. Preserve the supplied backdrop instead of inventing a new generic room."
     },
     {
-      "file": "public/art/table-v1/neutral.webp",
-      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e29-d379-7c20-8eb6-3108fc1e1078\\exec-31da94a6-0c4b-4f70-8673-8f64e732e601.png",
-      "prompt": "Use case: stylized-concept. Asset type: shipping landscape 3:2 identity cover for original Codememes tabletop game. Primary request: original skeptical side-eye woman head-and-shoulders reaction portrait with raised eyebrow, deadpan expression, large expressive face, bold ink outlines and layered flat printed shading. Broad muted tan #c8ad7f field across both character and quiet background; subdued brown shadows. Input reference role: user supplied cover sheet style/composition only, do not trace pixels. Recompose large face for landscape. Full bleed rectangular raster art, no frame, no rounded corners, no symbols, no text, no shadow, no props, no watermark. Original adaptation, simple strong portrait."
+      "file": "public/art/covers/blue-3.png",
+      "identity": "blue",
+      "character": "Hide the Pain Harold",
+      "doubleAgent": false,
+      "input": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-e7928d6c-9bd5-49fa-ba7f-cf1291a3c5d4.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-23ace021-27a7-4694-bdc8-a467a11e3775.png",
+      "prompt": "Use case: precise-object-edit. Asset type: Codememes shipping cover. Image 1 is the existing cover edit target. Make only the following clothing/color correction. Keep the room background, all architectural geometry, viewpoint, lighting, texture, illustration style, character placement, face and pose unchanged except where the requested correction requires it. Remove the borrowed blazer and lapels. Harold should wear only a simple casual round-neck light shirt, shaded in the existing blue illustration palette. Keep his head, white hair/beard and strained smile unchanged. Preserve the full-bleed landscape 3:2 framing and existing canvas dimensions. No new text, captions, logos, border, rounded corners, white canvas, or extra objects. This is one finished card illustration."
     },
     {
-      "file": "public/art/table-v1/assassin.webp",
-      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e29-d379-7c20-8eb6-3108fc1e1078\\exec-c220cf25-c934-47b2-b092-f9e082fa53e1.png",
-      "prompt": "Use case: stylized-concept. Asset type: shipping full-bleed landscape 3:2 Assassin cover, original Codememes. Draw a classic Wojak-style simple bald cartoon face inside a black hoodie. The character must be unmistakably the hand-drawn Wojak reaction language: simple irregular thin linework, oval bald head, small tired oval eyes, several forehead wrinkles, small plain downturned mouth, no hair, no beard, no realism, no painterly older-man portrait. Original pose: three-quarter shoulders with face looking out flatly. Predominantly black field #252323 across background and hood; face charcoal gray with restrained thin cream outlines and very few pale highlights. Large head-and-shoulders composition. No text, no skull, no frames, no corner rounding, no shadows, no props, no watermark."
+      "file": "public/art/covers/blue-4.png",
+      "identity": "blue",
+      "character": "Roll Safe (Kayode Ewumi's knowing smile and finger at his temple)",
+      "doubleAgent": false,
+      "input": "C:/Users/tdoug/AppData/Local/Temp/codex-clipboard-62450176-20dc-462d-b9a2-0d4ef09588ec.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-40880e1d-ee81-44e0-8a63-7b1ab24e40a8.png",
+      "prompt": "Use case: precise-object-edit. Asset type: one shipping Codememes revealed identity-cover illustration, blue-4. Input image is the edit target. Extract the blue agent tile at upper right into a single straight-on full-bleed LANDSCAPE 3:2 image, without surrounding sheet or other tiles. Preserve the actual blue room backdrop, including its doorway, wall panels, overhead pipes, shelves and subdued perspective; retain the actual background composition and drawn geometry from this reference, filling only the area previously hidden by the replaced character. Change only the character to Roll Safe (Kayode Ewumi's knowing smile and finger at his temple). The meme character must be immediately recognizable as the named real meme, with its distinctive face, proportions and expression, adapted to the same printed illustration linework and flat shading as the existing card. Replace the existing foreground person or dog entirely with the named meme's head-and-shoulders portrait, leaving generous visible scene background around its head and shoulders. Blue team palette #1d507b, #0badd7, #42d4ea; these are the only blue shades; off-white and ink portrait highlights allowed. This is one card asset, not a preview or contact sheet. Full-bleed rectangular artwork, no tile frame, no rounded corners, no white outer canvas, no shadow, no text or captions or labels or watermark. Preserve the supplied backdrop instead of inventing a new generic room."
     },
     {
-      "file": "public/art/table-v1/paper.webp",
-      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e29-d379-7c20-8eb6-3108fc1e1078\\exec-b04258a8-c61a-4954-85f5-41799ea5b6c5.png",
-      "prompt": "Use case: stylized-concept. Asset type: shipping subtle seamless cardstock raster material for Codememes game cards. Primary request: close-up evenly lit cream #f5e9cf uncoated cardstock with very subtle short paper fibers, top-down flat material, no shadows, no vignettes, no marks, no objects, no text, no frames, no patterns. Uniform edges suitable for tiling, quiet warm printed card material."
-    }
-  ],
-  "superseded": [
+      "file": "public/art/covers/blue-5.png",
+      "identity": "blue",
+      "character": "Pepe",
+      "doubleAgent": false,
+      "input": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-59728c6c-5b7e-480a-922b-62f4e0f757d5.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-93e7de79-a2c1-4201-bba8-9c9292fc212f.png",
+      "prompt": "Use case: precise-object-edit. Asset type: Codememes shipping cover. Image 1 is the existing cover edit target. Make only the following clothing/color correction. Keep the room background, all architectural geometry, viewpoint, lighting, texture, illustration style, character placement, face and pose unchanged except where the requested correction requires it. Remove the suit jacket and lapels; Pepe wears his familiar plain round-neck T-shirt only. Recolor ALL of Pepe's face, eyelids, lips, neck and any visible skin to the same blue tonal family as this Blue team card: #1d507b shadows, #0badd7 midtones, #42d4ea highlights; no green or orange skin. Keep the exact recognizable Pepe face and expression. Preserve the full-bleed landscape 3:2 framing and existing canvas dimensions. No new text, captions, logos, border, rounded corners, white canvas, or extra objects. This is one finished card illustration."
+    },
     {
-      "file": "public/art/table-v1/felt.webp",
-      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e29-d379-7c20-8eb6-3108fc1e1078\\exec-7b6859a0-770e-42d6-9ff4-b6d5f414e676.png",
-      "prompt": "Use case: stylized-concept. Asset type: shipping seamless raster material tile for Codememes tabletop background. Primary request: evenly lit close-up deep green wool felt, muted #24483f, fine subtle short fibers, flat top-down texture without directional lighting, no vignette, no objects, no text, no pattern, no frame. Quiet tactile physical card-game table, perfectly uniform edges suitable for repetition."
+      "file": "public/art/covers/blue-6.png",
+      "identity": "blue",
+      "character": "Success Kid (Sammy Griner's determined baby face and clenched fist)",
+      "doubleAgent": false,
+      "input": "C:/Users/tdoug/AppData/Local/Temp/codex-clipboard-62450176-20dc-462d-b9a2-0d4ef09588ec.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-5b6f86d6-b548-4fba-807a-16db22aac448.png",
+      "prompt": "Use case: precise-object-edit. Asset type: one shipping Codememes revealed identity-cover illustration, blue-6. Input image is the edit target. Extract the blue agent tile at upper right into a single straight-on full-bleed LANDSCAPE 3:2 image, without surrounding sheet or other tiles. Preserve the actual blue room backdrop, including its doorway, wall panels, overhead pipes, shelves and subdued perspective; retain the actual background composition and drawn geometry from this reference, filling only the area previously hidden by the replaced character. Change only the character to Success Kid (Sammy Griner's determined baby face and clenched fist). The meme character must be immediately recognizable as the named real meme, with its distinctive face, proportions and expression, adapted to the same printed illustration linework and flat shading as the existing card. Replace the existing foreground person or dog entirely with the named meme's head-and-shoulders portrait, leaving generous visible scene background around its head and shoulders. Blue team palette #1d507b, #0badd7, #42d4ea; these are the only blue shades; off-white and ink portrait highlights allowed. This is one card asset, not a preview or contact sheet. Full-bleed rectangular artwork, no tile frame, no rounded corners, no white outer canvas, no shadow, no text or captions or labels or watermark. Preserve the supplied backdrop instead of inventing a new generic room."
+    },
+    {
+      "file": "public/art/covers/blue-7.png",
+      "identity": "blue",
+      "character": "Disaster Girl (Zoë Roth's knowing sideways smile)",
+      "doubleAgent": false,
+      "input": "C:/Users/tdoug/AppData/Local/Temp/codex-clipboard-62450176-20dc-462d-b9a2-0d4ef09588ec.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-1cc59ed2-fb34-49ad-9e1f-f4a6ed33030d.png",
+      "prompt": "Use case: precise-object-edit. Asset type: one shipping Codememes revealed identity-cover illustration, blue-7. Input image is the edit target. Extract the blue agent tile at upper right into a single straight-on full-bleed LANDSCAPE 3:2 image, without surrounding sheet or other tiles. Preserve the actual blue room backdrop, including its doorway, wall panels, overhead pipes, shelves and subdued perspective; retain the actual background composition and drawn geometry from this reference, filling only the area previously hidden by the replaced character. Change only the character to Disaster Girl (Zoë Roth's knowing sideways smile). The meme character must be immediately recognizable as the named real meme, with its distinctive face, proportions and expression, adapted to the same printed illustration linework and flat shading as the existing card. Replace the existing foreground person or dog entirely with the named meme's head-and-shoulders portrait, leaving generous visible scene background around its head and shoulders. Blue team palette #1d507b, #0badd7, #42d4ea; these are the only blue shades; off-white and ink portrait highlights allowed. This is one card asset, not a preview or contact sheet. Full-bleed rectangular artwork, no tile frame, no rounded corners, no white outer canvas, no shadow, no text or captions or labels or watermark. Preserve the supplied backdrop instead of inventing a new generic room."
+    },
+    {
+      "file": "public/art/covers/blue-8.png",
+      "identity": "blue",
+      "character": "Side Eye Chloe",
+      "doubleAgent": false,
+      "input": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-4cfbad34-a839-44f3-b9cb-e6cdde5633cb.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-37065d3b-55d2-437a-abf7-1da78dd5891f.png",
+      "prompt": "Use case: precise-object-edit. Asset type: Codememes shipping cover. Image 1 is the existing cover edit target. Make only the following clothing/color correction. Keep the room background, all architectural geometry, viewpoint, lighting, texture, illustration style, character placement, face and pose unchanged except where the requested correction requires it. Remove the adult suit jacket and lapels. Chloe wears only a toddler's plain casual round-neck T-shirt in the existing blue tones, keeping her face, hair and side-eye unchanged. Preserve the full-bleed landscape 3:2 framing and existing canvas dimensions. No new text, captions, logos, border, rounded corners, white canvas, or extra objects. This is one finished card illustration."
+    },
+    {
+      "file": "public/art/covers/red-1.png",
+      "identity": "red",
+      "character": "Trollface",
+      "doubleAgent": false,
+      "input": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-d602f9e5-1c55-4c4c-a8b8-14c29a6cf94b.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-ba681ffb-179d-464f-9540-ef67e7406efa.png",
+      "prompt": "Use case: precise-object-edit. Asset type: Codememes shipping cover. Image 1 is the existing cover edit target. Make only the following clothing/color correction. Keep the room background, all architectural geometry, viewpoint, lighting, texture, illustration style, character placement, face and pose unchanged except where the requested correction requires it. Remove the borrowed buttoned henley shirt with its placket, buttons, and realistic muscular human neck. Beneath the unchanged Trollface head use a simple thin rage-comic cartoon torso in a plain round-neck dark red T-shirt. No formal clothing, no buttons, no lapels; preserve the grinning face. Preserve the full-bleed landscape 3:2 framing and existing canvas dimensions. No new text, captions, logos, border, rounded corners, white canvas, or extra objects. This is one finished card illustration."
+    },
+    {
+      "file": "public/art/covers/red-2.png",
+      "identity": "red",
+      "character": "Me Gusta",
+      "doubleAgent": false,
+      "input": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-f0943810-63f2-48cc-a63b-8ca5b38c5f25.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-e586ad50-d0fd-450e-93cf-b18928f1b6fd.png",
+      "prompt": "Use case: precise-object-edit. Asset type: Codememes shipping cover. Image 1 is the existing cover edit target. Make only the following clothing/color correction. Keep the room background, all architectural geometry, viewpoint, lighting, texture, illustration style, character placement, face and pose unchanged except where the requested correction requires it. Remove the borrowed buttoned henley, placket and buttons and realistic human neck. Beneath the same Me Gusta head use a simple rage-comic cartoon torso in a plain round-neck dark red T-shirt; no formal clothing, buttons or lapels. Keep the face. Preserve the full-bleed landscape 3:2 framing and existing canvas dimensions. No new text, captions, logos, border, rounded corners, white canvas, or extra objects. This is one finished card illustration."
+    },
+    {
+      "file": "public/art/covers/red-3.png",
+      "identity": "red",
+      "character": "Yao Ming",
+      "doubleAgent": false,
+      "input": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-479e9e78-b6d1-4264-9f40-c152b1418c36.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-78961fe1-58e6-4624-aa00-e76cf4109fba.png",
+      "prompt": "Use case: precise-object-edit. Asset type: Codememes shipping cover. Image 1 is the existing cover edit target. Make only the following clothing/color correction. Keep the room background, all architectural geometry, viewpoint, lighting, texture, illustration style, character placement, face and pose unchanged except where the requested correction requires it. Replace the borrowed buttoned henley with Yao Ming's recognizable sleeveless basketball jersey, shaded in the existing red tones with light trim. No logos, names or numbers. Keep the same laughing head, hair and expression. Preserve the full-bleed landscape 3:2 framing and existing canvas dimensions. No new text, captions, logos, border, rounded corners, white canvas, or extra objects. This is one finished card illustration."
+    },
+    {
+      "file": "public/art/covers/red-4.png",
+      "identity": "red",
+      "character": "Okay Guy",
+      "doubleAgent": false,
+      "input": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-335687d7-f314-4dbd-91a6-d5abeb286010.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-4da9e496-e247-4040-8644-22dadcaa87e4.png",
+      "prompt": "Use case: precise-object-edit. Asset type: Codememes shipping cover. Image 1 is the existing cover edit target. Make only the following clothing/color correction. Keep the room background, all architectural geometry, viewpoint, lighting, texture, illustration style, character placement, face and pose unchanged except where the requested correction requires it. Remove the borrowed buttoned henley with its placket and buttons. Keep the same drooping Okay Guy face, and give him a simple thin rage-comic torso in a plain round-neck T-shirt shaded dark red. No formal clothes, buttons or lapels. Preserve the full-bleed landscape 3:2 framing and existing canvas dimensions. No new text, captions, logos, border, rounded corners, white canvas, or extra objects. This is one finished card illustration."
+    },
+    {
+      "file": "public/art/covers/red-5.png",
+      "identity": "red",
+      "character": "Forever Alone",
+      "doubleAgent": false,
+      "input": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-c5bf3534-48d8-41e4-a240-b6473319c43e.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-17a8fff3-a4d4-43ac-8517-af0a0473846f.png",
+      "prompt": "Use case: precise-object-edit. Asset type: Codememes shipping cover. Image 1 is the existing cover edit target. Make only the following clothing/color correction. Keep the room background, all architectural geometry, viewpoint, lighting, texture, illustration style, character placement, face and pose unchanged except where the requested correction requires it. Remove the borrowed buttoned henley, buttons and placket. Keep the same Forever Alone face and tears, and use a simple rage-comic torso in a plain round-neck dark red T-shirt. No formal clothing or realistic muscular human neck. Preserve the full-bleed landscape 3:2 framing and existing canvas dimensions. No new text, captions, logos, border, rounded corners, white canvas, or extra objects. This is one finished card illustration."
+    },
+    {
+      "file": "public/art/covers/red-6.png",
+      "identity": "red",
+      "character": "Crying Jordan",
+      "doubleAgent": false,
+      "input": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-30800719-0d0b-4f90-ad42-bda400d36cf4.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-d41a52c2-406f-47b0-8ae2-50d20c9e9f6c.png",
+      "prompt": "Use case: precise-object-edit. Asset type: Codememes shipping cover. Image 1 is the existing cover edit target. Make only the following clothing/color correction. Keep the room background, all architectural geometry, viewpoint, lighting, texture, illustration style, character placement, face and pose unchanged except where the requested correction requires it. Replace the borrowed buttoned henley with the dark suit jacket and light dress shirt appropriate to the familiar Crying Jordan speech portrait. Use existing red tonal shading and cream light shirt, with simple jacket lapels. Keep the same bald head, tears and expression. No props or text. Preserve the full-bleed landscape 3:2 framing and existing canvas dimensions. No new text, captions, logos, border, rounded corners, white canvas, or extra objects. This is one finished card illustration."
+    },
+    {
+      "file": "public/art/covers/red-7.png",
+      "identity": "red",
+      "character": "Leonardo DiCaprio pointing",
+      "doubleAgent": false,
+      "input": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-11e664dc-de0c-45b5-97b2-aee32d72905c.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-062e7065-c0fa-46dc-9d78-aedd7a375826.png",
+      "prompt": "Use case: precise-object-edit. Asset type: Codememes shipping cover. Image 1 is the existing cover edit target. Make only the following clothing/color correction. Keep the room background, all architectural geometry, viewpoint, lighting, texture, illustration style, character placement, face and pose unchanged except where the requested correction requires it. Remove the added blazer and lapels so the character wears only the casual round-neck T-shirt from the pointing meme, shaded in this red team palette. Keep his head, hair, expression and pointing hand exactly unchanged. Preserve the full-bleed landscape 3:2 framing and existing canvas dimensions. No new text, captions, logos, border, rounded corners, white canvas, or extra objects. This is one finished card illustration."
+    },
+    {
+      "file": "public/art/covers/red-8.png",
+      "identity": "red",
+      "character": "Confused Nick Young (Nick Young's tilted-head confused smile, no question-mark text)",
+      "doubleAgent": false,
+      "input": "C:/Users/tdoug/AppData/Local/Temp/codex-clipboard-62450176-20dc-462d-b9a2-0d4ef09588ec.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-7207c204-fd91-4014-91b3-599e960b218c.png",
+      "prompt": "Use case: precise-object-edit. Asset type: one shipping Codememes revealed identity-cover illustration, red-8. Input image is the edit target. Extract the red agent tile at upper left into a single straight-on full-bleed LANDSCAPE 3:2 image, without surrounding sheet or other tiles. Preserve the actual warm red room backdrop, including its wall panels, dark horizontal beam and perspective; retain the actual background composition and drawn geometry from this reference, filling only the area previously hidden by the replaced character. Change only the character to Confused Nick Young (Nick Young's tilted-head confused smile, no question-mark text). The meme character must be immediately recognizable as the named real meme, with its distinctive face, proportions and expression, adapted to the same printed illustration linework and flat shading as the existing card. Replace the existing foreground person or dog entirely with the named meme's head-and-shoulders portrait, leaving generous visible scene background around its head and shoulders. Red team palette #8e2927, #ff6247, #ffa477; these are the only red shades; cream and ink portrait highlights allowed. This is one card asset, not a preview or contact sheet. Full-bleed rectangular artwork, no tile frame, no rounded corners, no white outer canvas, no shadow, no text or captions or labels or watermark. Preserve the supplied backdrop instead of inventing a new generic room."
+    },
+    {
+      "file": "public/art/covers/blue-9.png",
+      "identity": "blue",
+      "character": "Wojak",
+      "doubleAgent": true,
+      "input": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-b2bb6ef4-6796-48cf-b375-4c2a1562a8e8.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-b3fe51db-a5c8-409a-86fa-2a719cc8e42b.png",
+      "prompt": "Use case: precise-object-edit. Asset type: Codememes shipping cover. Image 1 is the existing cover edit target. Make only the following clothing/color correction. Keep the room background, all architectural geometry, viewpoint, lighting, texture, illustration style, character placement, face and pose unchanged except where the requested correction requires it. Remove the business suit jacket and lapels. This same Wojak wears just a simple dark round-neck T-shirt in the existing blue tones; preserve his bald head, tired eyes, wrinkles and expression. Preserve the full-bleed landscape 3:2 framing and existing canvas dimensions. No new text, captions, logos, border, rounded corners, white canvas, or extra objects. This is one finished card illustration."
+    },
+    {
+      "file": "public/art/covers/red-9.png",
+      "identity": "red",
+      "character": "Wojak",
+      "doubleAgent": true,
+      "input": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-67661175-0d29-44b8-a8cf-a12d60baf3ff.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-84c44842-17ec-4d1b-9dd1-c4ab1b6bfaec.png",
+      "prompt": "Use case: precise-object-edit. Asset type: Codememes shipping cover. Image 1 is the existing cover edit target. Make only the following clothing/color correction. Keep the room background, all architectural geometry, viewpoint, lighting, texture, illustration style, character placement, face and pose unchanged except where the requested correction requires it. Remove the borrowed buttoned henley, placket and buttons. The same Wojak should wear a simple dark round-neck T-shirt in the existing red tones. Keep his bald head, tired eyes, wrinkles and expression exactly. Preserve the full-bleed landscape 3:2 framing and existing canvas dimensions. No new text, captions, logos, border, rounded corners, white canvas, or extra objects. This is one finished card illustration."
+    },
+    {
+      "file": "public/art/covers/neutral-1.png",
+      "identity": "neutral",
+      "character": "This Is Fine dog (KC Green's round-eyed orange dog wearing its little hat, no fire)",
+      "doubleAgent": false,
+      "input": "C:/Users/tdoug/AppData/Local/Temp/codex-clipboard-62450176-20dc-462d-b9a2-0d4ef09588ec.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-eef159cb-07cd-4929-8078-b1005fa1fa66.png",
+      "prompt": "Use case: precise-object-edit. Asset type: one shipping Codememes revealed identity-cover illustration, neutral-1. Input image is the edit target. Extract the neutral tile at lower center (the dog tile) into a single straight-on full-bleed LANDSCAPE 3:2 image, without surrounding sheet or other tiles. Preserve the actual muted beige background and pale green picket fence; retain the actual background composition and drawn geometry from this reference, filling only the area previously hidden by the replaced character. Change only the character to This Is Fine dog (KC Green's round-eyed orange dog wearing its little hat, no fire). The meme character must be immediately recognizable as the named real meme, with its distinctive face, proportions and expression, adapted to the same printed illustration linework and flat shading as the existing card. Replace the existing foreground person or dog entirely with the named meme's head-and-shoulders portrait, leaving generous visible scene background around its head and shoulders. Muted warm beige, pale green fence, brown and cream; no red or blue team dominance. This is one card asset, not a preview or contact sheet. Full-bleed rectangular artwork, no tile frame, no rounded corners, no white outer canvas, no shadow, no text or captions or labels or watermark. Preserve the supplied backdrop instead of inventing a new generic room."
+    },
+    {
+      "file": "public/art/covers/neutral-2.png",
+      "identity": "neutral",
+      "character": "Keyboard Cat (Fatso the orange tabby in a blue shirt, paws visible)",
+      "doubleAgent": false,
+      "input": "C:/Users/tdoug/AppData/Local/Temp/codex-clipboard-62450176-20dc-462d-b9a2-0d4ef09588ec.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-50d42b09-3afe-41f6-afcd-f3d68a5ece0d.png",
+      "prompt": "Use case: precise-object-edit. Asset type: one shipping Codememes revealed identity-cover illustration, neutral-2. Input image is the edit target. Extract the neutral tile at lower center (the dog tile) into a single straight-on full-bleed LANDSCAPE 3:2 image, without surrounding sheet or other tiles. Preserve the actual muted beige background and pale green picket fence; retain the actual background composition and drawn geometry from this reference, filling only the area previously hidden by the replaced character. Change only the character to Keyboard Cat (Fatso the orange tabby in a blue shirt, paws visible). The meme character must be immediately recognizable as the named real meme, with its distinctive face, proportions and expression, adapted to the same printed illustration linework and flat shading as the existing card. Replace the existing foreground person or dog entirely with the named meme's head-and-shoulders portrait, leaving generous visible scene background around its head and shoulders. Muted warm beige, pale green fence, brown and cream; no red or blue team dominance. This is one card asset, not a preview or contact sheet. Full-bleed rectangular artwork, no tile frame, no rounded corners, no white outer canvas, no shadow, no text or captions or labels or watermark. Preserve the supplied backdrop instead of inventing a new generic room."
+    },
+    {
+      "file": "public/art/covers/neutral-3.png",
+      "identity": "neutral",
+      "character": "Longcat (white cat with stretched upright body and raised forelegs)",
+      "doubleAgent": false,
+      "input": "C:/Users/tdoug/AppData/Local/Temp/codex-clipboard-62450176-20dc-462d-b9a2-0d4ef09588ec.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-9f39780c-b795-4b9b-9dd3-e0e43183ac5a.png",
+      "prompt": "Use case: precise-object-edit. Asset type: one shipping Codememes revealed identity-cover illustration, neutral-3. Input image is the edit target. Extract the neutral tile at lower center (the dog tile) into a single straight-on full-bleed LANDSCAPE 3:2 image, without surrounding sheet or other tiles. Preserve the actual muted beige background and pale green picket fence; retain the actual background composition and drawn geometry from this reference, filling only the area previously hidden by the replaced character. Change only the character to Longcat (white cat with stretched upright body and raised forelegs). The meme character must be immediately recognizable as the named real meme, with its distinctive face, proportions and expression, adapted to the same printed illustration linework and flat shading as the existing card. Replace the existing foreground person or dog entirely with the named meme's head-and-shoulders portrait, leaving generous visible scene background around its head and shoulders. Muted warm beige, pale green fence, brown and cream; no red or blue team dominance. This is one card asset, not a preview or contact sheet. Full-bleed rectangular artwork, no tile frame, no rounded corners, no white outer canvas, no shadow, no text or captions or labels or watermark. Preserve the supplied backdrop instead of inventing a new generic room."
+    },
+    {
+      "file": "public/art/covers/neutral-4.png",
+      "identity": "neutral",
+      "character": "Dramatic Chipmunk (dramatic prairie dog with its startled over-the-shoulder gaze)",
+      "doubleAgent": false,
+      "input": "C:/Users/tdoug/AppData/Local/Temp/codex-clipboard-62450176-20dc-462d-b9a2-0d4ef09588ec.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-85bd6df6-e8df-44b9-80a6-bf9f5eeb679e.png",
+      "prompt": "Use case: precise-object-edit. Asset type: one shipping Codememes revealed identity-cover illustration, neutral-4. Input image is the edit target. Extract the neutral tile at lower center (the dog tile) into a single straight-on full-bleed LANDSCAPE 3:2 image, without surrounding sheet or other tiles. Preserve the actual muted beige background and pale green picket fence; retain the actual background composition and drawn geometry from this reference, filling only the area previously hidden by the replaced character. Change only the character to Dramatic Chipmunk (dramatic prairie dog with its startled over-the-shoulder gaze). The meme character must be immediately recognizable as the named real meme, with its distinctive face, proportions and expression, adapted to the same printed illustration linework and flat shading as the existing card. Replace the existing foreground person or dog entirely with the named meme's head-and-shoulders portrait, leaving generous visible scene background around its head and shoulders. Muted warm beige, pale green fence, brown and cream; no red or blue team dominance. This is one card asset, not a preview or contact sheet. Full-bleed rectangular artwork, no tile frame, no rounded corners, no white outer canvas, no shadow, no text or captions or labels or watermark. Preserve the supplied backdrop instead of inventing a new generic room."
+    },
+    {
+      "file": "public/art/covers/neutral-5.png",
+      "identity": "neutral",
+      "character": "Scumbag Steve (Blake Boston wearing the recognizable sideways plaid cap)",
+      "doubleAgent": false,
+      "input": "C:/Users/tdoug/AppData/Local/Temp/codex-clipboard-62450176-20dc-462d-b9a2-0d4ef09588ec.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-d2cbc8ac-316b-401b-8017-8398a70fa877.png",
+      "prompt": "Use case: precise-object-edit. Asset type: one shipping Codememes revealed identity-cover illustration, neutral-5. Input image is the edit target. Extract the neutral tile at lower center (the dog tile) into a single straight-on full-bleed LANDSCAPE 3:2 image, without surrounding sheet or other tiles. Preserve the actual muted beige background and pale green picket fence; retain the actual background composition and drawn geometry from this reference, filling only the area previously hidden by the replaced character. Change only the character to Scumbag Steve (Blake Boston wearing the recognizable sideways plaid cap). The meme character must be immediately recognizable as the named real meme, with its distinctive face, proportions and expression, adapted to the same printed illustration linework and flat shading as the existing card. Replace the existing foreground person or dog entirely with the named meme's head-and-shoulders portrait, leaving generous visible scene background around its head and shoulders. Muted warm beige, pale green fence, brown and cream; no red or blue team dominance. This is one card asset, not a preview or contact sheet. Full-bleed rectangular artwork, no tile frame, no rounded corners, no white outer canvas, no shadow, no text or captions or labels or watermark. Preserve the supplied backdrop instead of inventing a new generic room."
+    },
+    {
+      "file": "public/art/covers/neutral-6.png",
+      "identity": "neutral",
+      "character": "Bad Luck Brian (Kyle Craven's red sweater vest and awkward school-photo smile)",
+      "doubleAgent": false,
+      "input": "C:/Users/tdoug/AppData/Local/Temp/codex-clipboard-62450176-20dc-462d-b9a2-0d4ef09588ec.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-0b1f02d2-5f67-4fb0-b7e0-5af22a8904af.png",
+      "prompt": "Use case: precise-object-edit. Asset type: one shipping Codememes revealed identity-cover illustration, neutral-6. Input image is the edit target. Extract the neutral tile at lower center (the dog tile) into a single straight-on full-bleed LANDSCAPE 3:2 image, without surrounding sheet or other tiles. Preserve the actual muted beige background and pale green picket fence; retain the actual background composition and drawn geometry from this reference, filling only the area previously hidden by the replaced character. Change only the character to Bad Luck Brian (Kyle Craven's red sweater vest and awkward school-photo smile). The meme character must be immediately recognizable as the named real meme, with its distinctive face, proportions and expression, adapted to the same printed illustration linework and flat shading as the existing card. Replace the existing foreground person or dog entirely with the named meme's head-and-shoulders portrait, leaving generous visible scene background around its head and shoulders. Muted warm beige, pale green fence, brown and cream; no red or blue team dominance. This is one card asset, not a preview or contact sheet. Full-bleed rectangular artwork, no tile frame, no rounded corners, no white outer canvas, no shadow, no text or captions or labels or watermark. Preserve the supplied backdrop instead of inventing a new generic room."
+    },
+    {
+      "file": "public/art/covers/neutral-7.png",
+      "identity": "neutral",
+      "character": "Overly Attached Girlfriend (Laina Morris's intensely wide-eyed smile)",
+      "doubleAgent": false,
+      "input": "C:/Users/tdoug/AppData/Local/Temp/codex-clipboard-62450176-20dc-462d-b9a2-0d4ef09588ec.png",
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-80cb477a-eff1-4134-ba3a-6dfe57240eea.png",
+      "prompt": "Use case: precise-object-edit. Asset type: one shipping Codememes revealed identity-cover illustration, neutral-7. Input image is the edit target. Extract the neutral tile at lower center (the dog tile) into a single straight-on full-bleed LANDSCAPE 3:2 image, without surrounding sheet or other tiles. Preserve the actual muted beige background and pale green picket fence; retain the actual background composition and drawn geometry from this reference, filling only the area previously hidden by the replaced character. Change only the character to Overly Attached Girlfriend (Laina Morris's intensely wide-eyed smile). The meme character must be immediately recognizable as the named real meme, with its distinctive face, proportions and expression, adapted to the same printed illustration linework and flat shading as the existing card. Replace the existing foreground person or dog entirely with the named meme's head-and-shoulders portrait, leaving generous visible scene background around its head and shoulders. Muted warm beige, pale green fence, brown and cream; no red or blue team dominance. This is one card asset, not a preview or contact sheet. Full-bleed rectangular artwork, no tile frame, no rounded corners, no white outer canvas, no shadow, no text or captions or labels or watermark. Preserve the supplied backdrop instead of inventing a new generic room."
+    },
+    {
+      "file": "public/art/covers/assassin-1.png",
+      "identity": "assassin",
+      "character": "Original classic Wojak in his black hoodie",
+      "doubleAgent": false,
+      "input": [
+        "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-552c6c99-e635-4568-9157-0ca93b38d20e.png",
+        "C:/Users/tdoug/.codex/generated_images/01a10e29-d379-7c20-8eb6-3108fc1e1078/exec-c220cf25-c934-47b2-b092-f9e082fa53e1.png"
+      ],
+      "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-89fae990-b3d3-429a-968e-0185d35575b7.png",
+      "prompt": "Use case: compositing, identity-preserve. Asset type: Codememes assassin cover. Image 1 is the current card edit target for BACKGROUND ONLY. Image 2 is the exact original Wojak character to restore. Replace the entire foreground person from image 1 with the same bald Wojak, same face shape, wrinkles, tired sideways eyes, downturned mouth, black hoodie with the hood resting down behind the head, and charcoal/cream line drawing from image 2. No fedora, no hat, no trenchcoat, no tie, no Meme Man. Preserve Wojak's actual recognizable face and hoodie rather than creating a new jak. Preserve the exact nighttime scenery from image 1: dark wall/ledge left, tall angular street lamp at right, muted cream lamplight and charcoal night shadows; restore only scenery hidden by the removed person. Place the original Wojak naturally at the same portrait scale in this scene, looking toward the right, and match the scene's printed illustration lighting. Full-bleed landscape 3:2 with the same canvas dimensions. No border, rounded corners, white canvas, text, labels, watermark, or additional objects."
     }
   ],
   "decorativePattern": {
-    "file": "public/art/table-v1/playfield.svg",
-    "method": "Original hand-authored SVG linework",
-    "license": "CC0 1.0",
-    "reference": "docs/assets/codememes-background-reference.png",
-    "note": "User explicitly requested a sparse decorative SVG adaptation. No traced or shipped reference pixels; no game-state data."
+    "file": "public/art/playfield.svg",
+    "method": "Composed from sourced SVG geometry; no newly drawn meme faces.",
+    "publisherLicense": "ClipSafari lists these illustrations as CC0 / public domain.",
+    "opacity": "7%",
+    "sources": [
+      {
+        "name": "trollface",
+        "page": "https://www.clipsafari.com/clips/o130795-troll-face",
+        "download": "https://images.clipsafari.com/5e9251dkc660at6j63ys4o8c6vry?filename=troll-face.svg"
+      },
+      {
+        "name": "forever-alone",
+        "page": "https://www.clipsafari.com/clips/o166561-forever-alone",
+        "download": "https://images.clipsafari.com/g5wdi7v5jky7pfq58plhv7awudyv?filename=forever-alone.svg"
+      },
+      {
+        "name": "okay-guy",
+        "page": "https://www.clipsafari.com/clips/o166563-okay-guy",
+        "download": "https://images.clipsafari.com/6wtv4zn8gp4rcg5q2jw5akfqx3m6?filename=okay-guy.svg"
+      },
+      {
+        "name": "me-gusta",
+        "page": "https://www.clipsafari.com/clips/o174678-meme-me-gusta-mas",
+        "download": "https://images.clipsafari.com/xwx5qafljprcercfcn4fnlk4087c?filename=meme-me-gusta-mas.svg"
+      },
+      {
+        "name": "yao-ming",
+        "page": "https://www.clipsafari.com/clips/o162583-yaoming-meme",
+        "download": "https://images.clipsafari.com/9h67a51bsvooc6x1jjsls5eb681m?filename=yaoming-meme.svg"
+      }
+    ],
+    "note": "Artwork scaled, rotated and arranged in a repeating 960x720 tile. White background and face fills, editor metadata and non-vector content are omitted for transparent linework. No game-state data."
+  },
+  "branding": {
+    "method": "Built-in imagegen edits of the user-supplied finished logo and favicon, recolored for the board palette with transparent outer backgrounds.",
+    "conversation": "chatgpt-conversation://6ac41d60-ed2c-83e9-b9db-4177127d899d",
+    "assets": [
+      {
+        "file": "public/brand/logo.png",
+        "input": "C:\\Users\\tdoug\\AppData\\Local\\Temp\\codex-clipboard-2bbcd9fc-3b1d-4005-9efe-04098f768143.png",
+        "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-7b9e2caa-bd41-49aa-b397-325d88c8c3cb.png",
+        "prompt": "Use case: precise-object-edit. Asset type: shipping Codememes header logo PNG. Edit target: the supplied CODEMEMES wordmark. Preserve its exact lettering, italic heavy letter shapes, tight horizontal spacing and the existing monochrome hooded face inside the O. Change only color and outer background. Recolor CODE to flat primary Blue #0badd7 and MEMES to flat primary Red #ff6247. Remove all blue/red gradient shading; these letters should use those exact two solid colors, no new shades. Retain the hooded face's black/white linework and white face; white inside the character is opaque, but outer white canvas and spaces between/inside letters are genuinely transparent. Do not change or redraw the face or lettering. Text verbatim CODEMEMES. Output a very wide logo with tightly cropped bounds around the wordmark, only a tiny transparent perimeter, preserve the supplied approximately 5.3:1 wordmark proportions. No sheet, mockup, frame, shadow, extra text or added objects.",
+        "initialSource": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-9278c567-6e33-4b02-a8b3-a6a4e4bb6488.png",
+        "repairPrompt": "Use case: precise-object-edit. Edit target: Image 1 is the installed transparent CODEMEMES logo with damaged alpha; Image 2 is the original supplied logo for shape and facial detail reference. Repair only missing/partially transparent patches and rough extraction artifacts. Preserve the current canvas dimensions, lettering positions, italic shapes, spacing, monochrome hooded face, and primary Blue #0badd7 CODE / primary Red #ff6247 MEMES. The whole O, including all background immediately around and behind the hooded face, must be solid opaque Blue; there must be NO transparent holes or pale damaged strip behind the head. Restore the complete black hood above and around the face, with its intended white outline and white face opaque. Letter fills must be uniform fully opaque flat colors with clean antialiased outer edges, no speckles, fringe, eroded pixels, faint patches or accidental holes. Keep transparency ONLY in the empty outer canvas, spaces between letters and legitimate other letter counters. Do not redesign or change text. Text exactly CODEMEMES. This is a minimal alpha/background repair, not a new logo."
+      },
+      {
+        "file": "public/brand/favicon.png",
+        "input": "C:\\Users\\tdoug\\AppData\\Local\\Temp\\codex-clipboard-1e8dd79f-8645-46be-be68-b29eb4c6fbde.png",
+        "source": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-e7c4d206-81df-48a9-a826-ee992018e212.png",
+        "prompt": "Use case: precise-object-edit. Asset type: shipping Codememes favicon PNG. Edit target: the supplied rounded-square split blue/red icon with black hooded white Wojak face. Preserve the exact supplied face, pose, hood, white outline, rounded square silhouette and slanted split between blue on the left and red on the right. Change only the two background colors: make left flat solid primary Blue #0badd7, right flat solid primary Red #ff6247. Remove the old gradients, use these exact colors with no alternate blue/red shades. Retain the existing black/white monochrome character details unchanged. Remove only the white canvas outside the rounded square to real transparency; white face and white contour remain opaque. Tight square framing with rounded-square icon filling virtually the entire canvas and a tiny transparent perimeter. No new objects, text, shadows, sheet or mockup.",
+        "initialSource": "C:\\Users\\tdoug\\.codex\\generated_images\\01a10e68-7a72-7752-a328-913d38cfd872\\exec-eaf111d4-111b-46cb-b965-e3e75d4bd5f4.png",
+        "repairPrompt": "Use case: precise-object-edit. Edit target: Image 1 is the installed favicon with a damaged translucent/missing patch in the red background; Image 2 is the original supplied icon as reference for intact geometry. Make the ENTIRE interior of the rounded square fully opaque. Left background is uniform solid primary Blue #0badd7 and right background uniform solid primary Red #ff6247, retaining the same slanted division. Fill every missing or partially transparent patch, especially the pale irregular patch in the upper red field above and right of the hood. Remove speckles, gaps, eroded edges and extraction fringe. Preserve the exact current icon composition, rounded square shape and full black hooded character, white outline, white face, expressions and facial lines. White face and outline are opaque. Only pixels OUTSIDE the rounded square are transparent. No transparency at all inside that silhouette, no gradients or new color shades, no redesign, text or added details. Keep the current square canvas and framing. Minimal alpha/background repair only."
+      }
+    ],
+    "repair": "Filled missing/partially transparent patches in the favicon red field and blue O around the logo face using built-in imagegen. Outer backgrounds remain transparent."
+  },
+  "coverSet": {
+    "directory": "public/art/covers",
+    "standardCounts": {
+      "red": 8,
+      "blue": 8,
+      "doubleAgent": 1,
+      "neutral": 7,
+      "assassin": 1
+    },
+    "digitalAssets": {
+      "red": 9,
+      "blue": 9,
+      "neutral": 7,
+      "assassin": 1
+    },
+    "explanation": "The physical double agent has red and blue sides. Both colors use Wojak as variant 9, reserved for the starting team's ninth agent; a round uses 25 distinct cover designs.",
+    "countSource": "https://www.czechgames.com/games/codenames",
+    "rulesSource": "https://www.asmodee.co.uk/blogs/news/codenames-rules",
+    "suppliedReferences": [
+      {
+        "file": "C:/Users/tdoug/AppData/Local/Temp/codex-clipboard-11ca70ac-07b6-46c3-bd65-d8138e914a56.png",
+        "role": "User's physical-board composition and background reference."
+      },
+      {
+        "file": "C:/Users/tdoug/AppData/Local/Temp/codex-clipboard-62450176-20dc-462d-b9a2-0d4ef09588ec.png",
+        "role": "Edit target: blue/red room backgrounds and neutral picket-fence backdrop."
+      },
+      {
+        "file": "C:/Users/tdoug/AppData/Local/Temp/codex-clipboard-1293f0a9-e427-4e84-80fa-74bc5ff0250b.png",
+        "role": "Edit target: assassin night backdrop, hat and coat; replace only the character head."
+      }
+    ],
+    "assignment": "Shuffle unique variants independently of card position and recognition at deal time, persist them, and project coverVariant only after reveal.",
+    "format": "Native generated PNGs, copied without pixel processing.",
+    "validation": "No verification, independent review or tests, per direct user instruction.",
+    "replacementPolicy": "One current unversioned cover set; replace files in place without retaining older editions. Characters use their own familiar clothing or natural fur. Pepe is blue; the assassin is the original Wojak in his black hoodie."
   }
 }

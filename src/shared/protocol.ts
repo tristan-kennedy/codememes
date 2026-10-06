@@ -70,8 +70,13 @@ export interface Recognition {
   attribution?: string;
 }
 export interface RoundView {
-  contentVersion: string;
-  cards: { word: string; content: Recognition; revealed: boolean; identity?: CardIdentity }[];
+  cards: {
+    word: string;
+    content: Recognition;
+    revealed: boolean;
+    identity?: CardIdentity;
+    coverVariant?: number;
+  }[];
   startingTeam: Team;
   activeTeam: Team;
   stage: "clue" | "guessing";
@@ -95,13 +100,17 @@ export interface AssignCommand extends CommandBase {
   team: Team | null;
   role: PlayingRole;
 }
+export interface RandomizeCommand extends CommandBase {
+  type: "randomize";
+}
 export type RoomCommand =
   | AssignCommand
+  | RandomizeCommand
   | (CommandBase & { type: "start" | "end_turn" | "play_again" | "abandon" })
   | (CommandBase & { type: "clue"; word: string; number: number })
   | (CommandBase & { type: "reveal"; index: number });
 export type GameAction =
-  | { type: "start" | "end_turn" | "play_again" | "abandon" }
+  | { type: "randomize" | "start" | "end_turn" | "play_again" | "abandon" }
   | { type: "clue"; word: string; number: number }
   | { type: "reveal"; index: number };
 

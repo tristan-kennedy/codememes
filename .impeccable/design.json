@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-05T23:08:11.636487+00:00",
+  "generatedAt": "2026-10-05T18:08:11.636487-05:00",
   "title": "Design System: Codememes",
   "extensions": {
     "implementation": {
@@ -8,19 +8,18 @@
       "agreedDate": "2026-10-05",
       "source": "docs/DESIGN.md",
       "incumbentStyles": "src/styles.css",
-      "note": "Mixed-media board, original covers/cardstock, inspector, OFL fonts, approved pale playfield and accessible drag/tap/keyboard lobby are implemented. White UI uses readable Red/Blue accents; server accepts placements and rejects occupied spymaster slots atomically. Local desktop/tablet/phone evidence is recorded in TESTING; exact-head independent review and CI are recorded in PRs.",
-      "visualEvidence": ".impeccable/review/meme-light-*.jpg (local ignored tooling evidence)"
+      "note": "Sourced image/GIF deck with inline animation, neutral operative faces, generously padded private identity faces and full illustrated reveal covers. Sourced SVG meme background, softened edge color and one shared three-shade palette per team and accessible lobby. Latest direct edits were not verified at user request."
     },
     "directionSelection": {
       "method": "user-pinned",
       "seed": "d55a6ea8",
-      "brief": "Physical game cards and original meme covers on the approved pale off-white background with blue-left/red-right edge glow, faint original SVG meme faces and clean red/blue UI. Drag, tap and keyboard lobby.",
+      "brief": "Physical cards and original reveal tokens on a pale ground with sourced Trollface/Forever Alone/Okay Guy/Me Gusta/Yao Ming SVG linework and a full-height Blue-left/Red-right gradient. Clean UI and drag-only lobby.",
       "revision": "2026-10-05-user-background-replacement"
     },
     "typographyMeta": {
       "brand": {
         "displayName": "Printed game lettering",
-        "purpose": "Self-hosted Bricolage Grotesque 800 for phrases, clues and small original split-color lettering; face motif omitted at this size."
+        "purpose": "Header uses the supplied recolored image wordmark. Self-hosted Bricolage Grotesque 800 remains for phrases and clues."
       },
       "body": {
         "displayName": "Readable game labels",
@@ -69,89 +68,76 @@
     "board": {
       "columns": 5,
       "rows": 5,
-      "cardAspect": "Landscape, 160px height floor; taller narrow cards",
+      "cardAspect": "Landscape 3:2 whole cards at every viewport; source media stays contained and revealed art fills the full rounded card without resampling.",
       "gap": "12px",
       "phoneGap": "4px",
       "phonePadding": "8px",
-      "phoneMinHeight": "190px",
-      "selection": "Local only; explicit Reveal; inspect never selects.",
-      "tabletMinHeight": "180px"
+      "selection": "Tap/click selects locally on all screen sizes; explicit Reveal.",
+      "labels": "Uppercase recognition labels and text fallbacks; preserve canonical deck text and source image captions.",
+      "minimumWidth": "900px; horizontal board scrolling on narrower screens"
     },
     "lobby": {
       "permissions": "Players move themselves; host moves anyone.",
       "destinations": "Red/Blue spymaster slot and operative area; shared unassigned/watch tray.",
       "occupiedSlot": "Server rejects before mutation without demotion or swap, including offline incumbents; host explicitly moves incumbent before replacement.",
-      "alternatives": "Tap piece then named destination; keyboard placement/cancel.",
+      "alternatives": "No placement menu or keyboard placement, per user direction. Pointer/touch drag from anywhere on the name tag; Escape cancels an active drag.",
       "placement": "Preview until server accepts; never publish optimistic roster.",
-      "teamOrder": "Blue left / Red right; stacked in that order on phones."
+      "teamOrder": "Blue left / Red right; stacked in that order on phones.",
+      "rounding": "10px on team areas, destinations, player pieces and placement surfaces; padded outer team areas.",
+      "identity": "Team names and shared palette without identity icons. A centered six-dot grip identifies each movable name tag.",
+      "presentation": "Flat outlined name tags without initials or routine Connected text. Keep You/Host/Offline only when applicable. Empty role areas need no repeated prompts; readiness reasons appear only when blocked.",
+      "randomize": "Host-only button beside Start: one accepted update balances connected players and selects one spymaster per team; disconnected seats become unassigned. Start stays separate."
     },
     "media": {
-      "gif": "Poster first; explicit muted controllable inspector playback.",
+      "gif": "Animate directly on the board; sourced local files, no inspector or posters.",
       "fit": "contain",
       "fallback": "Same canonical name/phrase; stable geometry.",
       "content": "Pinned reference/version; IDs and media never encode hidden identity."
     },
     "coverArt": {
-      "composition": "Large recognizable meme-character portrait, bold ink outlines, layered flat shading and quiet scene hints. Avoid elaborate scenery and ornamental frames.",
+      "composition": "Recognizable meme portraits on the supplied Codenames blue/red room, neutral fence and assassin lamplit night backgrounds. Full-bleed landscape 3:2 artwork.",
       "category": "Dominant Red, Blue or tan across character and background; Assassin remains predominantly near-black with restrained gray/cream facial lines.",
-      "assassin": "Original Wojak-style reaction portrait; supplied black portrait and hooded wordmark face are character cues, not final drawings.",
-      "cast": "Red, Blue and Neutral cast remains open. Choose directly recognizable meme characters rather than generic meme-like props.",
-      "production": "Separate full-frame landscape covers; semantic edges, shadows, symbols and recognition strips. Supplied sheets remain references requiring adaptation."
+      "assassin": "The original classic Wojak in his black hoodie replaces the entire foreground character; retain the supplied lamplit night scenery.",
+      "cast": "Eight unique Blue and eight unique Red memes, plus the same ninth Wojak double agent in both colors; seven distinct Neutral memes and one Meme Man Assassin. Full cast and prompts in docs/assets/shipping-art.json.",
+      "production": "26 native PNGs in public/art/covers. Each round deals unique shuffled variants, fixed in storage and projected only after reveal. Covers conceal the entire recognition strip. Previous four portrait assets removed."
     },
     "wordmark": {
-      "direction": "Heavy condensed italic CODE in Blue, MEMES in Red; optional simplified monochrome Wojak inside O.",
-      "adaptation": "Original lettering and illustration, game palette, flat print treatment; omit face when too small. Keep mark compact on the game screen.",
-      "status": "Reference direction only; no final logo or font selected."
+      "direction": "User-supplied heavy italic CODEMEMES wordmark with monochrome hooded face inside O.",
+      "adaptation": "Built-in imagegen recolor toward primary Blue #0badd7 and Red #ff6247; transparent outer canvas. Larger 240-360px header logo with tightly framed image presentation.",
+      "status": "Installed in the shared entry/lobby/game header; matching favicon and touch icon installed.",
+      "asset": "public/brand/logo.png",
+      "favicon": "public/brand/favicon.png",
+      "provenance": "docs/assets/shipping-art.json",
+      "alignment": "Centered above one name form: main URL creates a room, invite URL enters its room. No mode controls or manual code entry. Room header retains the larger image logo beside flat tools."
     },
-    "references": [
-      {
-        "path": "docs/assets/codememes-background-reference.png",
-        "kind": "user-approved-background-direction",
-        "approved": true,
-        "note": "October 5 user request pins this pale neutral playfield, soft Blue/Red edge glow and sparse meme-face line art. Original SVG adaptation for the app; reference pixels are not shipping media."
-      },
-      {
-        "path": "docs/assets/codememes-meme-covers-reference.png",
-        "kind": "user-supplied-art-reference",
-        "approved": false,
-        "note": "Primary cover style reference; adapt portraits, scene and finish. Not shipping cover assets."
-      },
-      {
-        "path": "docs/assets/codememes-wordmark-reference.png",
-        "kind": "user-supplied-brand-reference",
-        "approved": false,
-        "note": "Split-color condensed italic wordmark example; original adaptation required. Not final logo artwork."
-      },
-      {
-        "path": "docs/assets/physical-cover-reference.png",
-        "kind": "user-supplied-style-reference",
-        "approved": false,
-        "note": "Secondary physical portrait composition reference only."
-      },
-      {
-        "path": "docs/assets/physical-board-reference.png",
-        "kind": "user-supplied-style-reference",
-        "approved": false,
-        "note": "Secondary physical board/component context only."
-      },
-      {
-        "path": "docs/assets/codememes-token-reference.png",
-        "kind": "generated-art-direction-reference",
-        "approved": false,
-        "status": "superseded-direction",
-        "note": "Historical exploration; cast, detailed scenes, decorative frames and skeleton Assassin superseded by the supplied portrait brief."
-      }
-    ],
+    "references": [],
     "playfield": {
       "ground": "#f3f1ec",
-      "edgeLight": "Soft static Blue left / Red right; neutral center.",
-      "pattern": "Original decorative SVG troll/reaction/Doge/Wojak-style faces, plus and pixel marks; 40\u201370px faces, widely spaced, around 2\u20134% opacity.",
-      "controlSurface": "White with dark ink, clear borders and Red/Blue accents. Cream is reserved for physical cards.",
-      "reference": "docs/assets/codememes-background-reference.png",
-      "supersedes": "Green felt and pale on-felt UI lettering.",
+      "edgeLight": "Full-height linear gradient: primary Blue across the left half, primary Red across the right half, 24% edge opacity and 12% near the soft neutral center.",
+      "pattern": "Sourced transparent Trollface, Forever Alone, Okay Guy, Me Gusta and Yao Ming SVG linework, 82-102px faces in a repeating 960x720 tile.",
+      "controlSurface": "White with dark ink and Red/Blue accents. Unguessed operative faces match neutral spymaster faces.",
       "asset": "public/art/table-v1/playfield.svg",
-      "patternOpacity": "3.5%",
-      "bytes": 2760
+      "patternOpacity": "7%",
+      "sources": "docs/assets/shipping-art.json"
+    },
+    "palette": {
+      "red": {
+        "dark": "#8e2927",
+        "primary": "#ff6247",
+        "light": "#ffa477"
+      },
+      "blue": {
+        "dark": "#1d507b",
+        "primary": "#0badd7",
+        "light": "#42d4ea"
+      },
+      "usage": "Reuse only these three shades per team across UI accents, surfaces, buttons and focus. Dark Ink on medium fills; white on dark fills. Gradient opacity uses the primary shades."
+    },
+    "controls": {
+      "presentation": "Flat non-card UI: bare entry form and clue row, flat sticky action row, outlined lobby names and drag handles, text-based header tools. Preserve playable card styling.",
+      "copy": "No routine connection label, player footer, role explanation, Select a card prompt, discussion instruction, Round complete or Teams ready line. Preserve live announcements, labels, permission checks and actionable recovery.",
+      "navigation": "Leave room moves to the shared room header. Rules and game roster remain available on demand.",
+      "copyFeedback": "Successful copy feedback clears after 2.5 seconds; manual copy fallback remains until dismissed."
     }
   },
   "components": [
@@ -159,23 +145,23 @@
       "name": "Meme face",
       "kind": "custom",
       "refersTo": "meme-card",
-      "description": "Implemented phrase, image, or GIF poster with recognition text and separate inspector control."
+      "description": "Sourced image or autoplaying GIF with uppercase recognition label; direct selection and no inspector."
     },
     {
       "name": "Identity cover",
       "kind": "custom",
-      "description": "Implemented original meme-character portraits with dominant Red/Blue/tan/near-black category color, Wojak-style Assassin, semantic identity symbol and preserved recognition strip."
+      "description": "Distinct meme portrait on the supplied Codenames backdrop, assigned once per round without repeats within an identity; covers the full card and words after accepted reveal."
     },
     {
       "name": "Player piece",
       "kind": "custom",
-      "description": "Implemented named piece with dedicated drag handle, initials, presence and host text; tap/keyboard destination picker, explicit Place/Cancel and accepted-state focus/announcements."
+      "description": "Flat outlined name tag, draggable from any part, with a centered six-dot grip and applicable You/Host/Offline metadata. No placement menu. Preserve cancellation and accepted-state focus/announcements."
     },
     {
       "name": "Action tray",
       "kind": "custom",
       "refersTo": "action",
-      "description": "Implemented compact clue or deliberate Reveal/End turn controls."
+      "description": "Flat clue and action rows. Explicit Reveal/End turn or Play again when authorized; selected card named accessibly, with no repeated instructions."
     }
   ],
   "narrative": {
@@ -186,8 +172,8 @@
       "Sparse functional copy",
       "Original meme-inspired covers",
       "Physical resting/lifted pieces",
-      "Drag, tap and keyboard lobby",
-      "Explicit inspection and deliberate Reveal"
+      "Draggable lobby pieces with host Randomize",
+      "Direct selection and deliberate Reveal"
     ],
     "rules": [
       {
@@ -203,13 +189,12 @@
     ],
     "dos": [
       "Keep recognition text readable.",
-      "Serve posters before optional animation.",
-      "Preserve keyboard and pointer alternatives.",
-      "Use the approved pale playfield with faint meme faces and Red/Blue edge light.",
+      "Animate sourced GIFs directly on the board.",
+      "Drag any part of a name tag for manual lobby movement; the host may Randomize. Retain keyboard access to other controls.",
+      "Use sourced SVG meme faces and softened primary Red/Blue edge color on the pale playfield.",
       "Keep controls clean, styled and readable on white/light surfaces."
     ],
     "donts": [
-      "Do not autoplay a GIF wall.",
       "Do not add marketing or explanatory panels to the game.",
       "Do not reintroduce green felt or pale on-felt labels on the light background."
     ]

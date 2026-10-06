@@ -4,7 +4,7 @@ Status: entry, lobby, complete-round rules, automatic reconnect, host transfer, 
 
 ## Selected stack
 
-The Codememes tabletop, persisted mixed-media deck, and accessible drag/tap/keyboard lobby arrangement are implemented. See [PRODUCT.md](PRODUCT.md), [DESIGN.md](DESIGN.md), and [MEME-DECK.md](MEME-DECK.md).
+The Codememes tabletop, persisted mixed-media deck, and drag-only lobby arrangement are implemented. See [PRODUCT.md](PRODUCT.md), [DESIGN.md](DESIGN.md), and [MEME-DECK.md](MEME-DECK.md).
 
 Use a React + TypeScript single-page app built with Vite, one Cloudflare Worker deployment, and one SQLite-backed Durable Object per room. Use native WebSockets with the Durable Objects Hibernation API. Keep plain CSS and the existing Vite+ tooling preference.
 
@@ -41,7 +41,7 @@ Serve the SPA and API from the same origin. Let Static Assets serve the built br
 
 ## Room identity and access
 
-Use one cryptographically random room code as the canonical room address, included in both the invite link and manual join flow. Choose a twelve-character unambiguous base32 code; normalize case and optional grouping separators before lookup. Codes grant access to an existing room, so room creation and failed joins need bounded request rates. This is access for a group of friends, not an account identity.
+Use one cryptographically random room code as the canonical room address in the invite link. Choose a twelve-character unambiguous base32 code; normalize case and optional grouping separators before lookup. The main page's name form creates a room; an invite URL's name form joins that room, with no manual code entry. Codes grant access to an existing room, so room creation and failed joins need bounded request rates. This is access for a group of friends, not an account identity.
 
 Route the normalized code through `env.ROOMS.getByName(code)`. Only the explicit create operation initializes a room; ordinary lookup must not turn a missing or expired room into a fresh game. Creation checks for an existing record and retries a new random code on collision. There is no global room directory or code-to-room database. [Durable Object namespace API](https://developers.cloudflare.com/durable-objects/api/namespace/).
 
@@ -104,13 +104,13 @@ No SSR framework, Node server, Socket.IO, Agents SDK, D1, Workers KV, Redis, que
 
 ## Codememes extension boundaries
 
-The deck replaces the Worker-only noun source with a curated versioned catalog. Pin public recognition data and content version per round; retain immutable asset paths across deployments until active rooms expire. Approved stills, posters, and animations can use the existing Static Assets pipeline. No runtime meme API, arbitrary URL proxy, external fetch inside a room transaction, or new storage service is required. Media failure falls back to the same reference's name/phrase without replacing the card.
+The deck replaces the Worker-only noun source with one curated catalog. Pin public recognition data per round and serve current media from `public/media/` through Static Assets. Artwork and media are replaced in place without versioned directories or compatibility retention; deployments may break older rooms or cached clients. No runtime meme API, arbitrary URL proxy, external fetch inside a room transaction, or new storage service is required. Media failure falls back to the same reference's name/phrase without replacing the card.
 
-Identity remains separately randomized and private. Media IDs, paths, captions, and descriptions never encode the key. Round records now persist contentVersion, per-card recognition and clue exclusions. Additive schema-1 handling preserves existing word boards without replacing them; projections adapt their original words to phrase recognition. Subsequent Start deals the current catalog. Clue checks use curated names, aliases, and visible words. Inspection/playback remains client-local and does not refresh room activity.
+Identity remains separately randomized and private. Media IDs, paths, captions, and descriptions never encode the key. Round records persist per-card recognition, clue exclusions and cover variants without a content version. Old word-only rounds have no compatibility adapter. Start deals the current catalog. Clue checks use curated names, aliases, and visible words. GIF animation remains client-local and does not refresh room activity.
 
 Lobby dragging uses the existing authenticated assignment boundary, not pointer broadcasts. Commit destination changes only. Host/self permissions, phase, round and revision checks remain mandatory. Server assignment rejects another seat's occupied spymaster slot before mutation, including offline incumbents and competing requests. The host explicitly moves the incumbent before replacement; no swap or demotion occurs. Previews stay local; placement publishes after acceptance.
 
-The additive meme persistence/projection, local versioned media and accessible lobby placement are implemented and validated locally. Deployment and production validation remain future responsibilities. The runtime and quotas below have not been re-researched for this documentation change.
+Meme persistence/projection, local media and lobby placement are implemented. Latest direct artwork, path and compatibility edits were not verified at the user's request. Deployment and production validation remain future responsibilities. The runtime and quotas below have not been re-researched for this documentation change.
 
 ## Workers plan decision
 

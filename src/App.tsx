@@ -2,13 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { RoomConnection } from "./lib/room-connection";
 import type { ConnectionStatus } from "./lib/room-connection";
-import {
-  displayCode,
-  NAME_LIMIT,
-  normalizeCode,
-  normalizeName,
-  PROTOCOL_VERSION,
-} from "./shared/protocol";
+import type { SoloRoom } from "./lib/solo-room";
+import { NAME_LIMIT, normalizeCode, normalizeName, PROTOCOL_VERSION } from "./shared/protocol";
 import type {
   PlayerView,
   PlayingRole,
@@ -47,16 +42,15 @@ async function requestRoom(path: string, name: string): Promise<RoomView> {
 export function App() {
   const [code, setCode] = useState(inviteCode);
   const [view, setView] = useState<RoomView | null>(null);
-  const [mode, setMode] = useState<"create" | "join">(code ? "join" : "create");
+  const [solo, setSolo] = useState<SoloRoom | null>(null);
   const [name, setName] = useState("");
-  const [enteredCode, setEnteredCode] = useState(code ? displayCode(code) : "");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(Boolean(code));
   const [status, setStatus] = useState<ConnectionStatus>("connecting");
   const [pending, setPending] = useState(false);
   const [copied, setCopied] = useState("");
   const [copyFallback, setCopyFallback] = useState<{ value: string; label: string } | null>(null);
-  const connection = useRef<RoomConnection | null>(null);
+  const connection = useRef<Pick<RoomConnection, "connect" | "close" | "send"> | null>(null);
   const lobbyMount = useRef<HTMLDivElement>(null);
   const discardDialog = useRef<HTMLDialogElement>(null);
   const discardTrigger = useRef<HTMLButtonElement>(null);
@@ -66,6 +60,12 @@ export function App() {
       current?.code === next.code && current.revision > next.revision ? current : next,
     );
   }, []);
+
+  useEffect(() => {
+    if (!copied || copyFallback) return;
+    const timeout = window.setTimeout(() => setCopied(""), 2500);
+    return () => window.clearTimeout(timeout);
+  }, [copied, copyFallback]);
 
   useEffect(() => {
     if (view?.phase === "lobby" && previousPhase.current && previousPhase.current !== "lobby")
@@ -78,7 +78,7 @@ export function App() {
   }, [view?.roundId]);
 
   useEffect(() => {
-    if (!code) return;
+    if (!code || solo) return;
     let cancelled = false;
     void fetch(`/api/rooms/${code}/view`)
       .then(async (response) => {
@@ -96,21 +96,39 @@ export function App() {
     return () => {
       cancelled = true;
     };
-  }, [code, acceptView]);
+  }, [code, solo, acceptView]);
 
   const roomCode = view?.code;
   useEffect(() => {
     if (!roomCode) return;
-    const next = new RoomConnection(roomCode, acceptView, setStatus, setError, () =>
-      setPending(false),
-    );
+    const next =
+      solo ??
+      new RoomConnection(roomCode, acceptView, setStatus, setError, () => setPending(false));
     connection.current = next;
     next.connect();
     return () => {
       next.close();
       connection.current = null;
     };
-  }, [roomCode, acceptView]);
+  }, [roomCode, solo, acceptView]);
+
+  async function startSolo() {
+    if (!import.meta.env.DEV) return;
+    setLoading(true);
+    setError("");
+    try {
+      const { SoloRoom } = await import("./lib/solo-room");
+      const next = new SoloRoom(normalizeName(name) ?? "You", acceptView, setStatus, setError, () =>
+        setPending(false),
+      );
+      setSolo(next);
+      acceptView(next.snapshot());
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "Solo test could not be opened.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -120,17 +138,9 @@ export function App() {
       setError("Enter a name between 1 and 40 characters.");
       return;
     }
-    const normalized = normalizeCode(enteredCode);
-    if (mode === "join" && !normalized) {
-      setError("Enter the 12-character code from your invite. Spaces and hyphens are welcome.");
-      return;
-    }
     setLoading(true);
     try {
-      const next = await requestRoom(
-        mode === "create" ? "/api/rooms" : `/api/rooms/${normalized}/join`,
-        displayName,
-      );
+      const next = await requestRoom(code ? `/api/rooms/${code}/join` : "/api/rooms", displayName);
       history.replaceState(null, "", `/room/${next.code}`);
       acceptView(next);
     } catch (failure) {
@@ -177,22 +187,20 @@ export function App() {
     }
   }
 
-  function backToEntry() {
+  function backToEntry(inviteRoom: string | null = null) {
     connection.current?.close();
+    setSolo(null);
     setPending(false);
     setStatus("connecting");
     setCopied("");
     setCopyFallback(null);
-    setCode(null);
+    setCode(inviteRoom);
     setView(null);
-    setEnteredCode("");
-    setMode("create");
     setError("");
     setLoading(false);
-    history.replaceState(null, "", "/");
+    history.replaceState(null, "", inviteRoom ? `/room/${inviteRoom}` : "/");
   }
 
-  const self = view?.players.find((player) => player.id === view.selfId);
   const usable = status === "connected" && !pending;
   const invite = view ? `${location.origin}/room/${view.code}` : "";
 
@@ -211,27 +219,20 @@ export function App() {
             backToEntry();
           }}
         >
-          <span className="brand-code">CODE</span>
-          <span className="brand-memes">MEMES</span>
+          <img className="brand-logo" src="/brand/logo.png" alt="Codememes" />
         </a>
         {view && (
           <div className="room-tools">
             <>
-              <button
-                aria-label={`Copy room code ${displayCode(view.code)}`}
-                onClick={() => {
-                  void copy(displayCode(view.code), "Room code");
-                }}
-              >
-                {displayCode(view.code)}
-              </button>
-              <button
-                onClick={() => {
-                  void copy(invite, "Invite link");
-                }}
-              >
-                Invite
-              </button>
+              {!solo && (
+                <button
+                  onClick={() => {
+                    void copy(invite, "Invite link");
+                  }}
+                >
+                  Invite
+                </button>
+              )}
               {view.phase !== "lobby" && (
                 <details className="game-roster">
                   <summary>
@@ -250,76 +251,20 @@ export function App() {
               )}
             </>
             <Rules />
-            <span className="connection" role="status">
-              {status === "connected"
-                ? "Connected"
-                : status === "reconnecting"
-                  ? "Reconnecting…"
-                  : status === "expired"
-                    ? "Room expired"
-                    : status === "unauthorized"
-                      ? "Seat unavailable"
-                      : status === "connecting"
-                        ? "Connecting…"
-                        : status === "replaced"
-                          ? "Seat replaced"
-                          : "Disconnected"}
-            </span>
+            <button className="text-button" onClick={() => backToEntry()}>
+              Leave room
+            </button>
           </div>
         )}
       </header>
       {!view ? (
         <section className="entry-body" aria-labelledby="entry-heading">
-          <h1 id="entry-heading">{mode === "create" ? "Create a room" : "Join a room"}</h1>
-          <div className="entry-tabs" role="group" aria-label="Room action">
-            <button
-              type="button"
-              aria-pressed={mode === "create"}
-              className={mode === "create" ? "selected" : ""}
-              onClick={() => {
-                setMode("create");
-                setError("");
-              }}
-            >
-              Create a room
-            </button>
-            <button
-              type="button"
-              aria-pressed={mode === "join"}
-              className={mode === "join" ? "selected" : ""}
-              onClick={() => {
-                setMode("join");
-                setError("");
-              }}
-            >
-              Join a room
-            </button>
-          </div>
+          <h1 id="entry-heading">{code ? "Enter your name" : "Create a room"}</h1>
           <form
             onSubmit={(event) => {
               void submit(event);
             }}
           >
-            {mode === "join" && (
-              <label>
-                Room code
-                <input
-                  name="room-code"
-                  autoComplete="off"
-                  autoCapitalize="characters"
-                  spellCheck={false}
-                  maxLength={32}
-                  placeholder="ABCD-EFGH-JKLM"
-                  value={enteredCode}
-                  onChange={(event) => setEnteredCode(event.target.value)}
-                  disabled={loading}
-                  aria-describedby="code-help"
-                />
-                <span id="code-help" className="field-help">
-                  12 characters. Spaces and hyphens are optional.
-                </span>
-              </label>
-            )}
             <label>
               Your name
               <input
@@ -338,12 +283,56 @@ export function App() {
               </p>
             )}
             <button className="primary" disabled={loading} type="submit">
-              {loading ? "Opening room…" : mode === "create" ? "Create room" : "Join room"}
+              {loading ? "Opening room…" : code ? "Enter room" : "Create room"}
             </button>
           </form>
+          {import.meta.env.DEV && !code && (
+            <button className="solo-entry" disabled={loading} onClick={() => void startSolo()}>
+              Solo test
+            </button>
+          )}
         </section>
       ) : (
         <>
+          {import.meta.env.DEV && solo && (
+            <div className="solo-controls" role="group" aria-label="Solo test controls">
+              <label>
+                Play as
+                <select
+                  value={view.selfId}
+                  disabled={!usable}
+                  onChange={(event) => solo.playAs(event.target.value)}
+                >
+                  {view.players.map((player) => (
+                    <option key={player.id} value={player.id}>
+                      {player.name}
+                      {player.isHost ? " (Host)" : ""} —{" "}
+                      {player.team
+                        ? `${player.team === "red" ? "Red" : "Blue"} ${player.role}`
+                        : "Unassigned"}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={solo.followTurn}
+                  disabled={!usable}
+                  onChange={(event) => solo.setFollowTurn(event.target.checked)}
+                />
+                Follow turn
+              </label>
+              <button
+                disabled={!usable}
+                onClick={() => {
+                  if (solo.resetRound()) setPending(true);
+                }}
+              >
+                Reset round
+              </button>
+            </div>
+          )}
           <p className={`copy-feedback ${copied ? "" : "empty-feedback"}`} role="status">
             {copied}
           </p>
@@ -368,37 +357,43 @@ export function App() {
               </button>
             </div>
           )}
-          {(status === "disconnected" ||
+          {(status === "connecting" ||
+            status === "disconnected" ||
             status === "replaced" ||
             status === "reconnecting" ||
             status === "expired" ||
             status === "unauthorized") && (
-            <div className="connection-recovery">
+            <div className="connection-recovery" role="status">
               <p>
-                {status === "expired"
-                  ? "This room has expired. Create a room to play again."
-                  : status === "unauthorized"
-                    ? "This browser no longer has your room seat. Join again with the invite."
-                    : status === "reconnecting"
-                      ? "Reconnecting automatically. Accepted progress is saved; your actions are paused."
-                      : status === "replaced"
-                        ? "Another tab took over your seat. Reconnect to take it back."
-                        : "You’re disconnected. Your team and role are saved."}
+                {status === "connecting"
+                  ? "Connecting…"
+                  : status === "expired"
+                    ? "This room has expired. Create a room to play again."
+                    : status === "unauthorized"
+                      ? "This browser no longer has your room seat. Enter your name to rejoin."
+                      : status === "reconnecting"
+                        ? "Reconnecting automatically. Accepted progress is saved; your actions are paused."
+                        : status === "replaced"
+                          ? "Another tab took over your seat. Reconnect to take it back."
+                          : "You’re disconnected. Your team and role are saved."}
               </p>
-              <button
-                className="secondary"
-                onClick={() => {
-                  setError("");
-                  if (status === "expired" || status === "unauthorized") backToEntry();
-                  else connection.current?.connect();
-                }}
-              >
-                {status === "expired"
-                  ? "Create a room"
-                  : status === "unauthorized"
-                    ? "Back to entry"
-                    : "Reconnect"}
-              </button>
+              {status !== "connecting" && (
+                <button
+                  className="secondary"
+                  onClick={() => {
+                    setError("");
+                    if (status === "expired") backToEntry();
+                    else if (status === "unauthorized") backToEntry(view.code);
+                    else connection.current?.connect();
+                  }}
+                >
+                  {status === "expired"
+                    ? "Create a room"
+                    : status === "unauthorized"
+                      ? "Enter your name"
+                      : "Reconnect"}
+                </button>
+              )}
             </div>
           )}
           {error && (
@@ -433,7 +428,7 @@ export function App() {
                   Return everyone to the lobby. Your group keeps its seats; this board and clue are
                   discarded.
                 </p>
-                <div className="inspector-actions">
+                <div className="dialog-actions">
                   <button autoFocus onClick={() => discardDialog.current?.close()}>
                     Cancel
                   </button>
@@ -453,7 +448,7 @@ export function App() {
           )}
           {view.round && (
             <Game
-              key={view.roundId}
+              key={`${view.roundId}-${view.selfId}`}
               view={view}
               usable={usable}
               pending={pending}
@@ -468,16 +463,11 @@ export function App() {
                 usable={usable}
                 pending={pending}
                 onAssign={update}
+                onRandomize={() => dispatch({ type: "randomize" })}
                 onStart={() => dispatch({ type: "start" })}
               />
             </div>
           )}
-          <footer>
-            <span>{self ? `Playing as ${self.name}` : ""}</span>
-            <button className="text-button" onClick={backToEntry}>
-              Back to entry
-            </button>
-          </footer>
         </>
       )}
     </main>

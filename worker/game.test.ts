@@ -3,9 +3,37 @@ import type { RoomCommand, Team } from "../src/shared/protocol";
 import { generateRound, otherTeam, play } from "./game";
 import { assign, parseCommand, project } from "./state";
 import type { RoomState } from "./state";
-import { WORDS } from "./words";
-import { CONTENT_VERSION, DECK } from "./deck";
+import { DECK } from "./deck";
 import { readFileSync, existsSync } from "node:fs";
+
+// Short labels keep rule fixtures independent of the current catalog's names.
+const TEST_LABELS = [
+  "APPLE",
+  "BEACH",
+  "BELL",
+  "BIRD",
+  "BOOK",
+  "BRIDGE",
+  "CAR",
+  "CAT",
+  "CHAIR",
+  "CLOUD",
+  "COIN",
+  "DOG",
+  "DOOR",
+  "FISH",
+  "FLOWER",
+  "GLASS",
+  "GRASS",
+  "HAND",
+  "HILL",
+  "HORSE",
+  "HOUSE",
+  "KEY",
+  "LAKE",
+  "MOON",
+  "STAR",
+];
 
 function fixture(): RoomState {
   return {
@@ -59,9 +87,12 @@ function fixture(): RoomState {
       },
     ],
     round: {
-      cards: WORDS.slice(0, 25).map((word, index) => ({
+      cards: TEST_LABELS.map((word, index) => ({
         word,
+        content: { ...DECK[index].recognition, name: word, phrase: word },
+        exclusions: [word],
         identity: index < 9 ? "red" : index < 17 ? "blue" : index < 24 ? "neutral" : "assassin",
+        coverVariant: index < 9 ? index + 1 : index < 17 ? index - 8 : index < 24 ? index - 16 : 1,
         revealed: false,
       })),
       startingTeam: "red",
@@ -77,14 +108,14 @@ function fixture(): RoomState {
 function command(
   state: RoomState,
   action: Record<string, unknown>,
-): Exclude<RoomCommand, { type: "assign" }> {
+): Exclude<RoomCommand, { type: "assign" | "randomize" }> {
   return parseCommand({
     version: 1,
     requestId: "test",
     revision: state.revision,
     roundId: state.roundId,
     ...action,
-  }) as Exclude<RoomCommand, { type: "assign" }>;
+  }) as Exclude<RoomCommand, { type: "assign" | "randomize" }>;
 }
 function clue(state = fixture(), number = 1) {
   return play(
@@ -98,32 +129,32 @@ function reveal(state: RoomState, index: number) {
 }
 
 describe("Authoritative complete-round rules", () => {
-  it("pins a suitable distinct mixed-media catalog, immutable assets and public recognition without curator fields", () => {
+  it("pins a suitable distinct mixed-media catalog and public recognition without curator fields", () => {
     expect(DECK.length).toBeGreaterThan(25);
     expect(new Set(DECK.map((entry) => entry.recognition.id)).size).toBe(DECK.length);
     expect(new Set(DECK.map((entry) => entry.recognition.family)).size).toBe(DECK.length);
-    expect(new Set(DECK.map((entry) => entry.recognition.kind))).toEqual(
-      new Set(["phrase", "image", "gif"]),
-    );
+    expect(new Set(DECK.map((entry) => entry.recognition.kind))).toEqual(new Set(["image", "gif"]));
     for (const entry of DECK) {
       expect(entry.provenance.curated).toBe("2026-10-05");
       expect(entry.recognition.description).toBeTruthy();
-      expect(entry.recognition.width).toBe(600);
-      expect(entry.recognition.height).toBe(400);
+      expect(entry.recognition.asset).toBeTruthy();
+      expect(entry.recognition.width).toBeGreaterThan(0);
+      expect(entry.recognition.height).toBeGreaterThan(0);
       for (const path of [entry.recognition.asset, entry.recognition.poster].filter(
         Boolean,
       ) as string[]) {
-        expect(path.startsWith(`/media/${CONTENT_VERSION}/`)).toBe(true);
+        expect(path.startsWith("/media/")).toBe(true);
         expect(existsSync(`public${path}`)).toBe(true);
       }
     }
-    const gif = readFileSync("public/media/deck-2026-10-05/dvd.gif");
+    const gif = readFileSync(
+      `public${DECK.find((entry) => entry.recognition.id === "dvd-screensaver")!.recognition.asset}`,
+    );
     expect(gif.subarray(0, 6).toString()).toBe("GIF89a");
     const state = fixture();
     state.round = generateRound();
     const restored = JSON.parse(JSON.stringify(state)) as RoomState;
     expect(restored.round).toEqual(state.round);
-    expect(restored.round?.contentVersion).toBe(CONTENT_VERSION);
     expect(new Set(restored.round?.cards.map((card) => card.content?.family)).size).toBe(25);
     // Future catalog/curator changes cannot replace a live round's pinned data.
     restored.round!.cards[0].content!.name = "Pinned old edition";
@@ -161,6 +192,7 @@ describe("Authoritative complete-round rules", () => {
       content: fine.recognition,
       exclusions: [fine.recognition.name, ...fine.aliases, ...fine.visibleWords],
       identity: "red",
+      coverVariant: 1,
       revealed: false,
     };
     for (const word of ["fine", "FINE", "ｆｉｎｅ"])
@@ -176,17 +208,6 @@ describe("Authoritative complete-round rules", () => {
       play(state, "red-spy", command(state, { type: "clue", word: "fine", number: 1 })).round
         ?.stage,
     ).toBe("guessing");
-  });
-  it("projects and continues legacy persisted word boards without replacing or rewriting them", () => {
-    const state = fixture(),
-      saved = JSON.stringify(state.round);
-    const view = project(state, "red-op", new Set());
-    expect(view.round?.contentVersion).toBe("legacy-words-v1");
-    expect(view.round?.cards.map((card) => card.content.phrase)).toEqual(WORDS.slice(0, 25));
-    expect(JSON.stringify(state.round)).toBe(saved);
-    const next = reveal(clue(state), 0);
-    expect(next.round?.cards.map((card) => card.word)).toEqual(WORDS.slice(0, 25));
-    expect(next.round?.contentVersion).toBeUndefined();
   });
   it("returns only the host's ended round to the same lobby and resets the fresh round without history", () => {
     const ended = reveal(clue(), 24);
@@ -295,9 +316,7 @@ describe("Authoritative complete-round rules", () => {
       "after the round ends",
     );
   });
-  it("curates a unique short list and generates distinct fixed boards with correct identity counts", () => {
-    expect(new Set(WORDS).size).toBe(WORDS.length);
-    expect(WORDS.every((word) => /^[A-Z]{1,6}$/.test(word))).toBe(true);
+  it("generates distinct fixed boards with correct identity counts", () => {
     for (let index = 0; index < 30; index++) {
       const round = generateRound();
       expect(round.cards).toHaveLength(25);

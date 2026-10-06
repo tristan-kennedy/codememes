@@ -1,6 +1,7 @@
 import { PROTOCOL_VERSION, normalizeClue } from "../src/shared/protocol";
 import type {
   AssignCommand,
+  RandomizeCommand,
   RoomCommand,
   RoomView,
   Role,
@@ -8,7 +9,7 @@ import type {
   Phase,
 } from "../src/shared/protocol";
 import { RoomError } from "./errors";
-import { projectRound } from "./game";
+import { projectRound, shuffle } from "./game";
 import type { RoundState } from "./game";
 import { CLEANUP_RETRY, deadline, missingSpymaster } from "./lifecycle";
 export { RoomError } from "./errors";
@@ -39,6 +40,7 @@ export function parseCommand(value: unknown): RoomCommand {
   const cmd = value as Record<string, unknown>;
   const fields: Record<string, string[]> = {
     assign: ["seatId", "team", "role"],
+    randomize: [],
     start: [],
     clue: ["word", "number"],
     reveal: ["index"],
@@ -118,6 +120,38 @@ export function assign(state: RoomState, actorId: string, command: AssignCommand
     seats: state.seats.map((seat) =>
       seat.id === command.seatId ? { ...seat, team: command.team, role: command.role } : seat,
     ),
+  };
+}
+export function randomize(
+  state: RoomState,
+  actorId: string,
+  command: RandomizeCommand,
+  connected: Set<string>,
+): RoomState {
+  if (!state.seats.some((seat) => seat.id === actorId))
+    throw new RoomError("unauthorized", "Join this room to continue.", 401);
+  if (state.hostId !== actorId || state.phase !== "lobby")
+    throw new RoomError("forbidden", "Only the host can randomize teams in the lobby.", 403);
+  if (command.revision !== state.revision || command.roundId !== state.roundId)
+    throw new RoomError("stale", "The room changed. Check the updated roster and try again.", 409);
+  const players = shuffle(state.seats.filter((seat) => connected.has(seat.id)));
+  if (players.length < 2)
+    throw new RoomError("invalid", "At least two connected players are needed to randomize teams.");
+  const teams = shuffle<Team>(["red", "blue"]);
+  const assignments = new Map<string, { team: Team; role: Role }>(
+    players.map((seat, index) => [
+      seat.id,
+      { team: teams[index % 2], role: index < 2 ? "spymaster" : "operative" },
+    ]),
+  );
+  return {
+    ...state,
+    revision: state.revision + 1,
+    updatedAt: Date.now(),
+    seats: state.seats.map((seat) => ({
+      ...seat,
+      ...(assignments.get(seat.id) ?? { team: null, role: "operative" as const }),
+    })),
   };
 }
 export function project(state: RoomState, selfId: string, connected: Set<string>): RoomView {

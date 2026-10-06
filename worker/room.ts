@@ -1,7 +1,15 @@
 import { DurableObject } from "cloudflare:workers";
 import { PROTOCOL_VERSION } from "../src/shared/protocol";
 import type { ServerMessage } from "../src/shared/protocol";
-import { assign, parseCommand, commitTransition, project, RoomError, uniqueName } from "./state";
+import {
+  assign,
+  randomize,
+  parseCommand,
+  commitTransition,
+  project,
+  RoomError,
+  uniqueName,
+} from "./state";
 import type { RoomState, Seat } from "./state";
 import { play } from "./game";
 import { CLEANUP_RETRY, deadline, reconcile, missingSpymaster } from "./lifecycle";
@@ -199,6 +207,7 @@ export class Room extends DurableObject<Env> {
           if (
             missing &&
             command.type !== "assign" &&
+            command.type !== "randomize" &&
             command.type !== "start" &&
             command.type !== "abandon"
           )
@@ -210,7 +219,9 @@ export class Room extends DurableObject<Env> {
           const next =
             command.type === "assign"
               ? assign(state, identity.seatId, command)
-              : play(state, identity.seatId, command, !!missing);
+              : command.type === "randomize"
+                ? randomize(state, identity.seatId, command, connected)
+                : play(state, identity.seatId, command, !!missing);
           return reconcile(next, connected);
         },
         (next) => this.broadcast(next, socket, requestId),

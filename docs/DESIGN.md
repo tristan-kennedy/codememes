@@ -10,23 +10,26 @@ colors:
   card-edge: "#ddcba5"
   ink: "#242838"
   muted-ink: "#5f6574"
-  red: "#b83e3b"
+  red: "#ff6247"
   red-deep: "#8e2927"
-  blue: "#296aa1"
+  red-light: "#ffa477"
+  blue: "#0badd7"
   blue-deep: "#1d507b"
+  blue-light: "#42d4ea"
   neutral: "#c8ad7f"
   assassin: "#252323"
   on-table: "#242838"
   on-team: "#ffffff"
-  focus: "#21598f"
+  on-primary: "#242838"
+  focus: "#1d507b"
   focus-on-team: "#ffe08a"
-  focus-on-card: "#21598f"
+  focus-on-card: "#1d507b"
   selection: "#f2c65c"
   selection-outline: "#896314"
   selection-edge: "#896314"
-  hover: "#eef2f8"
-  blue-surface: "#eaf2f9"
-  red-surface: "#f8eceb"
+  hover: "#f3f1ec"
+  blue-surface: "#42d4ea"
+  red-surface: "#ffa477"
 typography:
   brand:
     fontFamily: '"Bricolage Grotesque", system-ui, sans-serif'
@@ -62,7 +65,7 @@ typography:
 rounded:
   card: "10px"
   control: "8px"
-  player-piece: "24px"
+  player-piece: "10px"
 spacing:
   xs: "4px"
   sm: "8px"
@@ -100,17 +103,27 @@ components:
 
 # Design System: Codememes
 
+Latest palette revision: use only the board tiles� three shades per team throughout the UI: Red dark `#8e2927`, primary `#ff6247`, light `#ffa477`; Blue dark `#1d507b`, primary `#0badd7`, light `#42d4ea`. Medium fills use dark Ink; dark fills use white. The background gradient uses the primary colors at 24% opacity at the edges and 12% near the center.
+
+Latest background and cleanup revision: use actual sourced Trollface, Forever Alone, Okay Guy, Me Gusta and Yao Ming SVGs at 7% opacity with a full-height Blue-left/Red-right linear gradient at 24% edge opacity. Cards have generous padding; unguessed operative cards match neutral spymaster cards, and accepted covers conceal the words. Obsolete reference sheets, poster files and bindings, compatibility media and preview captures are removed; nothing is deployed. No verification was requested.
+
+Latest October 5 direct revision: every new-round meme has image/GIF media; GIFs animate directly on the board and inspection is removed. Tap/click selects on phones and desktops, followed by explicit Reveal. Private-key cards follow the supplied full-color reference: bright Red/Blue, tan Neutral or gray Assassin faces, lighter outer edges, and dark name strips. Identity symbols are removed from cards and team racks; names and accessible identity labels remain. This direction supersedes the earlier inspector, poster-first and symbol requirements below. These direct edits have no new verification evidence, as requested.
+
+Latest lobby refinement: team areas, destinations, player pieces and placement surfaces use consistent 10px corners. Team headings use names and background colors without identity icons; movable name tags use centered six-dot drag grips.
+
+Latest branding revision: the user-supplied logo and favicon are recolored toward the board�s primary Blue `#0badd7` and Red `#ff6247` with transparent outer backgrounds. The shared header uses `public/brand/logo.png` at 240-360px wide; `public/brand/favicon.png` supplies the favicon and touch icon. [shipping-art.json](assets/shipping-art.json) records the supplied files and built-in edit prompts.
+
+Latest UI simplification: card recognition labels and text fallbacks display in uppercase while canonical deck text and embedded image captions remain unchanged. Center the image logo above the entry form. Entry, clues, actions and lobby placement controls use flat rows rather than raised white panels. Player pieces use transparent outlined name tags without initials or routine Connected labels. Keep You, Host and Offline only when applicable. Remove redundant role/instruction/footer text; show readiness and recovery messages only when needed, with Rules and player details available on demand. Blue counts sit left and Red right, matching the lobby/background. These direct edits were not verified at the user�s request.
+
 ## Overview
 
 **Creative North Star: "The meme night table."**
 
-Open the room and see the game: twenty-five real-looking cards on a pale off-white playfield, with soft Blue light from the left and Red light from the right. Sparse, faint meme-face line art, tiny plus signs and pixel marks give the background personality while leaving the center quiet. Cream cardstock, printed illustrations, restrained thickness, and soft contact shadows keep the board touchable. Controls are clearly styled interface elements, with white surfaces, dark readable labels, and deliberate Red/Blue accents.
+Open the room and see the game: twenty-five real-looking cards on a pale off-white playfield, with soft Blue light from the left and Red light from the right. Sourced Trollface, Forever Alone, Okay Guy, Me Gusta and Yao Ming SVG linework give the background personality while leaving the center quiet. Cream cardstock, printed illustrations, restrained thickness, and soft contact shadows keep the board touchable. Controls are clearly styled interface elements, with white surfaces, dark readable labels, and deliberate Red/Blue accents.
 
-The user's October 5 revision rejects green felt and pins the [supplied background](assets/codememes-background-reference.png). It preserves the physical card-game arrangement, sparse copy, original meme covers, and drag-and-drop lobby, while replacing the surrounding material and control styling. Impeccable informs hierarchy, contrast, interaction, and accessibility within this brief. [PRODUCT.md](PRODUCT.md) owns rules and permissions.
+The user's October 5 revision rejects green felt and pins the pale background direction. It preserves the physical card-game arrangement, sparse copy, original meme covers, and drag-and-drop lobby, while replacing the surrounding material and control styling. Impeccable informs hierarchy, contrast, interaction, and accessibility within this brief. [PRODUCT.md](PRODUCT.md) owns rules and permissions.
 
 **Status: pale playfield, game and accessible lobby implemented.** The five-column board, mixed-media deck, inspector, local selection, accepted identity covers and self-hosted fonts are implemented in #10. Its prior felt screenshots are superseded. #11 integrates named drag/tap/keyboard pieces, occupied-slot rejection and compact room/readiness tools in [Lobby.tsx](../src/features/Lobby.tsx) and [lobby.css](../src/features/lobby.css). Exact-revision independent review and CI are recorded in the corresponding PRs. References guide original assets and are not shipped as application media.
-
-![Approved background reference: an off-white center, soft blue left and red right edge glow, faint scattered reaction faces, plus signs and pixel marks.](assets/codememes-background-reference.png)
 
 Use the official [CGE component/rules reference](https://czechgames.com/files/rules/codenames-rules-en.pdf) to understand the physical five-by-five arrangement and covering gesture. Geometry and semantics are the reference; branding, artwork, frames, and composition are original.
 
@@ -118,9 +131,9 @@ The memorable interaction is an accepted reveal: an illustrated identity cover s
 
 ## Colors
 
-Use the pale `table` ground across entry, lobby and game. Blue and Red edge glows stay soft, static and outside the central reading area. White `surface` and neutral `surface-edge` belong to controls, pickers and dialogs; cream `card` and `card-edge` belong to physical meme cards. Brick Red and denim Blue identify teams; tan Neutral and charcoal Assassin identify covers. The background watermark is decorative, low contrast and widely spaced, never a competing card or hidden-key cue.
+Use the pale `table` ground across entry, lobby and game. Blue and Red edge glows stay soft, static and outside the central reading area. White `surface` and neutral `surface-edge` belong to controls, pickers and dialogs; cream `card` and `card-edge` belong to physical meme cards. The board�s Red and Blue palettes identify teams; tan Neutral and charcoal Assassin identify covers. The background watermark is decorative, low contrast and widely spaced, never a competing card or hidden-key cue.
 
-Ink and Muted Ink are readable labels on pale, white and cream surfaces. On-team is for filled red, blue and charcoal controls. Team labels on light surfaces use their deep team color. Do not put pale labels directly on the playfield or dark Ink on filled team controls. Check real rendered contrast and focus at desktop and phone sizes.
+Ink and Muted Ink are readable labels on pale, white and cream surfaces. On-team is for dark red, dark blue and charcoal controls; medium primary fills use dark Ink. Team labels on light surfaces use their deep team color. Keep readable labels on the playfield and controls.
 
 Identity combines hue and shape: Red's angular pennant, Blue's round target, Neutral's hollow diamond, and Assassin's skull. Implement a coherent authored vector symbol set alongside raster art, with concise accessible names. Team counts pair a symbol and small Red/Blue label. Card identity labels remain in the inspector and accessibility tree; the board needs no repeated paragraphs of state text.
 
@@ -128,15 +141,13 @@ Selection uses a dark golden `selection-edge` outline and small raised offset, n
 
 ## Typography
 
-Lobby Blue/Red destination fills are `#f0f6fc`/`#fcf3f2`, with dashed edges `#b3c9df`/`#dbb9b7`. The shared tray uses `#fafaf9` and `#c8cbd4`; initials use `#a3a8b6`. These are quiet surface/edge tones, not text colors. Picked pieces and drop targets use the dark golden `selection-outline` for visible contrast on pale surfaces. Team headings use a readable 20px step; named pieces use 15px labels and 12px presence text.
+Lobby Blue/Red destination fills are `#42d4ea`/`#ffa477`, with dashed edges `#0badd7`/`#ff6247`. The shared tray uses `#fafaf9` and `#c8cbd4`; initials use `#a3a8b6`. These are quiet surface/edge tones, not text colors. Picked pieces and drop targets use the dark golden `selection-outline` for visible contrast on pale surfaces. Team headings use a readable 20px step; named pieces use 15px labels and 12px presence text.
 
-Type serves pieces rather than explanatory text. Bricolage Grotesque at 800 gives phrase cards and the active clue warm printed lettering, and serves as the provisional text wordmark. Atkinson Hyperlegible at 400/700 serves names, inputs, labels, and controls. Self-host required font files and licenses when building; system fallbacks keep play usable while loading. No giant game-screen display heading.
+Type serves pieces rather than explanatory text. Bricolage Grotesque at 800 gives phrase cards and the active clue warm printed lettering, and remains in phrases and clues while the header uses the supplied image wordmark. Atkinson Hyperlegible at 400/700 serves names, inputs, labels, and controls. Self-host required font files and licenses when building; system fallbacks keep play usable while loading. No giant game-screen display heading.
 
-The supplied wordmark example suggests a compact, heavy condensed italic mark: **CODE** in Blue, **MEMES** in Red, with a small monochrome Wojak motif inside the O. Adapt this into original lettering and illustration, using the game's palette and a flat printed treatment. Simplify or omit the face at small sizes so Codememes stays readable. Keep the mark small at the game edge; the example's oversized presentation is not the game layout. This reference does not specify a font or approve final logo artwork.
+The supplied wordmark example suggests a compact, heavy condensed italic mark: **CODE** in Blue, **MEMES** in Red, with a small monochrome Wojak motif inside the O. Adapt this into original lettering and illustration, using the game's palette and a flat printed treatment. Simplify or omit the face at small sizes so Codememes stays readable. Keep the mark small at the game edge; the example's oversized presentation is not the game layout. The latest supplied logo and favicon now provide the installed brand artwork.
 
-![Wordmark reference: condensed italic CODE in blue and MEMES in red, with a small hooded Wojak face inside the O. Reference only.](assets/codememes-wordmark-reference.png)
-
-Phrases retain recognizable spelling, punctuation, and case; do not force uppercase or rewrite them to fit. Image/GIF cards have one canonical recognition name in a cream bottom strip; phrase cards let the phrase occupy the face. Names identify cards, without explaining the joke. Original captions embedded in source memes are content and stay intact.
+Canonical phrases retain recognizable spelling, punctuation and case in the deck; card recognition labels and text fallbacks display in uppercase without rewriting source captions. Image/GIF cards have one canonical recognition name in a cream bottom strip; phrase cards let the phrase occupy the face. Names identify cards, without explaining the joke. Original captions embedded in source memes are content and stay intact.
 
 Names wrap in player pieces or expose the full name on activation. Core labels never shrink below 12px. A long phrase gets a compact readable recognition label on its small face and its complete representation in inspection; ellipsis cannot be the only identifier. Code/count numerals are tabular, with no decorative monospace.
 
@@ -144,21 +155,21 @@ Names wrap in player pieces or expose the full name on activation. Core labels n
 
 ### Game first
 
-On desktop the board occupies approximately 70-80% of the useful viewport, centered between compact team/count racks. Target a table width up to 1440px and board around 1040px when room permits. Cards are landscape on roomy screens with a 160px height floor for phrase and corner-control clearance, in five stable columns and rows. Use 12px gaps on roomy screens and 4-6px on phones. Adjust racks/margins before shrinking the board.
+On desktop the board occupies approximately 70-80% of the useful viewport, centered between compact team/count racks. The implemented table is up to 1360px wide with a board up to 1280px. Whole cards use a landscape 3:2 ratio in five stable columns and rows. The board keeps a 900px minimum width and scrolls horizontally on smaller screens. Use 12px gaps on roomy screens and 4-6px on phones. Adjust racks/margins before shrinking the board.
 
-A small top edge holds Codememes, room/invite, Rules, and compact presence. The active team's rack gets a clear pointer and accessible turn text. One small white clue slip sits close to the board; the active spymaster's clue form occupies that same space. Operatives get a compact Reveal/End turn tray with the selected card's name/thumbnail. Keep controls outside card content; Reveal remains explicit.
+A small top edge holds Codememes, room/invite, Rules, and compact presence. The active team's rack gets a clear pointer and accessible turn text. One flat clue row sits close to the board; the active spymaster�s clue form occupies that same space. Operatives get a flat Reveal/End turn action row; the selected card remains indicated on the board and named in the Reveal button�s accessible label. Keep controls outside card content; Reveal remains explicit.
 
 No hero, tagline, welcome paragraph, stats dashboard, large "your turn" heading, permanent roster, instructional sidebar, or repeated "unrevealed/identity hidden" labels. The board dominates the first viewport. Remaining text has a job: meme content, recognition names, players, counts/team labels, clue, controls, and brief recovery. Extended roster and Rules are opened explicitly.
 
-The game centers a board up to 1040px wide. Portrait view keeps five columns and 12px minimum card names, allowing vertical scrolling and a sticky explicit action tray. The inspector shows uncropped media and attribution; GIF Play is explicit and Pause/Stop returns its poster. Original generated covers and cardstock live under `public/art/table-v1`; [shipping-art.json](assets/shipping-art.json) holds exact prompts and reference roles. Unused felt is removed from shipping assets. Original decorative SVG linework lives in `public/art/table-v1/playfield.svg` (3.5% stroke opacity, 960 by 720px repeat); CSS supplies static edge light. The compact adapted mark uses original Bricolage lettering in the deep Blue/Red colors, omitting the face motif at this small size. Board identity symbols are authored SVG geometry independent of illustration.
+The game centers a board up to 1280px wide with landscape 3:2 cards. Narrow screens keep five columns and readable names through horizontal board scrolling, with a sticky explicit action tray. GIFs animate on the board with contained imagery, and selection is direct on every screen size. Revised meme-character covers live under `public/art/covers`; [shipping-art.json](assets/shipping-art.json) holds exact prompts and supplied reference roles. Use the supplied Codenames Blue/Red room, neutral picket-fence and assassin street-lamp backgrounds, replacing the foreground characters with recognizable memes in their own familiar clothing or natural fur, rather than the reference agent outfits. Pepe uses the blue team tones. Keep only the current artwork and replace it in place without versioned directories. Eight characters per team plus a shared ninth Wojak in both colors, seven neutral characters and the original black-hoodie Wojak assassin match the physical game's eight agents per color, double agent, seven bystanders and one assassin. Assign unique, randomly shuffled variants when dealing, persist them and expose variants only after reveal. Remove the previous four portrait assets, including the unfamiliar neutral character. Unused felt is removed from shipping assets. Sourced Trollface, Forever Alone, Okay Guy, Me Gusta and Yao Ming SVG geometry remains in use at `public/art/playfield.svg` (7% opacity, 960 by 720px repeat); CSS supplies a full-height Blue-left/Red-right linear gradient at 24% edge opacity, fading to a soft neutral center. [shipping-art.json](assets/shipping-art.json) credits each source. The shared header uses the larger supplied image wordmark with its hooded face inside the O, recolored toward the primary Blue/Red palette. Identity colors and accessible labels replace board symbols; accepted covers conceal the entire name strip. The latest cover changes were not verified at the user's request.
 
-UI hover surfaces use subtle neutral or team-tinted fills with dark text. Small tools use 12/13/14px steps; count numerals use 20/26px and full inspector phrases reach 44px. Dialog backdrops use `rgb(27 31 44 / 0.55)`. Neutral hover uses `#eef2f8`, Blue/Red areas `#eaf2f9`/`#f8eceb`; compact entry uses a 12px radius and `0 6px 20px rgb(27 31 44 / 0.10)` shadow. Lobby team headings use 1.25rem (20px); named pieces use 24px corners. The prior native roster is removed. These and the 12/13/14px small-tool steps, 20/26px counts, 44px inspector text are intentional detector advisories. Record any final implementation-specific tones with their contrast roles; do not retain pale on-felt label colors on the new light playfield.
+UI hover surfaces use subtle neutral or team-tinted fills with dark text. Small tools use 12/13/14px steps; count numerals use 20/26px and full inspector phrases reach 44px. Dialog backdrops use `rgb(27 31 44 / 0.55)`. Neutral hover uses `#f3f1ec`, Blue/Red areas `#42d4ea`/`#ffa477`; compact entry uses a 12px radius and `0 6px 20px rgb(27 31 44 / 0.10)` shadow. Lobby team headings use 1.25rem (20px); named pieces use 10px corners. The prior native roster is removed. These and the 12/13/14px small-tool steps, 20/26px counts, 44px inspector text are intentional detector advisories. Record any final implementation-specific tones with their contrast roles; do not retain pale on-felt label colors on the new light playfield.
 
 The private spymaster view keeps readable meme faces with an identity edge tab and distinct symbol from the permitted server snapshot, plus one small Spymaster marker. Do not cover all memes with portraits before reveal or render a key for public clients and hide it with CSS.
 
 ### Phones and tablets
 
-Keep five columns and stable positions; no carousel or team-based reordering. Below about 900px move team racks into one compact row. At 320px, 8px page margins and 4px gaps leave roughly 58px-wide faces 190px high, with 180px at tablet width and a 160px floor on desktop. This taller phone silhouette leaves a readable recognition name. Full captions and details belong in inspection.
+Keep five columns and stable positions; no carousel or team-based reordering. Below about 900px move team racks into one compact row. At 320px, 8px page margins and 4px gaps surround a horizontally scrolling board with a 900px minimum width. Cards retain their landscape ratio and readable recognition names. Source images/GIFs remain contained without changing files, intrinsic resolution or animation. Revealed artwork fills the entire card edge to edge with matching rounded corners, concealing its padding, frame and recognition label.
 
 On desktop, each card has an explicit magnify control separate from card selection: the face selects when guessing is permitted; magnify only inspects. Below 540px, the whole card opens inspection, so a roughly 58px-wide face does not have to contain two competing 44px targets. The phone inspector offers a separate 44px Select action to permitted operatives; choosing it sets the local preview and closes inspection. The global Reveal remains a separate explicit action. Every inspect/select control has a reachable 44px target with no overlap.
 
@@ -168,15 +179,15 @@ Allow vertical scrolling in narrow portrait layouts; keep the action tray reacha
 
 ### Entry and lobby
 
-Entry uses the continuous pale playfield and a compact white Create/Join surface: small split-color Codememes mark, clear mode controls, labeled name/code fields, and one prominent action. Use Red/Blue accents and styled controls, without promotional copy or a demo board competing with entry.
+Entry uses the continuous pale playfield, a centered image logo and one bare name form. The main URL creates a room; an invite URL enters its room. There are no mode controls or manual room-code fields. Use Red/Blue accents and one prominent action, without promotional copy or a demo board competing with entry.
 
-The lobby is a team arrangement table. Red/Blue areas sit side by side on desktop, each with one named Spymaster slot above its Operatives area. Unassigned/watch pieces use a shared shallow tray. Player pieces are compact name tags with generic avatar/initials, a handle, presence dot, and host mark. No profile or avatar service.
+The lobby is a team arrangement table. Red/Blue areas sit side by side on desktop, each with one named Spymaster slot above its Operatives area. Unassigned/watch pieces use a shared shallow tray. Player pieces are flat outlined name tags with a line-based drag handle and only applicable You, Host or Offline details. No profile or avatar service.
 
-Stack team areas on phones with persistent labels. Handle dragging near an edge scrolls the page; ordinary swipes still scroll. Tap-to-place offers a short destination menu so moving across the entire page is unnecessary. Keyboard placement has named destinations, visible focus, Escape cancellation, and accepted-move announcements.
+Stack team areas on phones with persistent labels. Manual lobby movement uses dragging from any part of the name tag, with a centered six-dot grip identifying movable pieces. There is no destination menu or keyboard placement. Dragging near an edge scrolls the page; ordinary swipes outside pieces still scroll. Preserve Escape cancellation and accepted-move announcements. The host has Randomize beside Start to balance connected players and choose one spymaster per team in one accepted update. Keep those actions together when the readiness row wraps. These direct revisions were not verified at the user's request.
 
 Only authorized pieces lift. Pending placement shows a temporary destination ghost while accepted placement remains discernible; acceptance settles it, rejection restores it with one short reason. An occupied spymaster slot rejects without swapping. Concurrent moves, disconnects, and host changes resolve through latest server state.
 
-Room code/Copy invite stay at the edge. Start sits between/below teams and becomes available under existing readiness rules. Missing seats are signaled in their slot, such as "Needs spymaster," with a compact reason available for disabled Start. Long role descriptions belong in Rules.
+Invite stays at the edge and copies the room URL. Start sits between/below teams and becomes available under existing readiness rules. Readiness reasons appear only when blocked. Long role descriptions belong in Rules.
 
 ## Elevation & Depth
 
@@ -202,9 +213,7 @@ Load stills/posters first. GIF playback is explicit, muted, and controllable in 
 
 Generate four original meme-character cover families: Red agent, Blue agent, Neutral bystander, and Assassin. Follow the physical pieces' portrait-led composition: a large head-and-shoulders character, expressive face, bold ink outlines, broad areas of color, and a quiet background. One recognizable reaction establishes the joke. Avoid elaborate scenery, tiny props, ornamental inset frames, and captions. One strong master per family is enough initially; variations must preserve immediate category recognition.
 
-![User-supplied meme-cover examples: red reaction dog and determined child, blue smiling man and knowing girl, neutral skeptical woman, and black open-mouthed reaction portrait. Reference only.](assets/codememes-meme-covers-reference.png)
-
-The attached meme-cover sheet is the primary style reference. Its large expressive faces, strong outlines, layered flat shading, simple scene hints, and color across the whole piece establish the intended treatment. The [physical portrait reference](assets/physical-cover-reference.png) and [physical board reference](assets/physical-board-reference.png) from **Generate Meme Tokens** provide secondary context. [Source provenance](assets/token-reference-sources.json) records the supplied examples and their reference-only status.
+The existing cover assets use large expressive faces, bold outlines, layered shading, simple scene hints and dominant category color. Their exact generation prompts remain in [shipping-art.json](assets/shipping-art.json). Obsolete reference sheets and their links have been removed.
 
 | Family   | Art direction                                                                                                                                                                                                                                                                |
 | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -217,11 +226,9 @@ Red, Blue, and Neutral character choices remain open for asset generation. The s
 
 For implementation produce separate full-frame landscape covers in the board's geometry, without baked-in shadows, UI text, category symbols, or sheet gutters. Recompose the square portrait examples for this landscape frame; do not stretch their faces. Apply edges, shadows, symbols, and readable recognition strips as reusable semantic layers. Judge each cover at its actual desktop and phone sizes: the category should be immediately clear, the face recognizable, and detail subordinate to both. Record the exact generation prompt and source references with each resulting asset.
 
-The [earlier generated contact sheet](assets/codememes-token-reference.png) and its [prompt provenance](assets/codememes-token-reference.png.json) remain historical exploration. Its detailed scenes, decorative frames, animal cast, and skeleton Assassin are superseded by this portrait brief.
-
 Do not trace commercial agent portraits or recreate branded frames. Do not synthesize a "real" meme image when exact recognition matters: board memes use their curated phrase or approved source; generated art serves original covers/materials. Cover identity is independent of the meme below.
 
-An accepted reveal lays the cover over the upper face in a 180ms downward settle with `cubic-bezier(0.16, 1, 0.3, 1)`. Keep the recognition strip readable. Counts/identity change only on server acceptance, never while pending. Reduced motion makes placement immediate with the same concise announcement.
+An accepted reveal lays the cover over the upper face in a 180ms downward settle with `cubic-bezier(0.16, 1, 0.3, 1)`. Cover the recognition strip so only the picture token remains. Counts/identity change only on server acceptance, never while pending. Reduced motion makes placement immediate with the same concise announcement.
 
 ### Controls, state, and endings
 
@@ -241,7 +248,7 @@ Rules uses a small modal with protected reading focus, Escape/Close, and focus r
 - Put humor in cards and art, keeping essential action labels literal.
 - Keep names, clue, counts, and recovery readable; minimal copy still carries necessary information.
 - Preserve positions, private/public boundaries, deliberate Reveal, and accepted-state feedback.
-- Give dragging equivalent tap and keyboard paths. [WCAG dragging guidance](https://www.w3.org/WAI/WCAG22/Understanding/dragging-movements/) requires a single-pointer alternative; keyboard access is separately required.
+- Drag any part of a name tag for manual lobby movement, per the user's direction; the host may also Randomize. Keep other controls keyboard-accessible.
 - Respect [reduced motion](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/prefers-reduced-motion), keep content inspectable, and test the real deck at 320px.
 - Record provenance and optimize media, covers, and material before shipping.
 - Never autoplay a wall of GIFs, reveal by inspection, encode a key in media, or claim production deployment already exists.
