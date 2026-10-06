@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { PointerEvent } from "react";
 import type { PlayerView, PlayingRole, RoomView, Team } from "../shared/protocol";
 import "./lobby.css";
+import { GameIcon } from "./GameIcon";
 
 const destinations = [
   { id: "red-spy", label: "Red · Spymaster", team: "red", role: "spymaster" },
@@ -37,6 +38,20 @@ function Grip() {
       <circle cx="9" cy="17" r="1.6" />
       <circle cx="15" cy="17" r="1.6" />
     </svg>
+  );
+}
+
+export function RolePortrait({ role }: { role: "spymaster" | "operative" | "watcher" }) {
+  return (
+    <img
+      className={`role-portrait portrait-${role}`}
+      src={role === "spymaster" ? "/media/roll-safe.webp" : "/media/much-wow.webp"}
+      alt=""
+      aria-hidden="true"
+      draggable={false}
+      width={72}
+      height={72}
+    />
   );
 }
 
@@ -230,14 +245,20 @@ export function Lobby({
     ]
       .filter(Boolean)
       .join(" · ");
+    const role = player.team === null || player.role === "watcher" ? "watcher" : player.role;
+    const roleName =
+      role === "spymaster" ? "Spymaster" : role === "watcher" ? "Watching" : "Operative";
     return (
       <li
         data-seat-id={player.id}
+        data-role={role}
         className={`player-piece${allowed ? " is-movable" : ""}${drag?.seatId === player.id ? " is-picked" : ""}`}
         key={player.id}
         tabIndex={allowed ? 0 : undefined}
         aria-disabled={allowed ? !usable : undefined}
-        aria-label={allowed ? `Drag ${player.name}${details ? `, ${details}` : ""}` : undefined}
+        aria-label={
+          allowed ? `Drag ${player.name}, ${roleName}${details ? `, ${details}` : ""}` : undefined
+        }
         onPointerDown={(event) => lift(event, player)}
         onPointerMove={move}
         onPointerUp={(event) => drop(event, player)}
@@ -246,17 +267,21 @@ export function Lobby({
           if (gesture.current) cancel();
         }}
       >
+        <RolePortrait role={role} />
+        <div className="piece-name">
+          <span className="piece-label">
+            <strong>{player.name}</strong>
+            <small>
+              {roleName}
+              {details ? ` · ${details}` : ""}
+            </small>
+          </span>
+        </div>
         {allowed && (
           <span className="piece-grip" aria-hidden="true">
             <Grip />
           </span>
         )}
-        <div className="piece-name">
-          <span className="piece-label">
-            <strong>{player.name}</strong>
-            {details && <small>{details}</small>}
-          </span>
-        </div>
       </li>
     );
   }
@@ -264,23 +289,32 @@ export function Lobby({
     const members = view.players.filter((player) => matches(player, destination));
     const pendingHere = pending && submitted.current?.destination.id === destination.id;
     const hovered = drag?.target?.id === destination.id;
+    const roleName =
+      destination.team === null
+        ? "Unassigned / Watch"
+        : destination.role === "spymaster"
+          ? "Spymaster"
+          : "Operatives";
     return (
       <section
         key={destination.id}
         data-destination={destination.id}
-        className={`lobby-destination${hovered ? " is-target" : ""}${hovered && occupied(destination, drag!.seatId) ? " is-occupied" : ""}`}
-        aria-labelledby={`destination-${destination.id}`}
+        className={`lobby-destination destination-${destination.team === null ? "watch" : destination.role}${hovered ? " is-target" : ""}${hovered && occupied(destination, drag!.seatId) ? " is-occupied" : ""}`}
+        aria-label={destination.label}
       >
-        <h3 id={`destination-${destination.id}`}>
-          {destination.team === null
-            ? "Unassigned / Watch"
-            : destination.role === "spymaster"
-              ? "Spymaster"
-              : "Operatives"}
-        </h3>
+        {destination.team === null && <h2>{roleName}</h2>}
         <ul className="player-pieces">{members.map(piece)}</ul>
+        {members.length === 0 && (
+          <div className="empty-role">
+            {destination.team !== null && <RolePortrait role={destination.role} />}
+            <span>
+              <strong>{destination.team === null ? "Drop here to watch" : roleName}</strong>
+              {destination.team !== null && <small>Drag a player here</small>}
+            </span>
+          </div>
+        )}
         {pendingHere && (
-          <p className="placement-preview">
+          <p className="placement-preview" role="status">
             Placing {view.players.find((player) => player.id === submitted.current?.seatId)?.name}…
           </p>
         )}
@@ -305,7 +339,12 @@ export function Lobby({
     >
       <div className="lobby-team-areas">
         {(["blue", "red"] as const).map((team) => (
-          <section className={`lobby-team ${team}`} key={team} aria-labelledby={`lobby-${team}`}>
+          <section
+            className={`lobby-team ${team}`}
+            data-destination={`${team}-op`}
+            key={team}
+            aria-labelledby={`lobby-${team}`}
+          >
             <h2 id={`lobby-${team}`}>{team === "red" ? "Red" : "Blue"}</h2>
             {destinations.filter((destination) => destination.team === team).map(destinationArea)}
           </section>
@@ -318,23 +357,25 @@ export function Lobby({
           {view.controls.assignOthers && (
             <button
               type="button"
-              className="secondary"
+              className="secondary toon-action"
               disabled={!usable || view.players.filter((player) => player.connected).length < 2}
               title="Randomize connected players into balanced teams and roles"
               onClick={onRandomize}
             >
-              Randomize
+              <GameIcon kind="shuffle" />
+              <span className="toon-label">Randomize</span>
             </button>
           )}
           <button
             type="button"
-            className="primary"
+            className="primary toon-action"
             disabled={host !== view.selfId || !usable || !view.controls.startRound}
             aria-describedby={!view.readiness.ready ? "lobby-readiness" : undefined}
             title={host !== view.selfId ? "The host starts the round" : undefined}
             onClick={onStart}
           >
-            {pending ? "Saving…" : "Start"}
+            <GameIcon kind="play" />
+            <span className="toon-label">{pending ? "Saving…" : "Start"}</span>
           </button>
         </div>
       </section>

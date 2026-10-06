@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vite-plus/test";
-import type { RoomCommand, Team } from "../src/shared/protocol";
+import type { ClueCount, RoomCommand, Team } from "../src/shared/protocol";
 import { generateRound, otherTeam, play } from "./game";
 import { assign, parseCommand, project } from "./state";
 import type { RoomState } from "./state";
 import { DECK } from "./deck";
 import { readFileSync, existsSync } from "node:fs";
+import { revealFeedback } from "../src/lib/round-feedback";
 
 // Short labels keep rule fixtures independent of the current catalog's names.
 const TEST_LABELS = [
@@ -117,7 +118,7 @@ function command(
     ...action,
   }) as Exclude<RoomCommand, { type: "assign" | "randomize" }>;
 }
-function clue(state = fixture(), number = 1) {
+function clue(state = fixture(), number: ClueCount = 1) {
   return play(
     state,
     `${state.round!.activeTeam}-spy`,
@@ -347,7 +348,10 @@ describe("Authoritative complete-round rules", () => {
     const state = fixture();
     for (const action of [
       { type: "clue", word: "two words", number: 1 },
-      { type: "clue", word: "hello", number: 0 },
+      { type: "clue", word: "hello", number: -1 },
+      { type: "clue", word: "hello", number: 10 },
+      { type: "clue", word: "hello", number: Infinity },
+      { type: "clue", word: "hello", number: "Infinity" },
       { type: "clue", word: "hello", number: 1.2 },
       { type: "reveal", index: 25 },
       { type: "start", isHost: true },
@@ -400,6 +404,116 @@ describe("Authoritative complete-round rules", () => {
     expect(play(first, "red-op", command(first, { type: "end_turn" })).round?.activeTeam).toBe(
       "blue",
     );
+  });
+  it.each([0, "unlimited"] as const)(
+    "allows unlimited guesses for %s while preserving End turn and wrong-guess rules",
+    (count) => {
+      let state = clue(fixture(), count);
+      expect(JSON.parse(JSON.stringify(state)).round.clue.number).toBe(count);
+      expect(() => play(state, "red-op", command(state, { type: "end_turn" }))).toThrow(
+        "at least one",
+      );
+      for (const index of [2, 3, 4]) {
+        state = reveal(state, index);
+        expect(state.round?.activeTeam).toBe("red");
+        expect(state.round?.stage).toBe("guessing");
+        expect(state.round?.clue?.number).toBe(count);
+      }
+      expect(project(state, "red-op", new Set()).round?.guessesRemaining).toBe(22);
+      expect(play(state, "red-op", command(state, { type: "end_turn" })).round?.activeTeam).toBe(
+        "blue",
+      );
+      expect(reveal(state, 17).round?.activeTeam).toBe("blue");
+      expect(reveal(state, 9).round?.activeTeam).toBe("blue");
+      expect(reveal(state, 24).round?.outcome).toEqual({ winner: "blue", reason: "assassin" });
+    },
+  );
+  it("places the previewed cover on any chosen agent without exposing hidden card variants", () => {
+    const before = clue(fixture(), 9);
+    for (const seat of before.seats) {
+      const round = project(before, seat.id, new Set()).round!;
+      expect(round.nextCovers).toEqual({ red: 1, blue: 1, neutral: 1, assassin: 1 });
+      expect(round.cards.every((card) => !("coverVariant" in card))).toBe(true);
+    }
+    const first = reveal(before, 4);
+    expect(first.round?.cards[4].coverVariant).toBe(1);
+    expect(before.round?.cards[4].coverVariant).toBe(5);
+    expect(project(first, "red-op", new Set()).round?.nextCovers).toEqual({
+      red: 5,
+      blue: 1,
+      neutral: 1,
+      assassin: 1,
+    });
+    const second = reveal(first, 7);
+    expect(second.round?.cards[7].coverVariant).toBe(5);
+    expect(
+      new Set(
+        second
+          .round!.cards.filter((card) => card.identity === "red")
+          .map((card) => card.coverVariant),
+      ).size,
+    ).toBe(9);
+    const opposing = reveal(second, 12);
+    expect(opposing.round?.cards[12].coverVariant).toBe(1);
+    expect(project(opposing, "watcher", new Set()).round?.nextCovers).toEqual({
+      red: 8,
+      blue: 4,
+      neutral: 1,
+      assassin: 1,
+    });
+    const ended = fixture();
+    ended.round!.cards.forEach((card) => {
+      if (card.identity === "red") card.revealed = true;
+    });
+    expect(project(ended, "watcher", new Set()).round?.nextCovers.red).toBeNull();
+  });
+  for (const index of [20, 24])
+    it(`projects and places the ${index === 20 ? "neutral" : "assassin"} pile without hidden positions`, () => {
+      const before = clue(fixture(), 9);
+      const publicBefore = project(before, "watcher", new Set()).round!;
+      expect(publicBefore.remaining).toEqual({ red: 9, blue: 8, neutral: 7, assassin: 1 });
+      expect(
+        publicBefore.cards.every((card) => !("identity" in card) && !("coverVariant" in card)),
+      ).toBe(true);
+      const after = project(reveal(before, index), "watcher", new Set()).round!;
+      const identity = index === 20 ? "neutral" : "assassin";
+      expect(after.cards[index].coverVariant).toBe(publicBefore.nextCovers[identity]);
+      expect(after.remaining[identity]).toBe(publicBefore.remaining[identity] - 1);
+      expect(after.nextCovers[identity]).toBe(index === 20 ? 4 : null);
+    });
+  it("gives team-relative reveal feedback once, including Solo perspective changes and final outcomes", () => {
+    const before = clue(fixture(), 9);
+    const red = project(before, "red-op", new Set());
+    const blue = project(before, "blue-op", new Set());
+    const own = project(reveal(before, 4), "red-op", new Set());
+    expect(revealFeedback(red, own)?.sound).toBe("good");
+    expect(revealFeedback(blue, own)?.sound).toBe("opponent");
+    const wrong = project(reveal(before, 12), "blue-spy", new Set());
+    expect(revealFeedback(red, wrong)?.sound).toBe("opponent");
+    expect(revealFeedback(blue, wrong)?.sound).toBe("good");
+    expect(revealFeedback(red, project(reveal(before, 20), "blue-spy", new Set()))?.sound).toBe(
+      "neutral",
+    );
+    const assassin = project(reveal(before, 24), "red-op", new Set());
+    expect(revealFeedback(red, assassin)).toMatchObject({ sound: "assassin", result: "loss" });
+    expect(revealFeedback(blue, assassin)?.result).toBe("win");
+    expect(revealFeedback(null, assassin)).toBeNull();
+    expect(revealFeedback(own, own)).toBeNull();
+    expect(revealFeedback(own, { ...own, selfId: "red-spy" })).toBeNull();
+    expect(revealFeedback(red, { ...own, roundId: "new-round" })).toBeNull();
+    expect(
+      revealFeedback(red, project(reveal(reveal(before, 4), 7), "red-op", new Set())),
+    ).toBeNull();
+    const last = clue(fixture(), 9);
+    last.round!.cards.forEach((card, index) => {
+      if (card.identity === "red" && index !== 4) card.revealed = true;
+    });
+    expect(
+      revealFeedback(
+        project(last, "red-op", new Set()),
+        project(reveal(last, 4), "red-op", new Set()),
+      )?.result,
+    ).toBe("win");
   });
   for (const index of [9, 17])
     it(`ends a nonterminal turn on ${index === 9 ? "opposing" : "neutral"} reveal`, () => {

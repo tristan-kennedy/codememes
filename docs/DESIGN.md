@@ -1,15 +1,15 @@
 ---
 name: Codememes
-description: Physical meme cards on a pale playfield with red/blue edge light and clean game controls.
+description: Physical meme cards on a warm charcoal playfield with a full-screen tint for the active team.
 # User-approved October 5 revision and accessible lobby implemented.
 colors:
-  table: "#f3f1ec"
-  surface: "#ffffff"
-  surface-edge: "#d9dbe3"
+  table: "#303238"
+  surface: "#3b3e46"
+  surface-edge: "#626771"
   card: "#f5e9cf"
   card-edge: "#ddcba5"
-  ink: "#242838"
-  muted-ink: "#5f6574"
+  ink: "#f3f1ec"
+  muted-ink: "#c3c5cc"
   red: "#ff6247"
   red-deep: "#8e2927"
   red-light: "#ffa477"
@@ -18,18 +18,18 @@ colors:
   blue-light: "#42d4ea"
   neutral: "#c8ad7f"
   assassin: "#252323"
-  on-table: "#242838"
+  on-table: "#f3f1ec"
   on-team: "#ffffff"
   on-primary: "#242838"
-  focus: "#1d507b"
+  focus: "#42d4ea"
   focus-on-team: "#ffe08a"
   focus-on-card: "#1d507b"
   selection: "#f2c65c"
-  selection-outline: "#896314"
-  selection-edge: "#896314"
-  hover: "#f3f1ec"
-  blue-surface: "#42d4ea"
-  red-surface: "#ffa477"
+  selection-outline: "#f2c65c"
+  selection-edge: "#f2c65c"
+  hover: "#484c56"
+  blue-surface: "color-mix(in srgb, #1d507b 38%, #3b3e46)"
+  red-surface: "color-mix(in srgb, #8e2927 38%, #3b3e46)"
 typography:
   brand:
     fontFamily: '"Bricolage Grotesque", system-ui, sans-serif'
@@ -103,6 +103,28 @@ components:
 
 # Design System: Codememes
 
+Latest October 6 header refinement: the host's Play again action is a 48px cartoon replay icon beside Game sounds in the winner header, replacing the bottom action tray. Both icons share chunky white shapes, team-colored outlines and soft shadows. Sound has a finite 360ms hover bounce and a press squash when motion is allowed; its stable accessible toggle name is Game sounds, with the current action in its hover title. All header links use regular-weight text, transparent surfaces and a simple underline on hover in setup and play.
+
+The Players list uses the same sourced role portraits as setup, compact team-colored pieces and readable role/name captions. Its panel anchors to the full header tools and stays within their width. Outside clicks dismiss Players while inside interactions retain it. Rules keeps its native modal, Escape handling and trigger-focus restoration; a 48px cartoon X and backdrop clicks dismiss it. Team captions, destinations and readiness now use Operative/Operatives.
+
+Latest team-page revision: show two open team rosters on the charcoal table, without enclosing team panels or permanent role boxes. Each full-width player piece carries a slightly tilted, white-edged meme portrait, a readable name and a short role caption. Reuse sourced `public/media/roll-safe.webp` for Spymaster and `public/media/much-wow.webp` for Guesser; Watching uses the same Doge portrait in grayscale. No source image is edited or duplicated. Team headings use the existing white/colored-outline Bricolage treatment at `clamp(2.5rem, 4vw, 3.5rem)`; names use 1.5rem on desktop and 1.25rem on phones. Filled pieces use the established team surfaces and 12px corners.
+
+The spymaster is the first piece in each roster. Empty roles show illustrated, named drop hints; populated roles identify themselves on the pieces. Dropping elsewhere in a team, including its heading, assigns Guesser. A spymaster drop remains explicit and rejects an occupied spot. Keep the centered six-dot grip, dragging from the whole piece, compact Watching area and separate host Randomize/Start controls. Role captions, accessible destinations and readiness text use Operative/Operatives. Placement feedback overlays its destination instead of changing layout.
+
+Latest cartoon refinement: the transparent header wordmark uses bubbly warm-white letters with primary Blue outlines around CODE and primary Red outlines around MEMES, retaining the hooded face inside the O. The favicon stays unchanged. Entry and setup actions share chunky outlined SVGs, white outlined lettering and a brief press response; team headings and draggable name pieces use Bricolage with consistent 12px corners. Guesser selection gives only the card face a 300ms squash-and-spring, with the gold frame staying steady and the check popping into place. Name pieces settle in 200ms after placement. These motions run only when reduced motion is not requested; no continuous UI animation is introduced.
+
+Name and clue validation use their own field errors and native popovers. Name errors clear on editing; authoritative clue validation is matched to the submitted clue request. Operational errors use a dismissible fixed overlay on all screens, keeping forms valid for retry and preserving page geometry. Long names fit the solo selector and wrap within setup pieces on phones.
+
+Clue validation belongs to the field: local errors and rejected server clues use the native validation popover, an invalid border and an accessible field description, without inserting a paragraph or moving the board. Editing clears the error. The check and X use chunky white SVG shapes with colored outlines and soft offset shadows, matching the remaining-count lettering; transparent buttons retain 48px targets. Board scrolling includes 8px clearance for the raised selection outline, preserving card geometry.
+
+Latest background revision: use warm charcoal `#303238`, dark control surfaces `#3b3e46`, lighter hover surfaces `#484c56`, warm off-white labels and light muted text. Both the home page and lobby stay flat charcoal. During play, both sides use the active team's color at 12% edge, 4% near-center and 3% center opacity. The results screen keeps the winning team's tint, including when the winner differs from the last active team. Game exposes the public background team separately from the active-turn attribute. Keep the existing three shades per team. Sourced SVG geometry is unchanged; a light-ink luminance mask at 55% opacity over its 7% source opacity softens and unifies the watermark while preserving face detail. Card media, cover art and geometry are unchanged. The browser color pass below is recorded in TESTING.md; no independent review, commit, PR or deployment was performed.
+
+Latest during-game UI refinement: align the header tools, turn/count row and clue controls to the board. Blue, Neutral, Assassin and Red racks each preview their next actual cover with a large overlapping remaining count. Covers retain their landscape ratio, unique variants and random order; a reveal uses the previewed cover regardless of the chosen board position. The full-width clue form has an inline "Your Clue" placeholder, an outlined-number 0–9/∞ picker and a chunky curved send arrow. The picker has keyboard navigation and 44px minimum targets; narrow screens wrap its choices into five columns. Both zero and infinity allow unlimited guesses; zero means avoid associated cards. The outlined turn heading sits on a softly tinted charcoal surface with a 48px sound toggle. Group player names with their roles in the roster, and keep paused-round recovery and its action together. A green check at the selected card's top right confirms a guess; a red X beside the remaining guesses ends the turn. These SVG icon buttons use 48px targets, accessible action names and hover labels. Play again appears beside Sound in the winner header. Card media, artwork and geometry are preserved.
+
+Latest responsive refinement: cover previews and board cards share grid sizing, with five columns at 1000px and above, four at 600–999px and two below 600px. Tablet and phone place the turn heading above the previews; phones pair Blue/Red above Neutral/Assassin. The board flows vertically without horizontal panning. Phone clue controls remain sticky while scrolling, and keyboard-focus clearance follows the bar's measured height so long clues cannot obscure card actions. Source media resolution and 3:2 card/cover geometry are preserved.
+
+Newly accepted covers travel from their matching pile to the selected card in 560ms, with a brief landing fallback if scrolling cancels the flight. Existing covers and restored snapshots remain still. Short synthesized sounds distinguish own-team agents, opposing agents, neutral cards and the assassin, then add a viewer-relative win/loss phrase on a terminal reveal. Sounds start only after a user gesture; the remembered mute preference stops current and scheduled tones. A fresh win gets a brief heading pop and 20 paper confetti pieces while retaining the visible board and winner-colored background. Spatial effects respect reduced motion. Invite success replaces the fixed-width button's label with "Copied!", with an accessible announcement and no inserted visible message; clipboard fallback uses a fixed overlay.
+
 Latest palette revision: use only the board tiles� three shades per team throughout the UI: Red dark `#8e2927`, primary `#ff6247`, light `#ffa477`; Blue dark `#1d507b`, primary `#0badd7`, light `#42d4ea`. Medium fills use dark Ink; dark fills use white. The background gradient uses the primary colors at 24% opacity at the edges and 12% near the center.
 
 Latest background and cleanup revision: use actual sourced Trollface, Forever Alone, Okay Guy, Me Gusta and Yao Ming SVGs at 7% opacity with a full-height Blue-left/Red-right linear gradient at 24% edge opacity. Cards have generous padding; unguessed operative cards match neutral spymaster cards, and accepted covers conceal the words. Obsolete reference sheets, poster files and bindings, compatibility media and preview captures are removed; nothing is deployed. No verification was requested.
@@ -119,7 +141,7 @@ Latest UI simplification: card recognition labels and text fallbacks display in 
 
 **Creative North Star: "The meme night table."**
 
-Open the room and see the game: twenty-five real-looking cards on a pale off-white playfield, with soft Blue light from the left and Red light from the right. Sourced Trollface, Forever Alone, Okay Guy, Me Gusta and Yao Ming SVG linework give the background personality while leaving the center quiet. Cream cardstock, printed illustrations, restrained thickness, and soft contact shadows keep the board touchable. Controls are clearly styled interface elements, with white surfaces, dark readable labels, and deliberate Red/Blue accents.
+Open the room and see the game: twenty-five real-looking cards on a warm charcoal playfield, with a full-screen Blue or Red tint following the active team's turn. Sourced Trollface, Forever Alone, Okay Guy, Me Gusta and Yao Ming SVG linework gives the background personality. Cream cardstock, printed illustrations, restrained thickness, and soft contact shadows keep the board touchable. Controls use dark surfaces, warm off-white labels and deliberate Red/Blue accents.
 
 The user's October 5 revision rejects green felt and pins the pale background direction. It preserves the physical card-game arrangement, sparse copy, original meme covers, and drag-and-drop lobby, while replacing the surrounding material and control styling. Impeccable informs hierarchy, contrast, interaction, and accessibility within this brief. [PRODUCT.md](PRODUCT.md) owns rules and permissions.
 

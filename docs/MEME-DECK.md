@@ -18,7 +18,7 @@ Start cryptographically shuffles distinct families and takes 25, then independen
 
 Internal aliases, visible words, exclusions and curator provenance never appear in snapshots. `recognitionView` allowlists public recognition fields. Identity is projected separately only for spymasters, revealed positions, or all seats after ending. Paths and metadata contain no key.
 
-Clues are one token and a whole number from 1 to 9. Exact comparisons normalize NFKC, English lowercase and apostrophes. Unrevealed canonical names, aliases and recorded printed words are excluded; broader associations remain group judgment.
+Clues are one token and a whole number from 0 to 9 or ∞. Zero means avoid associated cards; infinity gives no count. Both allow unlimited guesses, while normal counts allow the number plus one. Exact comparisons normalize NFKC, English lowercase and apostrophes. Unrevealed canonical names, aliases and recorded printed words are excluded; broader associations remain group judgment.
 
 ## Assets and validation
 

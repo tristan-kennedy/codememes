@@ -1,5 +1,5 @@
 import { PROTOCOL_VERSION } from "../shared/protocol";
-import type { RoomCommand, RoomView, ServerMessage } from "../shared/protocol";
+import type { ErrorCode, RoomCommand, RoomView, ServerMessage } from "../shared/protocol";
 
 export type ConnectionStatus =
   | "connecting"
@@ -21,7 +21,7 @@ export class RoomConnection {
     private code: string,
     private onView: (view: RoomView) => void,
     private onStatus: (status: ConnectionStatus) => void,
-    private onError: (message: string) => void,
+    private onError: (message: string, code?: ErrorCode, requestId?: string) => void,
     private onSettled: () => void,
   ) {}
   connect(): void {
@@ -85,7 +85,7 @@ export class RoomConnection {
           if (update.requestId) this.onSettled();
         } else {
           if (update.view) this.onView(update.view);
-          this.onError(update.message);
+          this.onError(update.message, update.code, update.requestId);
           this.onSettled();
           if (update.code === "replaced") this.stop("replaced", update.message);
           else if (update.code === "not_found" || update.code === "unauthorized")

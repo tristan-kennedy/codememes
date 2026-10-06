@@ -1,6 +1,7 @@
 import { normalizeClue } from "../src/shared/protocol";
 import type {
   CardIdentity,
+  ClueCount,
   Recognition,
   RoomCommand,
   RoundView,
@@ -22,7 +23,7 @@ export interface RoundState {
   startingTeam: Team;
   activeTeam: Team;
   stage: "clue" | "guessing";
-  clue: { word: string; number: number } | null;
+  clue: { word: string; number: ClueCount } | null;
   guessesUsed: number;
   outcome: { winner: Team; reason: "agents" | "assassin" } | null;
   lastReveal: { word: string; identity: CardIdentity; byTeam: Team } | null;
@@ -90,10 +91,12 @@ export function generateRound(): RoundState {
     lastReveal: null,
   };
 }
-export function remaining(round: RoundState): Record<Team, number> {
+export function remaining(round: RoundState): Record<CardIdentity, number> {
   return {
     red: round.cards.filter((card) => card.identity === "red" && !card.revealed).length,
     blue: round.cards.filter((card) => card.identity === "blue" && !card.revealed).length,
+    neutral: round.cards.filter((card) => card.identity === "neutral" && !card.revealed).length,
+    assassin: round.cards.filter((card) => card.identity === "assassin" && !card.revealed).length,
   };
 }
 export function ready(seats: Seat[]): boolean {
@@ -168,8 +171,12 @@ export function play(
     if (actor.role !== "spymaster" || round.stage !== "clue")
       throw new RoomError("forbidden", "Only the active spymaster can give the next clue.", 403);
     const word = normalizeClue(command.word);
-    if (!word || !Number.isInteger(command.number) || command.number < 1 || command.number > 9)
-      throw new RoomError("invalid", "Give one word and a whole number from 1 to 9.");
+    if (
+      !word ||
+      (command.number !== "unlimited" &&
+        (!Number.isInteger(command.number) || command.number < 0 || command.number > 9))
+    )
+      throw new RoomError("invalid", "Give one word and a count from 0 to 9 or unlimited.");
     if (
       round.cards.some(
         (card) =>
@@ -195,8 +202,19 @@ export function play(
       nextTurn(round);
     } else if (command.type === "reveal") {
       const card = round.cards[command.index];
-      if (!card || card.revealed || round.guessesUsed >= round.clue.number + 1)
+      const guessLimit =
+        typeof round.clue.number === "number" && round.clue.number > 0
+          ? round.clue.number + 1
+          : Infinity;
+      const exhausted = round.guessesUsed >= guessLimit;
+      if (!card || card.revealed || exhausted)
         throw new RoomError("invalid", "That card cannot be revealed. Check the current board.");
+      // Unrevealed variants form a shuffled cover stack. Whichever meme is
+      // guessed gets its identity's next cover, matching the public preview.
+      const nextCover = round.cards.find(
+        (candidate) => candidate.identity === card.identity && !candidate.revealed,
+      )!;
+      [card.coverVariant, nextCover.coverVariant] = [nextCover.coverVariant, card.coverVariant];
       card.revealed = true;
       round.guessesUsed += 1;
       round.lastReveal = { word: card.word, identity: card.identity, byTeam: actor.team };
@@ -207,10 +225,7 @@ export function play(
         if (counts.red === 0) round.outcome = { winner: "red", reason: "agents" };
         else if (counts.blue === 0) round.outcome = { winner: "blue", reason: "agents" };
       }
-      if (
-        !round.outcome &&
-        (card.identity !== actor.team || round.guessesUsed >= round.clue.number + 1)
-      )
+      if (!round.outcome && (card.identity !== actor.team || round.guessesUsed >= guessLimit))
         nextTurn(round);
     }
   }
@@ -247,8 +262,25 @@ export function projectRound(
     stage: round.stage,
     clue: round.clue ? { word: round.clue.word, number: round.clue.number } : null,
     guessesUsed: round.guessesUsed,
-    guessesRemaining: round.clue ? Math.max(0, round.clue.number + 1 - round.guessesUsed) : 0,
+    guessesRemaining: round.clue
+      ? typeof round.clue.number === "number" && round.clue.number > 0
+        ? Math.max(0, round.clue.number + 1 - round.guessesUsed)
+        : round.cards.filter((card) => !card.revealed).length
+      : 0,
     remaining: remaining(round),
+    nextCovers: {
+      red:
+        round.cards.find((card) => card.identity === "red" && !card.revealed)?.coverVariant ?? null,
+      blue:
+        round.cards.find((card) => card.identity === "blue" && !card.revealed)?.coverVariant ??
+        null,
+      neutral:
+        round.cards.find((card) => card.identity === "neutral" && !card.revealed)?.coverVariant ??
+        null,
+      assassin:
+        round.cards.find((card) => card.identity === "assassin" && !card.revealed)?.coverVariant ??
+        null,
+    },
     privateKey,
     outcome: round.outcome ? { winner: round.outcome.winner, reason: round.outcome.reason } : null,
     lastReveal: round.lastReveal

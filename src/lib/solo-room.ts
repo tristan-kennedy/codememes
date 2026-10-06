@@ -1,8 +1,9 @@
 import { play } from "../../worker/game";
+import { RoomError } from "../../worker/errors";
 import { assign, parseCommand, project, randomize, uniqueName } from "../../worker/state";
 import type { RoomState, Seat } from "../../worker/state";
 import { PROTOCOL_VERSION } from "../shared/protocol";
-import type { RoomCommand, RoomView } from "../shared/protocol";
+import type { ErrorCode, RoomCommand, RoomView } from "../shared/protocol";
 import type { ConnectionStatus } from "./room-connection";
 
 // Development-only, in-memory room using the same transitions and projections as the server.
@@ -16,7 +17,7 @@ export class SoloRoom {
     name: string,
     private onView: (view: RoomView) => void,
     private onStatus: (status: ConnectionStatus) => void,
-    private onError: (message: string) => void,
+    private onError: (message: string, code?: ErrorCode, requestId?: string) => void,
     private onSettled: () => void,
   ) {
     if (!import.meta.env.DEV) throw new Error("Solo test is available only in development.");
@@ -93,7 +94,7 @@ export class SoloRoom {
           : parsed.type === "randomize"
             ? randomize(this.state, actorId, parsed, this.connected())
             : play(this.state, actorId, parsed);
-    });
+    }, command.requestId);
   }
 
   resetRound(): boolean {
@@ -120,7 +121,7 @@ export class SoloRoom {
     }
   }
 
-  private run(transition: () => void): boolean {
+  private run(transition: () => void, requestId?: string): boolean {
     if (this.stopped) return false;
     // Settle after the caller marks its action pending, like a room acknowledgement.
     queueMicrotask(() => {
@@ -133,6 +134,8 @@ export class SoloRoom {
       } catch (failure) {
         this.onError(
           failure instanceof Error ? failure.message : "That action could not be saved.",
+          failure instanceof RoomError ? failure.code : undefined,
+          requestId,
         );
       } finally {
         this.onSettled();

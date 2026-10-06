@@ -162,7 +162,7 @@ async function prepare() {
     { type: "clue", word: privateCards(activeSpy())[0].word.toLowerCase(), number: 1 },
     "invalid",
   );
-  await rejected(activeSpy(), { type: "clue", word: "signal", number: 0 }, "invalid");
+  await rejected(activeSpy(), { type: "clue", word: "signal", number: -1 }, "invalid");
   await rejected(
     activeSpy(),
     { type: "clue", word: "signal", number: 1, roundId: "prior-round" },

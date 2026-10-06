@@ -12,10 +12,13 @@ import type {
   RoomView,
   ServerMessage,
   Team,
+  ErrorCode,
 } from "./shared/protocol";
 import { Game } from "./features/Game";
+import { useRoundFeedback } from "./lib/round-feedback";
+import { GameIcon } from "./features/GameIcon";
 import { Rules } from "./features/Rules";
-import { Lobby } from "./features/Lobby";
+import { Lobby, RolePortrait } from "./features/Lobby";
 
 function inviteCode(): string | null {
   const match = /^\/room\/([^/]+)\/?$/.exec(location.pathname);
@@ -42,9 +45,12 @@ async function requestRoom(path: string, name: string): Promise<RoomView> {
 export function App() {
   const [code, setCode] = useState(inviteCode);
   const [view, setView] = useState<RoomView | null>(null);
+  const { feedback, soundEnabled, toggleSound } = useRoundFeedback(view);
   const [solo, setSolo] = useState<SoloRoom | null>(null);
   const [name, setName] = useState("");
   const [error, setError] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [clueError, setClueError] = useState("");
   const [loading, setLoading] = useState(Boolean(code));
   const [status, setStatus] = useState<ConnectionStatus>("connecting");
   const [pending, setPending] = useState(false);
@@ -52,6 +58,9 @@ export function App() {
   const [copyFallback, setCopyFallback] = useState<{ value: string; label: string } | null>(null);
   const connection = useRef<Pick<RoomConnection, "connect" | "close" | "send"> | null>(null);
   const lobbyMount = useRef<HTMLDivElement>(null);
+  const playerRoster = useRef<HTMLDetailsElement>(null);
+  const nameInput = useRef<HTMLInputElement>(null);
+  const pendingClue = useRef<string | null>(null);
   const discardDialog = useRef<HTMLDialogElement>(null);
   const discardTrigger = useRef<HTMLButtonElement>(null);
   const previousPhase = useRef(view?.phase);
@@ -59,6 +68,17 @@ export function App() {
     setView((current) =>
       current?.code === next.code && current.revision > next.revision ? current : next,
     );
+  }, []);
+  const reportError = useCallback((message: string, errorCode?: ErrorCode, requestId?: string) => {
+    const clueValidation = Boolean(
+      message && errorCode === "invalid" && requestId === pendingClue.current,
+    );
+    setClueError(clueValidation ? message : "");
+    setError(clueValidation ? "" : message);
+  }, []);
+  const settleAction = useCallback(() => {
+    setPending(false);
+    pendingClue.current = null;
   }, []);
 
   useEffect(() => {
@@ -68,6 +88,16 @@ export function App() {
   }, [copied, copyFallback]);
 
   useEffect(() => {
+    const closeRosterOutside = (event: MouseEvent) => {
+      const roster = playerRoster.current;
+      if (roster?.open && event.target instanceof Node && !roster.contains(event.target))
+        roster.open = false;
+    };
+    document.addEventListener("click", closeRosterOutside);
+    return () => document.removeEventListener("click", closeRosterOutside);
+  }, []);
+
+  useEffect(() => {
     if (view?.phase === "lobby" && previousPhase.current && previousPhase.current !== "lobby")
       lobbyMount.current?.querySelector<HTMLElement>('[role="region"]')?.focus();
     previousPhase.current = view?.phase;
@@ -75,7 +105,18 @@ export function App() {
   useEffect(() => {
     setPending(false);
     setError("");
+    setClueError("");
   }, [view?.roundId]);
+  useEffect(() => {
+    if (view) return;
+    const input = nameInput.current;
+    if (!input) return;
+    input.setCustomValidity(nameError);
+    if (nameError && !loading) {
+      input.focus();
+      input.reportValidity();
+    }
+  }, [nameError, loading, view]);
 
   useEffect(() => {
     if (!code || solo) return;
@@ -102,24 +143,28 @@ export function App() {
   useEffect(() => {
     if (!roomCode) return;
     const next =
-      solo ??
-      new RoomConnection(roomCode, acceptView, setStatus, setError, () => setPending(false));
+      solo ?? new RoomConnection(roomCode, acceptView, setStatus, reportError, settleAction);
     connection.current = next;
     next.connect();
     return () => {
       next.close();
       connection.current = null;
     };
-  }, [roomCode, solo, acceptView]);
+  }, [roomCode, solo, acceptView, reportError, settleAction]);
 
   async function startSolo() {
     if (!import.meta.env.DEV) return;
     setLoading(true);
     setError("");
+    setNameError("");
     try {
       const { SoloRoom } = await import("./lib/solo-room");
-      const next = new SoloRoom(normalizeName(name) ?? "You", acceptView, setStatus, setError, () =>
-        setPending(false),
+      const next = new SoloRoom(
+        normalizeName(name) ?? "You",
+        acceptView,
+        setStatus,
+        reportError,
+        settleAction,
       );
       setSolo(next);
       acceptView(next.snapshot());
@@ -133,9 +178,10 @@ export function App() {
   async function submit(event: FormEvent) {
     event.preventDefault();
     setError("");
+    setNameError("");
     const displayName = normalizeName(name);
     if (!displayName) {
-      setError("Enter a name between 1 and 40 characters.");
+      setNameError("Enter a name between 1 and 40 characters.");
       return;
     }
     setLoading(true);
@@ -157,15 +203,19 @@ export function App() {
   ) {
     if (!view || status !== "connected" || pending) return;
     setError("");
+    setClueError("");
+    const requestId = crypto.randomUUID();
+    pendingClue.current = action.type === "clue" ? requestId : null;
     const sent = connection.current?.send({
       version: PROTOCOL_VERSION,
       ...action,
-      requestId: crypto.randomUUID(),
+      requestId,
       revision: view.revision,
       roundId: view.roundId,
     } as RoomCommand);
     if (sent) setPending(true);
     else {
+      pendingClue.current = null;
       setStatus("disconnected");
       setError("Connection lost. Reconnect before making a change.");
     }
@@ -197,6 +247,9 @@ export function App() {
     setCode(inviteRoom);
     setView(null);
     setError("");
+    setNameError("");
+    setClueError("");
+    pendingClue.current = null;
     setLoading(false);
     history.replaceState(null, "", inviteRoom ? `/room/${inviteRoom}` : "/");
   }
@@ -226,24 +279,40 @@ export function App() {
             <>
               {!solo && (
                 <button
+                  className="invite-button"
                   onClick={() => {
                     void copy(invite, "Invite link");
                   }}
                 >
-                  Invite
+                  {copied === "Invite link copied." ? "Copied!" : "Invite"}
                 </button>
               )}
               {view.phase !== "lobby" && (
-                <details className="game-roster">
+                <details ref={playerRoster} className="game-roster">
                   <summary>
                     Players ({view.players.filter((player) => player.connected).length})
                   </summary>
                   <ul>
                     {view.players.map((player) => (
-                      <li key={player.id}>
-                        <strong>{player.name}</strong> · {player.team ?? "Watching"} · {player.role}
-                        {player.isHost ? " · Host" : ""}
-                        {!player.connected ? " · Offline" : ""}
+                      <li key={player.id} data-team={player.team ?? undefined}>
+                        <RolePortrait role={player.team ? player.role : "watcher"} />
+                        <div className="roster-piece">
+                          <div className="roster-name">
+                            <strong>{player.name}</strong>
+                            {(player.isHost || !player.connected) && (
+                              <span>
+                                {[player.isHost && "Host", !player.connected && "Offline"]
+                                  .filter(Boolean)
+                                  .join(" / ")}
+                              </span>
+                            )}
+                          </div>
+                          <span className="roster-role">
+                            {player.team
+                              ? `${player.team === "red" ? "Red" : "Blue"} ${player.role === "spymaster" ? "Spymaster" : "Operative"}`
+                              : "Watching"}
+                          </span>
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -257,6 +326,14 @@ export function App() {
           </div>
         )}
       </header>
+      {error && (
+        <div className="action-error" role="alert">
+          <p>{error}</p>
+          <button type="button" aria-label="Dismiss error" onClick={() => setError("")}>
+            <GameIcon kind="close" />
+          </button>
+        </div>
+      )}
       {!view ? (
         <section className="entry-body" aria-labelledby="entry-heading">
           <h1 id="entry-heading">{code ? "Enter your name" : "Create a room"}</h1>
@@ -268,27 +345,44 @@ export function App() {
             <label>
               Your name
               <input
+                ref={nameInput}
                 name="display-name"
                 autoComplete="nickname"
                 maxLength={NAME_LIMIT}
+                required
+                aria-invalid={Boolean(nameError)}
+                aria-describedby={nameError ? "name-error" : undefined}
                 placeholder="The name your friends know"
                 value={name}
-                onChange={(event) => setName(event.target.value)}
+                onChange={(event) => {
+                  event.target.setCustomValidity("");
+                  setError("");
+                  setNameError("");
+                  setName(event.target.value);
+                }}
                 disabled={loading}
               />
             </label>
-            {error && (
-              <p className="error" role="alert">
-                {error}
-              </p>
+            {nameError && (
+              <span id="name-error" className="visually-hidden" role="alert">
+                {nameError}
+              </span>
             )}
-            <button className="primary" disabled={loading} type="submit">
-              {loading ? "Opening room…" : code ? "Enter room" : "Create room"}
+            <button className="primary toon-action" disabled={loading} type="submit">
+              <GameIcon kind={code ? "play" : "plus"} />
+              <span className="toon-label">
+                {loading ? "Opening room…" : code ? "Enter room" : "Create room"}
+              </span>
             </button>
           </form>
           {import.meta.env.DEV && !code && (
-            <button className="solo-entry" disabled={loading} onClick={() => void startSolo()}>
-              Solo test
+            <button
+              className="solo-entry toon-action"
+              disabled={loading}
+              onClick={() => void startSolo()}
+            >
+              <GameIcon kind="play" />
+              <span className="toon-label">Solo test</span>
             </button>
           )}
         </section>
@@ -333,7 +427,7 @@ export function App() {
               </button>
             </div>
           )}
-          <p className={`copy-feedback ${copied ? "" : "empty-feedback"}`} role="status">
+          <p className="visually-hidden" role="status">
             {copied}
           </p>
           {copyFallback && (
@@ -396,62 +490,66 @@ export function App() {
               )}
             </div>
           )}
-          {error && (
-            <p className="error" role="alert">
-              {error}
-            </p>
-          )}
-          {view.waitingFor && (
-            <p className="waiting-room" role="status">
-              Waiting for {view.waitingFor.name} to reconnect as{" "}
-              {view.waitingFor.team === "red" ? "Red" : "Blue"} spymaster.
-            </p>
-          )}
-          {view.controls.abandon && (
-            <div className="round-actions">
-              <button
-                className="secondary"
-                ref={discardTrigger}
-                disabled={!usable}
-                onClick={() => discardDialog.current?.showModal()}
-              >
-                Abandon round
-              </button>
-              <dialog
-                className="rules-dialog"
-                ref={discardDialog}
-                aria-labelledby="discard-title"
-                onClose={() => discardTrigger.current?.focus()}
-              >
-                <h2 id="discard-title">Discard this board?</h2>
-                <p>
-                  Return everyone to the lobby. Your group keeps its seats; this board and clue are
-                  discarded.
+          {(view.waitingFor || view.controls.abandon) && (
+            <div className="round-pause">
+              {view.waitingFor && (
+                <p className="waiting-room" role="status">
+                  Waiting for {view.waitingFor.name} to reconnect as{" "}
+                  {view.waitingFor.team === "red" ? "Red" : "Blue"} spymaster.
                 </p>
-                <div className="dialog-actions">
-                  <button autoFocus onClick={() => discardDialog.current?.close()}>
-                    Cancel
-                  </button>
+              )}
+              {view.controls.abandon && (
+                <div className="round-actions">
                   <button
-                    className="primary"
-                    disabled={!usable || !view.controls.abandon}
-                    onClick={() => {
-                      discardDialog.current?.close();
-                      dispatch({ type: "abandon" });
-                    }}
+                    className="secondary"
+                    ref={discardTrigger}
+                    disabled={!usable}
+                    onClick={() => discardDialog.current?.showModal()}
                   >
-                    Discard board
+                    Abandon round
                   </button>
+                  <dialog
+                    className="rules-dialog"
+                    ref={discardDialog}
+                    aria-labelledby="discard-title"
+                    onClose={() => discardTrigger.current?.focus()}
+                  >
+                    <h2 id="discard-title">Discard this board?</h2>
+                    <p>
+                      Return everyone to the lobby. Your group keeps its seats; this board and clue
+                      are discarded.
+                    </p>
+                    <div className="dialog-actions">
+                      <button autoFocus onClick={() => discardDialog.current?.close()}>
+                        Cancel
+                      </button>
+                      <button
+                        className="primary"
+                        disabled={!usable || !view.controls.abandon}
+                        onClick={() => {
+                          discardDialog.current?.close();
+                          dispatch({ type: "abandon" });
+                        }}
+                      >
+                        Discard board
+                      </button>
+                    </div>
+                  </dialog>
                 </div>
-              </dialog>
+              )}
             </div>
           )}
           {view.round && (
             <Game
-              key={`${view.roundId}-${view.selfId}`}
+              key={view.roundId}
               view={view}
               usable={usable}
               pending={pending}
+              clueError={clueError}
+              feedback={feedback}
+              soundEnabled={soundEnabled}
+              onToggleSound={toggleSound}
+              onClueEdit={() => setClueError("")}
               onAction={dispatch}
             />
           )}

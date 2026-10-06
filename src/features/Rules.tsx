@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { GameIcon } from "./GameIcon";
 
 export function Rules() {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -13,11 +14,28 @@ export function Rules() {
         ref={dialog}
         aria-labelledby="rules-title"
         onClose={() => trigger.current?.focus()}
+        onClick={(event) => {
+          if (event.target !== event.currentTarget) return;
+          const bounds = event.currentTarget.getBoundingClientRect();
+          if (
+            event.clientX < bounds.left ||
+            event.clientX > bounds.right ||
+            event.clientY < bounds.top ||
+            event.clientY > bounds.bottom
+          )
+            event.currentTarget.close();
+        }}
       >
         <div className="rules-heading">
           <h2 id="rules-title">How to play</h2>
-          <button className="secondary" onClick={() => dialog.current?.close()}>
-            Close rules
+          <button
+            type="button"
+            className="game-icon-button rules-close"
+            onClick={() => dialog.current?.close()}
+            aria-label="Close rules"
+            title="Close rules"
+          >
+            <GameIcon kind="close" />
           </button>
         </div>
         <h3>Two teams, two roles</h3>
@@ -28,16 +46,18 @@ export function Rules() {
         </p>
         <h3>Give a clue</h3>
         <p>
-          The active spymaster gives one word and a whole number from 1 to 9. The number tells the
+          The active spymaster gives one word and a count from 0 to 9 or ∞. The number tells the
           team how many cards relate to the clue. A clue cannot match an unrevealed meme's name,
           recognition alias, or a printed word (for example, “fine” in “This is fine”). Your group
           judges broader associations.
         </p>
         <h3>Choose, then reveal</h3>
         <p>
-          Active operatives tap or click a card to select it locally, then press Reveal to commit
-          it. GIFs play directly on the board. Reveals cannot be undone. A team can guess up to the
-          clue number plus one. After at least one guess, they may end their turn early.
+          Active operatives tap or click a card to select it, then press its green check to confirm
+          the guess. GIFs play directly on the board. Reveals cannot be undone. A team can guess up
+          to the clue number plus one. Zero means avoid related cards; ∞ gives no count. Both allow
+          unlimited guesses. After at least one guess, the red X beside the clue ends the turn
+          early.
         </p>
         <h3>Pass the turn</h3>
         <p>

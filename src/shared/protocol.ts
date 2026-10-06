@@ -3,6 +3,7 @@ export const PROTOCOL_VERSION = 1 as const;
 export const CODE_ALPHABET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
 export const NAME_LIMIT = 40;
 export type Team = "red" | "blue";
+export type ClueCount = number | "unlimited";
 export type PlayingRole = "operative" | "spymaster";
 export type Role = PlayingRole | "watcher";
 export type CardIdentity = Team | "neutral" | "assassin";
@@ -80,10 +81,11 @@ export interface RoundView {
   startingTeam: Team;
   activeTeam: Team;
   stage: "clue" | "guessing";
-  clue: { word: string; number: number } | null;
+  clue: { word: string; number: ClueCount } | null;
   guessesUsed: number;
   guessesRemaining: number;
-  remaining: Record<Team, number>;
+  remaining: Record<CardIdentity, number>;
+  nextCovers: Record<CardIdentity, number | null>;
   privateKey: boolean;
   outcome: { winner: Team; reason: "agents" | "assassin" } | null;
   lastReveal: { word: string; identity: CardIdentity; byTeam: Team } | null;
@@ -107,11 +109,11 @@ export type RoomCommand =
   | AssignCommand
   | RandomizeCommand
   | (CommandBase & { type: "start" | "end_turn" | "play_again" | "abandon" })
-  | (CommandBase & { type: "clue"; word: string; number: number })
+  | (CommandBase & { type: "clue"; word: string; number: ClueCount })
   | (CommandBase & { type: "reveal"; index: number });
 export type GameAction =
   | { type: "randomize" | "start" | "end_turn" | "play_again" | "abandon" }
-  | { type: "clue"; word: string; number: number }
+  | { type: "clue"; word: string; number: ClueCount }
   | { type: "reveal"; index: number };
 
 export function normalizeClue(word: string): string | null {

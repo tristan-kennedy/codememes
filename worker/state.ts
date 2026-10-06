@@ -78,11 +78,12 @@ export function parseCommand(value: unknown): RoomCommand {
     (typeof cmd.word !== "string" ||
       cmd.word.length > 40 ||
       !normalizeClue(cmd.word) ||
-      !Number.isInteger(cmd.number) ||
-      (cmd.number as number) < 1 ||
-      (cmd.number as number) > 9)
+      (cmd.number !== "unlimited" &&
+        (!Number.isInteger(cmd.number) ||
+          (cmd.number as number) < 0 ||
+          (cmd.number as number) > 9)))
   )
-    throw new RoomError("invalid", "Give one word and a whole number from 1 to 9.");
+    throw new RoomError("invalid", "Give one word and a count from 0 to 9 or unlimited.");
   if (
     kind === "reveal" &&
     (!Number.isInteger(cmd.index) || (cmd.index as number) < 0 || (cmd.index as number) >= 25)
