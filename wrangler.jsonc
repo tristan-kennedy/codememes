@@ -1,8 +1,12 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "codenames",
+  "name": "codememes",
+  "account_id": "4bacc773067c830100ed4460f64332b1",
+  "workers_dev": true,
+  "preview_urls": false,
   "main": "worker/index.ts",
   "compatibility_date": "2026-10-04",
+  "observability": { "enabled": true },
   "assets": {
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",

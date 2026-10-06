@@ -2,7 +2,7 @@
 
 A private meme association game for friends, built on Codenames-style rules. Enter your name to create a room from the main page or join through an invite link, then play Red or Blue on phones or desktops without accounts. Sharing uses invite links; there is no separate Join path or manual code entry.
 
-Codememes mixes 72 classic and recent meme references, each with a sourced local image or GIF, on a physical card-game board. GIFs animate directly on the board; tap or click selects a card before a deliberate Reveal. Spymaster cards use padded identity-colored backgrounds and dark uppercase name strips without identity icons; unguessed operative cards match neutral faces. Guessed cards show distinct meme-character covers on the supplied Codenames backdrops: eight per team plus a ninth double agent in both colors, seven neutrals and one assassin. Each dealt cover stays fixed, with no repeated design within its identity. The pale background uses sourced Trollface, Forever Alone, Okay Guy, Me Gusta and Yao Ming SVGs with a soft full-height blue-left/red-right gradient and the board�s shared three-shade red/blue palette. [PRODUCT.md](docs/PRODUCT.md), [DESIGN.md](docs/DESIGN.md), and the [deck contract](docs/MEME-DECK.md) record the behavior. Named player pieces can be dragged from anywhere on their tags, with centered six-dot grips, server-owned acceptance and occupied-spymaster rejection. The host can Randomize connected players into balanced teams and roles beside Start; there is no placement menu. The latest direct edits have no new validation evidence, at the user's request.
+Codememes mixes 72 classic and recent meme references with local images/GIFs on a charcoal card-game table. The active team tints the playfield. Responsive boards use five, four or two columns; deliberate confirmation reveals the selected card. Each identity pile previews the exact next cover, and accepted reveals draw from that shuffled pile. Team setup uses draggable player tags and host randomization. [PRODUCT.md](docs/PRODUCT.md), [DESIGN.md](docs/DESIGN.md) and the [deck contract](docs/MEME-DECK.md) record the current behavior.
 
 ## Current state
 
@@ -52,7 +52,7 @@ Inspect the installation with `npx --yes skills list`. On Windows, load project 
 
 Read the skill before invoking other commands. DESIGN and its [.impeccable/design.json](.impeccable/design.json) sidecar record the implemented tabletop and accessible lobby arrangement. [Shipping art provenance](docs/assets/shipping-art.json) records the existing token prompts and sourced background SVG credits. Obsolete reference sheets, media, previews and generation code were removed; no deployed rooms require compatibility assets. Fonts and OFL licenses are self-hosted. A design hook is not configured.
 
-The repository and main directory are named `codememes`. The existing local Worker configuration and lifecycle bundle still use the internal identifier `codenames`; changing a repository name does not migrate a runtime service or room data. No service has been deployed.
+The repository, main directory and Worker are named `codememes`. [DEPLOYMENT.md](docs/DEPLOYMENT.md) records the Cloudflare target, release commands, recovery procedure and evidence boundaries.
 
 ## Validation
 

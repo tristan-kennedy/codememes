@@ -6,7 +6,7 @@ import { readFile } from "node:fs/promises";
 // Test-only RPC methods and failure injection never enter the app bundle.
 const require = createRequire(import.meta.resolve("wrangler"));
 const { Miniflare } = require("miniflare");
-const bundle = await readFile("dist/codenames/index.js", "utf8");
+const bundle = await readFile("dist/codememes/index.js", "utf8");
 const harness = `
 import { Room } from "./room.js";
 export class NativeRoom extends Room {
