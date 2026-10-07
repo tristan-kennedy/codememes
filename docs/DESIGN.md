@@ -250,7 +250,9 @@ For implementation produce separate full-frame landscape covers in the board's g
 
 Do not trace commercial agent portraits or recreate branded frames. Do not synthesize a "real" meme image when exact recognition matters: board memes use their curated phrase or approved source; generated art serves original covers/materials. Cover identity is independent of the meme below.
 
-An accepted reveal lays the cover over the upper face in a 180ms downward settle with `cubic-bezier(0.16, 1, 0.3, 1)`. Cover the recognition strip so only the picture token remains. Counts/identity change only on server acceptance, never while pending. Reduced motion makes placement immediate with the same concise announcement.
+An accepted reveal flies the matching cover from its pile to the board in a 560ms placement with `cubic-bezier(0.16, 1, 0.3, 1)`. Keep the board's cover hidden until that flight settles, then cover the entire meme and recognition strip. The underlying face retains its geometry throughout. Counts/identity change only on server acceptance, never while pending. Scrolling, resizing or switching to reduced motion cancels the flight and settles the cover immediately; reduced motion starts with immediate placement and the same concise announcement.
+
+Click/tap or Enter/Space on a played card peeks underneath by lifting its cover out of the face over 240ms, with a 180ms fade. The original meme and recognition name stay on the board. A second activation, Escape, focus leaving the card, or a round/perspective change replaces the cover. Only one card peeks at a time; peeking is local and never selects or reveals another card. It remains available to every viewer and on the final board. Reduced motion switches covers immediately.
 
 ### Controls, state, and endings
 

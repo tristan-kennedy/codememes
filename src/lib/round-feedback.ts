@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { CardIdentity, RoomView, Team } from "../shared/protocol";
 
 export interface RevealFeedback {
@@ -147,11 +147,16 @@ export function useRoundFeedback(view: RoomView | null) {
     },
     [],
   );
-  useEffect(() => {
+  // Publish accepted reveal feedback before paint so the board can hand its cover
+  // to the flight without briefly displaying a second, already-placed copy.
+  useLayoutEffect(() => {
     const next = revealFeedback(previous.current, view);
-    const changedRound = previous.current?.roundId !== view?.roundId;
+    const changedPerspective =
+      previous.current?.code !== view?.code ||
+      previous.current?.roundId !== view?.roundId ||
+      previous.current?.selfId !== view?.selfId;
     previous.current = view;
-    if (changedRound) setFeedback(null);
+    if (changedPerspective) setFeedback(null);
     if (!next) return;
     setFeedback(next);
     if (soundEnabled && !document.hidden && audio.current?.state === "running") {

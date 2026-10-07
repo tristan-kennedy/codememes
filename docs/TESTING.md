@@ -4,6 +4,14 @@ The October 5 background/color pass was browser-verified at the user's request, 
 
 The repository implements entry, synchronized lobbies, complete rounds, same-group subsequent rounds, recovery, and expiry with local Workers emulation. Deployment remains future work. Automated tests are optional tools; there is no suite or coverage target. The focused checks below verify security and persistence boundaries that are difficult to establish through UI inspection alone.
 
+## October 6 cover placement and peeking
+
+Local solo-room checks at 1280px desktop and 320px/390px phone widths confirmed that the matching pile cover flies alone: a Blue reveal displayed `cover-place` on `blue-3.png` while the board copy's computed visibility was `hidden`, then left one visible settled cover and no flight. A second phone reveal likewise hid its board cover; resizing during flight removed the overlay and immediately restored the accepted cover. Red covers also matched their preceding pile previews. Existing board geometry remained approximately 234×156px at 1280px and 136×90px at 320px, with the face filling the entire piece. Phone client/scroll widths matched at 305/305px and 375/375px respectively.
+
+Pointer activation and Enter/Space on played cards exposed the original meme and name, with the expanded state and underlying media available to accessibility APIs. A second activation, Escape and Tab/focus departure replaced the cover; switching cards kept only one peek open. Spymaster and final-board peeks worked. The final Assassin peek preserved the winner announcement and every remaining pile count. Desktop and phone captures showed the original faces beside resting full-frame covers. Reduced-motion placement/peek, round/perspective cleanup, offscreen fallback and timeout/error cancellation were source-reviewed; browser preference emulation, physical touch and assistive-technology hardware were not exercised.
+
+Changed-file formatting, lint and type checks and all 22 focused game tests passed. The retained mechanical-detector findings were established token/type advisories. Independent read-only review and the local commit are recorded in the direct-request completion report. No production build, renewed multiplayer/persistence checks, push, PR or deployment was performed for this UI follow-up.
+
 ## October 6 header controls and dropdowns
 
 Local solo-room browser checks confirmed Replay is absent during play and for an ended non-host perspective, appears beside Sound for the ended host, and returns to team setup with Enter. Both controls measured 48×48px. Pointer Mute and keyboard Enable updated the stable Game sounds toggle's pressed state and action title. The actual hover animation reported `sound-bop`; its finite 360ms bounce and press squash are guarded by reduced motion. Ended desktop (1280px) and phone (320px) captures showed both icons fitting the winner header.

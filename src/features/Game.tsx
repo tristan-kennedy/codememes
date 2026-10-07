@@ -56,6 +56,7 @@ export function Game({
   onToggleSound: () => void;
 }) {
   const [selected, setSelected] = useState<number | null>(null);
+  const [peeked, setPeeked] = useState<number | null>(null);
   const [word, setWord] = useState("");
   const [number, setNumber] = useState("1");
   const [error, setError] = useState("");
@@ -80,11 +81,17 @@ export function Game({
       container.style.removeProperty("--clue-clearance");
     };
   }, [hasClueBar]);
-  const [flight, setFlight] = useState<{ id: string; src: string; style: CSSProperties } | null>(
-    null,
-  );
+  const [flight, setFlight] = useState<{
+    id: string;
+    index: number;
+    src: string;
+    style: CSSProperties;
+  } | null>(null);
+  const activeFlight = flight?.id === feedback?.id ? flight : null;
   useLayoutEffect(() => {
-    if (!feedback || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    setFlight(null);
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (!feedback || motion.matches) return;
     const source = game.current?.querySelector(`[data-pile="${feedback.identity}"] .rack-cover`);
     const target = cardButtons.current[feedback.index];
     if (!source || !target) return;
@@ -99,6 +106,7 @@ export function Game({
       return;
     setFlight({
       id: feedback.id,
+      index: feedback.index,
       src: `/art/covers/${feedback.identity}-${feedback.coverVariant}.png`,
       style: {
         left: to.left,
@@ -111,16 +119,21 @@ export function Game({
         "--flight-scale-y": from.height / to.height,
       } as CSSProperties,
     });
-    const cancel = () => setFlight(null);
+    const cancel = () => setFlight((current) => (current?.id === feedback.id ? null : current));
     window.addEventListener("scroll", cancel, true);
     window.addEventListener("resize", cancel);
+    motion.addEventListener("change", cancel);
     const timeout = window.setTimeout(cancel, 650);
     return () => {
       window.clearTimeout(timeout);
       window.removeEventListener("scroll", cancel, true);
       window.removeEventListener("resize", cancel);
+      motion.removeEventListener("change", cancel);
     };
   }, [feedback]);
+  useLayoutEffect(() => {
+    setPeeked(null);
+  }, [view.roundId, view.selfId]);
   useEffect(() => {
     heading.current?.focus();
     setWord("");
@@ -158,6 +171,9 @@ export function Game({
       data-active-team={ended ? undefined : round.activeTeam}
       data-background-team={ended ? round.outcome!.winner : round.activeTeam}
       aria-labelledby="game-heading"
+      onKeyDown={(event) => {
+        if (event.key === "Escape") setPeeked(null);
+      }}
     >
       <p className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
         {announcement}
@@ -332,21 +348,41 @@ export function Game({
           {round.cards.map((card, index) => (
             <article
               key={`${view.roundId}-${index}`}
-              className={`meme-card key-card key-${card.identity ?? "neutral"} ${card.revealed ? "revealed-card" : ""} ${selected === index ? "selected-card" : ""} ${feedback?.index === index ? "cover-landing" : ""}`}
+              className={`meme-card key-card key-${card.identity ?? "neutral"} ${card.revealed ? "revealed-card" : ""} ${selected === index ? "selected-card" : ""} ${activeFlight?.index === index ? "cover-in-flight" : ""} ${peeked === index ? "peeked-card" : ""}`}
             >
               <button
                 className="card-face"
                 ref={(element) => {
                   cardButtons.current[index] = element;
                 }}
-                aria-label={`${card.content.name}${card.identity ? `, ${identityName(card.identity)}` : ""}${card.revealed ? ", revealed" : ""}${view.controls.reveal && !card.revealed ? ". Select card" : ""}`}
-                aria-pressed={selected === index}
-                aria-disabled={!usable || !view.controls.reveal || card.revealed}
+                aria-label={`${card.content.name}${card.identity ? `, ${identityName(card.identity)}` : ""}${card.revealed ? `, revealed. ${peeked === index ? "Replace cover" : "Peek underneath"}` : view.controls.reveal ? ". Select card" : ""}`}
+                aria-pressed={card.revealed ? undefined : selected === index}
+                aria-expanded={card.revealed ? peeked === index : undefined}
+                aria-disabled={
+                  card.revealed ? activeFlight?.index === index : !usable || !view.controls.reveal
+                }
+                title={
+                  card.revealed
+                    ? peeked === index
+                      ? "Replace cover"
+                      : "Peek underneath"
+                    : undefined
+                }
                 onClick={() => {
-                  if (view.controls.reveal && usable && !card.revealed) setSelected(index);
+                  if (card.revealed) {
+                    if (activeFlight?.index !== index)
+                      setPeeked((current) => (current === index ? null : index));
+                  } else if (view.controls.reveal && usable) {
+                    setPeeked(null);
+                    setSelected(index);
+                  }
                 }}
+                onBlur={() => setPeeked((current) => (current === index ? null : current))}
               >
-                <CardMedia content={card.content} />
+                <span className="card-underlay" aria-hidden={card.revealed && peeked !== index}>
+                  <CardMedia content={card.content} />
+                  <span className="card-name">{card.content.name}</span>
+                </span>
                 {card.revealed && card.identity && (
                   <img
                     className="identity-cover"
@@ -354,7 +390,6 @@ export function Game({
                     alt=""
                   />
                 )}
-                <span className="card-name">{card.content.name}</span>
               </button>
               {selected === index && view.controls.reveal && !card.revealed && !ended && (
                 <button
@@ -374,15 +409,18 @@ export function Game({
           ))}
         </div>
       </div>
-      {flight && (
+      {activeFlight && (
         <img
-          key={flight.id}
+          key={activeFlight.id}
           className="cover-flight"
-          src={flight.src}
+          src={activeFlight.src}
           alt=""
           aria-hidden="true"
-          style={flight.style}
-          onAnimationEnd={() => setFlight(null)}
+          style={activeFlight.style}
+          onAnimationEnd={() =>
+            setFlight((current) => (current?.id === activeFlight.id ? null : current))
+          }
+          onError={() => setFlight((current) => (current?.id === activeFlight.id ? null : current))}
         />
       )}
       {ended && feedback?.result && (
