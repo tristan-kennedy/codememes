@@ -4,6 +4,14 @@ The October 5 background/color pass was browser-verified at the user's request, 
 
 The repository implements entry, synchronized lobbies, complete rounds, same-group subsequent rounds, recovery, and expiry with local Workers emulation. Deployment remains future work. Automated tests are optional tools; there is no suite or coverage target. The focused checks below verify security and persistence boundaries that are difficult to establish through UI inspection alone.
 
+## October 6 hinged peeking and card hover
+
+The follow-up replaces the slide/fade peek with an opaque cover that hinges at its top edge as its bottom lifts toward the viewer. Local solo-room checks at 1280px and 320px confirmed that the 82-degree cover remains partially over the board with opacity 1, while the original meme and name remain readable. Phone client/scroll widths matched at 305/305px. Pointer and Enter/Space toggled the peek; Escape restored the cover. Desktop and phone captures checked the retained cover, readable underlying face and focus outline.
+
+An unrevealed spymaster card ran the finite `card-hover` bounce without selecting anything. A played-card hover kept the peek closed and supplied the smaller cover-lift hint. An accepted reveal still kept its board copy hidden during flight, including while the pointer moved away; the resulting approximately 1px hover departure was bounded and accepted in review. Hover/focus hints exclude open peeks and in-flight covers. Touch/reduced-motion guards and immediate reduced-motion tilt were source-reviewed; physical touch, assistive-technology hardware and browser preference emulation were not exercised.
+
+CSS and documentation formatting and narrow whitespace checks passed. The detector reported one intentional bounce-easing finding, retained for the user's explicit cartoon/bounce request, and 42 design-token advisories. Independent read-only review and the local commit are recorded in the direct-request completion report. Automated tests, build and multiplayer/persistence checks were not rerun for this CSS-only behavior change. No push, PR or deployment was performed.
+
 ## October 6 cover placement and peeking
 
 Local solo-room checks at 1280px desktop and 320px/390px phone widths confirmed that the matching pile cover flies alone: a Blue reveal displayed `cover-place` on `blue-3.png` while the board copy's computed visibility was `hidden`, then left one visible settled cover and no flight. A second phone reveal likewise hid its board cover; resizing during flight removed the overlay and immediately restored the accepted cover. Red covers also matched their preceding pile previews. Existing board geometry remained approximately 234×156px at 1280px and 136×90px at 320px, with the face filling the entire piece. Phone client/scroll widths matched at 305/305px and 375/375px respectively.

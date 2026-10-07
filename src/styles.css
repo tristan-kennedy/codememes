@@ -1255,8 +1255,8 @@ select:user-invalid {
 }
 .board-scroll {
   overflow-x: auto;
-  padding: 8px;
-  margin: -8px;
+  padding: 12px;
+  margin: -12px;
 }
 .meme-board {
   display: grid;
@@ -1287,6 +1287,14 @@ select:user-invalid {
 }
 .card-face:hover:not(:disabled) {
   background: #f8d7b4;
+}
+.revealed-card .card-face {
+  perspective: 1600px;
+  perspective-origin: center top;
+  overflow: visible;
+}
+.peeked-card {
+  z-index: 4;
 }
 .card-underlay {
   display: flex;
@@ -1357,12 +1365,15 @@ select:user-invalid {
   background: var(--key-face);
   border-radius: inherit;
   pointer-events: none;
+  transform-origin: center top;
 }
 .cover-in-flight .identity-cover {
   visibility: hidden;
 }
 .peeked-card .identity-cover {
-  opacity: 0;
+  transform: rotateX(82deg);
+  filter: brightness(0.94);
+  box-shadow: 0 10px 14px rgb(27 31 44 / 0.28);
 }
 .key-red {
   --key-edge: var(--color-red-light);
@@ -1700,11 +1711,13 @@ select:user-invalid {
 @media (prefers-reduced-motion: no-preference) {
   .identity-cover {
     transition:
-      transform 240ms var(--ease-out),
-      opacity 180ms var(--ease-out);
+      transform 320ms cubic-bezier(0.22, 1.3, 0.36, 1),
+      filter 180ms var(--ease-out),
+      box-shadow 180ms var(--ease-out);
   }
-  .peeked-card .identity-cover {
-    transform: translateY(-105%) rotate(-3deg);
+  .revealed-card:not(.peeked-card):not(.cover-in-flight) .card-face:focus-visible .identity-cover {
+    transform: rotateX(26deg);
+    box-shadow: 0 6px 10px rgb(27 31 44 / 0.22);
   }
   .cover-flight {
     animation: cover-place 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -1759,6 +1772,38 @@ select:user-invalid {
     100% {
       opacity: 0;
       transform: translate(var(--drift), 65vh) rotate(var(--spin));
+    }
+  }
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .meme-card {
+    transition: box-shadow 180ms var(--ease-out);
+  }
+  .meme-card:hover {
+    z-index: 5;
+    animation: card-hover 360ms var(--ease-out) both;
+    box-shadow: 0 5px 9px rgb(27 31 44 / 0.22);
+  }
+  .revealed-card:not(.peeked-card):not(.cover-in-flight):hover .identity-cover {
+    transform: rotateX(26deg);
+    box-shadow: 0 6px 10px rgb(27 31 44 / 0.22);
+  }
+  @keyframes card-hover {
+    0% {
+      translate: 0 0;
+      scale: 1;
+    }
+    35% {
+      translate: 0 -3px;
+      scale: 1.006;
+    }
+    65% {
+      translate: 0 0.5px;
+      scale: 0.998;
+    }
+    100% {
+      translate: 0 -1px;
+      scale: 1.003;
     }
   }
 }
